@@ -57,6 +57,7 @@ h2{font-size:20px}
 .chip.on{border-color:var(--accent);background:var(--accent-soft);font-weight:600;box-shadow:inset 0 0 0 1px var(--accent)}
 .chips.two .chip{flex:1 1 calc(50% - 8px)}
 .chips.three .chip{flex:1 1 calc(33% - 8px)}
+.chips.four .chip{flex:1 1 calc(50% - 8px)}
 .chip.wide{flex:1 1 100%}
 .chip:focus-visible,.btn:focus-visible,select:focus-visible,.link:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .banner{background:var(--accent-soft);border-radius:10px;padding:10px 14px;margin-top:18px}
@@ -125,6 +126,7 @@ details li{margin:6px 0}
     <p class="sub">依宜蘭縣各公立殯葬管理所最新自治條例標準試算</p>
   </header>
 
+  <!-- 園區順序：福園 -> 壽園 -> 梅園 -> 五結蘭園 -->
   <nav class="tabs" role="tablist" aria-label="選擇納骨塔">
     <button type="button" role="tab" class="chip" id="tab-fy" data-panel="panel-fy" aria-selected="true">員山福園<small>宜蘭縣立・櫻花</small></button>
     <button type="button" role="tab" class="chip" id="tab-sy" data-panel="panel-sy" aria-selected="false">羅東壽園<small>羅東鎮立</small></button>
@@ -181,7 +183,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v8';
+const KEY = 'tower-calc-fuyuan-v11';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, type:'ash', park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -583,7 +585,7 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 2：羅東鎮壽園 ═════════ -->
+<!-- ═════════ 腳本 2：羅東鎮壽園（摘要常駐） ═════════ -->
 <script id="script-sy">
 (function(){
 'use strict';
@@ -672,10 +674,17 @@ function totals(){
   return t;
 }
 
-const KEY='tower-calc-luodong-v9';
+const KEY='tower-calc-luodong-v12';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'single',tower:'ba',grp:'lo',pre:false,rename:false,qty:1,move:false,target:null};}
-function fresh(){return {res:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'y3',months:12,qty:1,owned:null,credit:false}};}
+function fresh(){
+  return {
+    res:'county',
+    lines:[newLine()],
+    plaques:[],
+    temp:{on:false,mode:'y3',months:12,qty:1,owned:null,credit:false}
+  };
+}
 function load(){
   try{
     const s=JSON.parse(localStorage.getItem(KEY)||'null');
@@ -844,7 +853,7 @@ function descOf(l){
 }
 
 function summary(){
-  let s='【羅東壽園 塔位費用試算】\n使用者戶籍：'+RES[S.res].name+'（'+RES[S.res].sub+'）\n';
+  let s='【羅東壽園 塔位費用試算】\n使用者戶籍：'+(S.res?RES[S.res].name+'（'+RES[S.res].sub+'）':'未選取')+'\n';
   S.lines.forEach((l,i)=>{
     const r=calcLine(l), q=l.qty;
     s+='\n'+(i+1)+'. '+descOf(l)+' × '+q+' '+KINDS[l.kind].unit+'\n';
@@ -871,10 +880,12 @@ function summary(){
 
 function resultHTML(){
   let h='<section class="card"><h2><span class="n">4</span>費用總計</h2>';
-  if(!S.res) return h+'<p class="hint">選好第 1 步的戶籍後，這裡會顯示總金額。</p></section>';
-  if(!S.lines.length && !S.plaques.length && !S.temp.on) return h+'<p class="hint">還沒有加入任何項目。</p></section>';
-  const t=totals();
-  if(S.lines.length){
+  const ready = !!S.res;
+  const t = ready ? totals() : { fee:0, mgmt:0, rename:0, move:0, dFee:0, dMgmt:0, plaque:0, tempUse:0, tempMgmt:0, credit:0, all:0 };
+
+  if(!S.res){
+    h += '<p class="hint" style="color:var(--accent)">請先在步驟 1 點選戶籍資格，即可自動試算出精準金額與價級。</p>';
+  } else if(S.lines.length){
     h+=row('塔位使用費',t.fee)+row('塔位管理費',t.mgmt);
     if(t.rename) h+=row('長生位更名登記費',t.rename);
     if(t.move) h+=row('換位費',t.move);
@@ -884,11 +895,12 @@ function resultHTML(){
   if(S.plaques.length) h+=row('牌位',t.plaque);
   if(S.temp.on){ h+=row('臨時寄放使用費',t.tempUse)+row('臨時寄放管理費',t.tempMgmt); }
   if(t.credit) h+=row('臨時寄放使用費折抵',-t.credit);
-  h+='<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
+
+  h+='<div class="row total"><span>合計總額</span><span>'+(ready ? money(t.all) : '請先選戶籍')+'</span></div>';
   h+='<div class="q">文字摘要</div><textarea class="sum" readonly rows="14">'+esc(summary())+'</textarea>';
   h+='<div class="actions"><button type="button" class="btn" data-a="sy_copy">複製摘要</button>'
-    + '<button type="button" class="btn ghost" data-a="sy_reset">全部重來</button></div>';
-  return h+'</section>';
+    + '<button type="button" class="btn ghost" data-a="sy_reset">全部重來</button></div></section>';
+  return h;
 }
 
 function notesHTML(){
@@ -997,7 +1009,7 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 3：冬山鄉梅園 ═════════ -->
+<!-- ═════════ 腳本 3：冬山鄉梅園（四字家族排比升級） ═════════ -->
 <script id="script-my">
 (function(){
 'use strict';
@@ -1013,22 +1025,30 @@ const BOX = {
 };
 const MOVE = {personal:10000,couple:15000,urn:10000,family:30000};
 const MULT = {E:1.6,F:1,G:0.8,H:0.6};
+
 const FAM = [
-  {id:'31u',g:'a',seats:8, F:300000,label:'8 位｜60×30×140cm 上排'},
-  {id:'31d',g:'a',seats:12,F:540000,label:'12 位｜60×30×200cm 下排'},
-  {id:'32u',g:'a',seats:10,F:380000,label:'10 位｜60×30×170cm 上排'},
-  {id:'32d',g:'a',seats:10,F:460000,label:'10 位｜60×30×170cm 下排'},
-  {id:'41u',g:'b',seats:16,F:480000,label:'16 位｜60×60×140cm 上排'},
-  {id:'41d',g:'b',seats:24,F:960000,label:'24 位｜60×60×200cm 下排'},
-  {id:'42u',g:'b',seats:20,F:620000,label:'20 位｜60×60×170cm 上排'},
-  {id:'42d',g:'b',seats:20,F:820000,label:'20 位｜60×60×170cm 下排'},
-  {id:'31uh',g:'c',seats:4,F:150000,label:'4 位｜30×30×140cm 上排'},
-  {id:'31dh',g:'c',seats:6,F:270000,label:'6 位｜30×30×200cm 下排'},
-  {id:'32uh',g:'c',seats:5,F:190000,label:'5 位｜30×30×170cm 上排'},
-  {id:'32dh',g:'c',seats:5,F:230000,label:'5 位｜30×30×170cm 下排'}
+  {id:'31uh', cat:'small', seats:4, F:150000, label:'4 位（精巧半櫃）'},
+  {id:'32uh', cat:'small', seats:5, F:190000, label:'5 位（半櫃上排）'},
+  {id:'31dh', cat:'small', seats:6, F:270000, label:'6 位（半櫃下排）'},
+  {id:'31u',  cat:'mid',   seats:8, F:300000, label:'8 位（標準上排好高度）'},
+  {id:'32u',  cat:'mid',   seats:10,F:380000, label:'10 位（上排）'},
+  {id:'32d',  cat:'mid',   seats:10,F:460000, label:'10 位（下排）'},
+  {id:'31d',  cat:'large', seats:12,F:540000, label:'12 位（標準下排大容量）'},
+  {id:'41u',  cat:'huge',  seats:16,F:480000, label:'16 位（加深型上排）'},
+  {id:'42u',  cat:'huge',  seats:20,F:620000, label:'20 位（加深型上排）'},
+  {id:'42d',  cat:'huge',  seats:20,F:820000, label:'20 位（加深型下排）'},
+  {id:'41d',  cat:'huge',  seats:24,F:960000, label:'24 位（加深型大容量）'}
 ];
-const FAM_G = {a:'60×30 系列（表3-1、3-2）',b:'60×60 系列（表4-1、4-2）',c:'半櫃 30×30（整櫃規費÷2）'};
-const famOf = id => FAM.find(f=>f.id===id) || FAM[0];
+
+// 工整四字分類命名
+const FAM_CATS = {
+  small: { name: '小型精巧（4～6 位）', sub: '精巧實惠、小家庭首選' },
+  mid:   { name: '中型標準（8～10 位）', sub: '熱門首選、祭拜平視好高度' },
+  large: { name: '大型家族（12 位）', sub: '三代合葬、完整容量' },
+  huge:  { name: '宗族大櫃（16～24 位）', sub: '加深型雙排大櫃、宗族合葬' }
+};
+
+const famOf = id => FAM.find(f=>f.id===id) || FAM[3];
 const famFee = (id,t) => Math.round(famOf(id).F * MULT[t]);
 const famMgmt = id => famOf(id).seats * 10000;
 
@@ -1140,9 +1160,9 @@ function totals(res){
   return t;
 }
 
-const KEY='tower-calc-dongshan-v9';
+const KEY='tower-calc-dongshan-v12';
 let nextId=1;
-function newLine(){return {id:nextId++,kind:'personal',grp:'eye',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
+function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
 function fresh(){return {res:null,yr3:null,vil:null,yl1:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'day',days:30,qty:1,owned:null}};}
 function load(){
   try{
@@ -1216,16 +1236,6 @@ function qualHTML(at){
   return h+'</section>';
 }
 
-function famSelect(id,cur,attr){
-  let h='<select data-a="'+attr+'" data-id="' + id + '" aria-label="家族櫃型">';
-  ['a','b','c'].forEach(g=>{
-    h+='<optgroup label="'+FAM_G[g]+'">';
-    FAM.filter(f=>f.g===g).forEach(f=>{h+='<option value="'+f.id+'"'+(f.id===cur?' selected':'')+'>'+f.label+(attr==='my_target'&&f.id===cur?'（同款，僅換位置）':'')+'</option>';});
-    h+='</optgroup>';
-  });
-  return h+'</select>';
-}
-
 function lineHTML(l,i,r){
   const K=KINDS[l.kind];
   let h='<div class="line"><div class="line-h"><b>項目 '+(i+1)+'</b>'
@@ -1235,8 +1245,14 @@ function lineHTML(l,i,r){
     +Object.keys(KINDS).map(k=>chip(KINDS[k].name,l.kind===k,'data-a="my_kind" data-id="'+l.id+'" data-v="'+k+'"',KINDS[k].spec)).join('')+'</div>';
 
   if(l.kind==='family'){
-    h+='<div class="q">家族櫃型</div>'+famSelect(l.id,l.fam,'my_fam');
-    h+='<p class="hint">須受葬人 1 人以上。管理費每位 10,000。</p>';
+    const curCat = l.famCat || famOf(l.fam).cat;
+    h += '<div class="q">家族位規模類別</div><div class="chips four">'
+      + Object.keys(FAM_CATS).map(c => chip(FAM_CATS[c].name, curCat===c, 'data-a="my_famcat" data-id="'+l.id+'" data-v="'+c+'"', FAM_CATS[c].sub)).join('') + '</div>';
+
+    h += '<div class="q">安奉位數與位置</div><div class="chips">'
+      + FAM.filter(f => f.cat === curCat).map(f => {
+          return chip(f.label, l.fam===f.id, 'data-a="my_fam" data-id="'+l.id+'" data-v="'+f.id+'"', '標準價 '+money(f.F));
+        }).join('') + '</div>';
   }else{
     h+='<div class="q">層別</div><div class="chips two">'
       +K.grps.map(g=>chip(g[1],l.grp===g[0],'data-a="my_grp" data-id="'+l.id+'" data-v="'+g[0]+'"',g[2])).join('')+'</div>';
@@ -1261,8 +1277,10 @@ function lineHTML(l,i,r){
   h+='<div class="chips" style="margin-top:14px">'+chip('購買後要換位置',l.move,'data-a="my_move" data-id="'+l.id+'"','進堂前申請免換位費，限一次','wide')+'</div>';
   if(l.move){
     h+='<div class="q">換到</div>';
-    if(l.kind==='family') h+=famSelect(l.id,l.target||l.fam,'my_target');
-    else{
+    if(l.kind==='family'){
+      h += '<select data-a="my_target" data-id="'+l.id+'">'
+        + FAM.map(f => '<option value="'+f.id+'"'+((l.target||l.fam)===f.id?' selected':'')+'>'+f.label+'（標準價 '+money(f.F)+'）</option>').join('') + '</select>';
+    } else {
       h+='<select data-a="my_target" data-id="'+l.id+'" aria-label="換位目標">'
         +K.grps.map(g=>'<option value="'+g[0]+'"'+((l.target||l.grp)===g[0]?' selected':'')+'>'
           +(g[0]===l.grp?'同為'+g[1]+'（僅換位置）':'換到'+g[1])+'</option>').join('')+'</select>';
@@ -1297,7 +1315,7 @@ function itemsHTML(res){
 }
 
 function descOf(l){
-  if(l.kind==='family') return '家族式 '+famOf(l.fam).label;
+  if(l.kind==='family') return '家族式 ' + famOf(l.fam).label;
   const K=KINDS[l.kind], g=K.grps.find(x=>x[0]===l.grp);
   return K.name+' '+g[1]+(g[2]?'（'+g[2]+'）':'');
 }
@@ -1467,8 +1485,12 @@ function act(d){
       l.kind=d.v; l.grp=(d.v==='urn'?'hi':'eye'); l.half=false; l.move=false; l.target=null;
       if(!KINDS[d.v].decs.includes(l.dec)) l.dec='none';
       break;
-    case 'my_grp': l.grp=d.v; l.target=null; break;
+    case 'my_famcat':
+      l.famCat = d.v;
+      l.fam = FAM.find(f => f.cat === d.v).id;
+      break;
     case 'my_fam': l.fam=d.v; l.target=null; break;
+    case 'my_grp': l.grp=d.v; l.target=null; break;
     case 'my_dec': l.dec=d.v; break;
     case 'my_half': l.half=!l.half; break;
     case 'my_qty': l.qty=Math.max(1,Math.min(99,l.qty+Number(d.v))); break;
@@ -1479,7 +1501,7 @@ function act(d){
     case 'my_pdel': S.plaques=S.plaques.filter(x=>x!==pl); break;
     case 'my_psize': pl.size=d.v; break;
     case 'ppick': pl.pick=!pl.pick; break;
-    case 'pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
+    case 'my_pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
     case 'my_ton': S.temp.on=!S.temp.on; break;
     case 'my_tmode': S.temp.mode=d.v; break;
     case 'my_tdays': S.temp.days=clamp(S.temp.days+Number(d.v),1,60); break;
@@ -1534,7 +1556,7 @@ update();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v10';
+  const KEY = 'tower-calc-tab-v13';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]:not(.disabled)'));
   function show(id, scroll){
     tabs.forEach(t => {

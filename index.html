@@ -38,9 +38,16 @@ h1{font-size:26px;letter-spacing:.04em}
 h2{font-size:20px}
 .sub{color:var(--muted);margin:4px 0 0;font-size:14px}
 
-.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);display:flex;gap:6px;padding:10px 0 6px;margin-top:6px;overflow-x:auto}
-.tabs .chip{flex:1 1 auto;text-align:center;min-height:54px;font-size:16px;font-weight:600;padding:6px 10px;white-space:nowrap}
-.tabs .chip small{font-size:12px;font-weight:400}
+/* 2x2 網格頁籤，手機不再被截斷 */
+.tabs{
+  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0 6px;margin-top:6px;
+}
+.tabs .chip{
+  text-align:center;min-height:50px;font-size:16px;font-weight:600;padding:6px 8px;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+}
+.tabs .chip small{font-size:12px;font-weight:400;margin-top:2px}
 .tabs .chip.disabled{opacity:.45;cursor:not-allowed}
 .panel[hidden]{display:none}
 
@@ -126,7 +133,7 @@ details li{margin:6px 0}
     <p class="sub">依宜蘭縣各公立殯葬管理所最新自治條例標準試算</p>
   </header>
 
-  <!-- 園區順序：福園 -> 壽園 -> 梅園 -> 五結蘭園 -->
+  <!-- 2x2 排列頁籤，375px 小螢幕不再截斷 -->
   <nav class="tabs" role="tablist" aria-label="選擇納骨塔">
     <button type="button" role="tab" class="chip" id="tab-fy" data-panel="panel-fy" aria-selected="true">員山福園<small>宜蘭縣立・櫻花</small></button>
     <button type="button" role="tab" class="chip" id="tab-sy" data-panel="panel-sy" aria-selected="false">羅東壽園<small>羅東鎮立</small></button>
@@ -183,7 +190,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v11';
+const KEY = 'tower-calc-fuyuan-v13';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, type:'ash', park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -194,8 +201,8 @@ function fresh(){
 function load(){
   try{
     const s = JSON.parse(localStorage.getItem(KEY)||'null');
-    if(s && Array.isArray(s.lines)){
-      const ids = s.lines.concat(s.plaques||[]).map(x=>x.id);
+    if(s && Array.isArray(s.lines) && Array.isArray(s.plaques) && s.temp){
+      const ids = s.lines.concat(s.plaques).map(x=>x.id);
       nextId = (ids.length?Math.max.apply(null,ids):0)+1; return s;
     }
   }catch(e){}
@@ -229,7 +236,7 @@ function calcLine(l){
     } else if (l.layout === 'combo') {
       name = isAsh ? '合一雙骨灰甕（同時寄存2甕）' : '合一雙骨骸罈（同時寄存2罈）';
       baseUsage = isAsh ? 70000 : 80000;
-      mgmtFee = isAsh ? 14000 : 17500;
+      mgmtFee = isAsh ? 28000 : 35000; // 合一雙人為兩位，校正為雙人管理費
       unitName = '座';
     } else if (l.layout === 'buddha') {
       name = '宗教區雙人位（限骨灰）';
@@ -513,7 +520,7 @@ async function doCopy(){
   if(ok) toast('已複製報價，可直接貼入 LINE');
   else {
     toast('請在文字摘要框內全選複製');
-    const sum = root.querySelector('.sum'); if(sum){ sum.scrollIntoView({block:'center'}); sum.focus(); sum.select(); }
+    const sum = root.querySelector('textarea.sum'); if(sum){ sum.scrollIntoView({block:'center'}); sum.focus(); sum.select(); }
   }
 }
 
@@ -563,8 +570,11 @@ root.addEventListener('click', e => {
   const b = e.target.closest('button[data-a]');
   if(b && b.dataset.a.startsWith('fy_')) act(b.dataset);
 });
-root.addEventListener('input', e => {
+
+// 改用 change 事件監聽，鍵盤輸入第二個字不再失焦
+root.addEventListener('change', e => {
   const inp = e.target;
+  if (!inp.dataset.a) return;
   const val = parseInt(inp.value, 10);
   if(isNaN(val) || val < 1) return;
   const a = inp.dataset.a;
@@ -585,7 +595,7 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 2：羅東鎮壽園（摘要常駐） ═════════ -->
+<!-- ═════════ 腳本 2：羅東鎮壽園 ═════════ -->
 <script id="script-sy">
 (function(){
 'use strict';
@@ -674,7 +684,7 @@ function totals(){
   return t;
 }
 
-const KEY='tower-calc-luodong-v12';
+const KEY = 'tower-calc-luodong-v13';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'single',tower:'ba',grp:'lo',pre:false,rename:false,qty:1,move:false,target:null};}
 function fresh(){
@@ -776,7 +786,7 @@ function lineHTML(l,i){
 
   if(S.res){
     const r=calcLine(l), q=r.qty;
-    h+='<div class="calc"><div class="tier">'+TOWER[r.tower]+' '+K.name+'</div>';
+    h+='<div class="calc"><div class="tier">'+TOWER[r.tower]+'　'+K.name+'</div>';
     h+=row('使用費',r.fee*q,(q>1?money(r.fee)+' × '+q+'；':'')+resNote(BASE[l.kind][l.grp],l.pre));
     h+=row('管理費',r.mgmt*q,(q>1?money(r.mgmt)+' × '+q+'；':'')+(r.tower==='ba'?'福恩塔的 60%':'福恩塔'));
     if(r.rename) h+=row('長生位更名登記費',r.rename*q);
@@ -936,7 +946,7 @@ async function doCopy(){
   if(ok) toast('已複製報價，可貼到 LINE');
   else{
     toast('無法自動複製，請在文字摘要框內全選複製');
-    const sum = root.querySelector('.sum'); if(sum){sum.scrollIntoView({block:'center'}); sum.focus(); sum.select();}
+    const sum = root.querySelector('textarea.sum'); if(sum){sum.scrollIntoView({block:'center'}); sum.focus(); sum.select();}
   }
 }
 
@@ -981,12 +991,11 @@ root.addEventListener('click',e=>{
   const b=e.target.closest('button[data-a]');
   if(b && b.dataset.a.startsWith('sy_')) act(b.dataset);
 });
-root.addEventListener('change',e=>{
-  const s=e.target;
-  if(s.matches && s.matches('select[data-a]')) act({a:s.dataset.a,id:s.dataset.id,v:s.value});
-});
-root.addEventListener('input', e => {
+
+// 改用 change 事件監聽，鍵盤輸入不再被打斷
+root.addEventListener('change', e => {
   const inp = e.target;
+  if (!inp.dataset.a) return;
   const val = parseInt(inp.value, 10);
   if (isNaN(val) || val < 1) return;
   const a = inp.dataset.a;
@@ -1009,7 +1018,7 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 3：冬山鄉梅園（四字家族排比升級） ═════════ -->
+<!-- ═════════ 腳本 3：冬山鄉梅園 ═════════ -->
 <script id="script-my">
 (function(){
 'use strict';
@@ -1026,9 +1035,11 @@ const BOX = {
 const MOVE = {personal:10000,couple:15000,urn:10000,family:30000};
 const MULT = {E:1.6,F:1,G:0.8,H:0.6};
 
+// 冬山家族式完整模型（補回 5 位半櫃下排）
 const FAM = [
-  {id:'31uh', cat:'small', seats:4, F:150000, label:'4 位（精巧半櫃）'},
+  {id:'31uh', cat:'small', seats:4, F:150000, label:'4 位（半櫃上排）'},
   {id:'32uh', cat:'small', seats:5, F:190000, label:'5 位（半櫃上排）'},
+  {id:'32dh', cat:'small', seats:5, F:230000, label:'5 位（半櫃下排）'},
   {id:'31dh', cat:'small', seats:6, F:270000, label:'6 位（半櫃下排）'},
   {id:'31u',  cat:'mid',   seats:8, F:300000, label:'8 位（標準上排好高度）'},
   {id:'32u',  cat:'mid',   seats:10,F:380000, label:'10 位（上排）'},
@@ -1040,7 +1051,7 @@ const FAM = [
   {id:'41d',  cat:'huge',  seats:24,F:960000, label:'24 位（加深型大容量）'}
 ];
 
-// 工整四字分類命名
+// 工整四字規格
 const FAM_CATS = {
   small: { name: '小型精巧（4～6 位）', sub: '精巧實惠、小家庭首選' },
   mid:   { name: '中型標準（8～10 位）', sub: '熱門首選、祭拜平視好高度' },
@@ -1048,7 +1059,7 @@ const FAM_CATS = {
   huge:  { name: '宗族大櫃（16～24 位）', sub: '加深型雙排大櫃、宗族合葬' }
 };
 
-const famOf = id => FAM.find(f=>f.id===id) || FAM[3];
+const famOf = id => FAM.find(f=>f.id===id) || FAM[4]; // 預設 8 位
 const famFee = (id,t) => Math.round(famOf(id).F * MULT[t]);
 const famMgmt = id => famOf(id).seats * 10000;
 
@@ -1160,15 +1171,15 @@ function totals(res){
   return t;
 }
 
-const KEY='tower-calc-dongshan-v12';
+const KEY = 'tower-calc-dongshan-v13';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
 function fresh(){return {res:null,yr3:null,vil:null,yl1:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'day',days:30,qty:1,owned:null}};}
 function load(){
   try{
     const s=JSON.parse(localStorage.getItem(KEY)||'null');
-    if(s && Array.isArray(s.lines)){
-      const ids=s.lines.concat(s.plaques||[]).map(x=>x.id);
+    if(s && Array.isArray(s.lines) && Array.isArray(s.plaques) && s.temp){
+      const ids=s.lines.concat(s.plaques).map(x=>x.id);
       nextId=(ids.length?Math.max.apply(null,ids):0)+1; return s;
     }
   }catch(e){}
@@ -1462,13 +1473,14 @@ async function doCopy(){
       document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove();
     }catch(e2){}
   }
-  if(ok) toast('已複製報價，可貼到 LINE');
+  if(ok) toast('已複製，可貼到 LINE');
   else{
     toast('無法自動複製，請在文字摘要框內全選複製');
-    const sum = root.querySelector('.sum'); if(sum){ sum.scrollIntoView({block:'center'}); sum.focus(); sum.select(); }
+    const sum = root.querySelector('textarea.sum'); if(sum){ sum.scrollIntoView({block:'center'}); sum.focus(); sum.select(); }
   }
 }
 
+// 修正 1：補齊 my_ppick 與 my_towned 前綴
 function act(d){
   const l = d.id ? S.lines.find(x=>String(x.id)===String(d.id)) : null;
   const pl = d.id ? S.plaques.find(x=>String(x.id)===String(d.id)) : null;
@@ -1500,13 +1512,13 @@ function act(d){
     case 'my_padd': S.plaques.push({id:nextId++,size:'s',pick:false,qty:1}); break;
     case 'my_pdel': S.plaques=S.plaques.filter(x=>x!==pl); break;
     case 'my_psize': pl.size=d.v; break;
-    case 'ppick': pl.pick=!pl.pick; break;
+    case 'my_ppick': pl.pick=!pl.pick; break; // 修復 my_ppick
     case 'my_pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
     case 'my_ton': S.temp.on=!S.temp.on; break;
     case 'my_tmode': S.temp.mode=d.v; break;
     case 'my_tdays': S.temp.days=clamp(S.temp.days+Number(d.v),1,60); break;
     case 'my_tset': S.temp.days=Number(d.v); break;
-    case 'towned': S.temp.owned=(d.v==='1'); break;
+    case 'my_towned': S.temp.owned=(d.v==='1'); break; // 修復 my_towned
     case 'my_tqty': S.temp.qty=clamp(S.temp.qty+Number(d.v),1,99); break;
     case 'my_reset': nextId=1; S=fresh(); break;
     default: return;
@@ -1518,12 +1530,11 @@ root.addEventListener('click',e=>{
   const b=e.target.closest('button[data-a]');
   if(b && b.dataset.a.startsWith('my_')) act(b.dataset);
 });
-root.addEventListener('change',e=>{
-  const s=e.target;
-  if(s.matches && s.matches('select[data-a]')) act({a:s.dataset.a,id:s.dataset.id,v:s.value});
-});
-root.addEventListener('input', e => {
+
+// 改用 change 事件監聽，鍵盤輸入不再被打斷
+root.addEventListener('change', e => {
   const inp = e.target;
+  if (!inp.dataset.a) return;
   const val = parseInt(inp.value, 10);
   if (isNaN(val) || val < 1) return;
   const a = inp.dataset.a;
@@ -1556,7 +1567,7 @@ update();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v13';
+  const KEY = 'tower-calc-tab-v14';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]:not(.disabled)'));
   function show(id, scroll){
     tabs.forEach(t => {

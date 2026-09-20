@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>塔位費用計算器｜梅園、壽園</title>
+<title>宜蘭公立塔位費用計算器｜福園・壽園・梅園</title>
 <style>
 :root{
   box-sizing:border-box;
@@ -34,9 +34,16 @@ body{
 }
 .wrap{max-width:640px;margin:0 auto;padding:18px 16px 8px}
 h1,h2{font-family:"Noto Serif TC","Songti TC","Source Han Serif TC","PMingLiU",serif;margin:0;line-height:1.35}
-h1{font-size:28px;letter-spacing:.04em}
+h1{font-size:26px;letter-spacing:.04em}
 h2{font-size:20px}
-.sub{color:var(--muted);margin:6px 0 0;font-size:15px}
+.sub{color:var(--muted);margin:4px 0 0;font-size:14px}
+
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);display:flex;gap:6px;padding:10px 0 6px;margin-top:6px;overflow-x:auto}
+.tabs .chip{flex:1 1 auto;text-align:center;min-height:54px;font-size:16px;font-weight:600;padding:6px 10px;white-space:nowrap}
+.tabs .chip small{font-size:12px;font-weight:400}
+.tabs .chip.disabled{opacity:.45;cursor:not-allowed}
+.panel[hidden]{display:none}
+
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 16px;margin:16px 0}
 .card h2 .n{color:var(--accent);margin-right:6px}
 .q{font-weight:600;margin:18px 0 8px}
@@ -95,7 +102,7 @@ summary{cursor:pointer;min-height:48px;display:flex;align-items:center;font-weig
 details ul{margin:4px 0 0;padding-left:20px;color:var(--muted);font-size:15px}
 details li{margin:6px 0}
 .bar{
-  position:fixed;left:0;right:0;bottom:0;z-index:10;background:var(--card);border-top:1px solid var(--line);
+  position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);
   padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));
 }
 .bar-in{max-width:640px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -104,254 +111,98 @@ details li{margin:6px 0}
 .toast{
   position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
   background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:15px;
-  opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90%
+  opacity:0;pointer-events:none;transition:opacity .2s;z-index:30;max-width:90%
 }
 .toast.show{opacity:1}
 @media (prefers-reduced-motion: reduce){.toast{transition:none}}
-
-.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:6;background:var(--bg);display:flex;gap:8px;padding:10px 0;margin-top:4px}
-.tabs .chip{flex:1 1 50%;text-align:center;min-height:58px;font-size:19px;font-weight:600}
-.tabs .chip small{font-size:13px}
-.panel[hidden]{display:none}
-.panel > .sub{margin:4px 0 0}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <h1>塔位費用計算器</h1>
-    <p class="sub">梅園（冬山鄉立）與壽園（羅東鎮立），依各館收費標準試算</p>
+    <h1>宜蘭公立塔位費用計算器</h1>
+    <p class="sub">依宜蘭縣各公立殯葬管理所最新自治條例標準試算</p>
   </header>
+
   <nav class="tabs" role="tablist" aria-label="選擇納骨塔">
-    <button type="button" role="tab" class="chip" id="tab-my" data-panel="panel-my" aria-selected="true">梅園<small>冬山鄉立</small></button>
-    <button type="button" role="tab" class="chip" id="tab-sy" data-panel="panel-sy" aria-selected="false">壽園<small>羅東鎮立</small></button>
+    <button type="button" role="tab" class="chip" id="tab-fy" data-panel="panel-fy" aria-selected="true">員山福園<small>宜蘭縣立・櫻花</small></button>
+    <button type="button" role="tab" class="chip" id="tab-sy" data-panel="panel-sy" aria-selected="false">羅東壽園<small>羅東鎮立</small></button>
+    <button type="button" role="tab" class="chip" id="tab-my" data-panel="panel-my" aria-selected="false">冬山梅園<small>冬山鄉立</small></button>
+    <button type="button" role="tab" class="chip disabled" id="tab-wj" title="五結鄉立第二納骨堂興建中，落成公告後開放" disabled>五結鄉立<small>規劃籌建中</small></button>
   </nav>
 
-  <section class="panel" id="panel-my" role="tabpanel" aria-labelledby="tab-my">
-    <p class="sub">冬山鄉立殯葬管理所，依收費標準（109.2.1 版）試算</p>
-    <main class="app"></main>
+  <!-- 面板 1：員山福園與櫻花陵園 -->
+  <section class="panel" id="panel-fy" role="tabpanel" aria-labelledby="tab-fy">
+    <p class="sub">宜蘭縣立殯葬管理所（員山福園本館、礁溪櫻花陵園）收費標準試算</p>
+    <main id="app-fy-container"></main>
     <div class="bar">
       <div class="bar-in">
-        <div><div class="lbl">預估總額</div><div class="amt">請先填資格</div></div>
-        <button type="button" class="btn" data-a="copy">複製摘要</button>
+        <div><div class="lbl">員山福園 預估總額</div><div class="amt" id="amt-fy">請先選設籍</div></div>
+        <button type="button" class="btn" data-a="fy_copy">複製摘要</button>
       </div>
     </div>
-    <div class="toast" role="status" aria-live="polite"></div>
+    <div class="toast" id="toast-fy" role="status" aria-live="polite"></div>
   </section>
 
+  <!-- 面板 2：羅東壽園 -->
   <section class="panel" id="panel-sy" role="tabpanel" aria-labelledby="tab-sy" hidden>
-    <p class="sub">羅東鎮立殯葬管理所（壽園寶塔、福恩塔），依 115 年 6 月修訂收費標準試算</p>
-    <main class="app"></main>
+    <p class="sub">羅東鎮立殯葬管理所（壽園寶塔、福恩塔），依 115.7.16 修訂標準試算</p>
+    <main id="app-sy-container"></main>
     <div class="bar">
       <div class="bar-in">
-        <div><div class="lbl">預估總額</div><div class="amt">請先選戶籍</div></div>
-        <button type="button" class="btn" data-a="copy">複製摘要</button>
+        <div><div class="lbl">羅東壽園 預估總額</div><div class="amt" id="amt-sy">請先選戶籍</div></div>
+        <button type="button" class="btn" data-a="sy_copy">複製摘要</button>
       </div>
     </div>
-    <div class="toast" role="status" aria-live="polite"></div>
+    <div class="toast" id="toast-sy" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- 面板 3：冬山梅園 -->
+  <section class="panel" id="panel-my" role="tabpanel" aria-labelledby="tab-my" hidden>
+    <p class="sub">冬山鄉立殯葬管理所，依收費標準（109.2.1 版）試算</p>
+    <main id="app-my-container"></main>
+    <div class="bar">
+      <div class="bar-in">
+        <div><div class="lbl">冬山梅園 預估總額</div><div class="amt" id="amt-my">請先填資格</div></div>
+        <button type="button" class="btn" data-a="my_copy">複製摘要</button>
+      </div>
+    </div>
+    <div class="toast" id="toast-my" role="status" aria-live="polite"></div>
   </section>
 </div>
 
-<script id="app-my">
+<!-- ═════════ 腳本 1：員山福園／櫻花陵園 ═════════ -->
+<script id="script-fy">
 (function(){
 'use strict';
-
-/* ───────── 價目資料（冬山鄉立殯葬管理所 收費標準 109.2.1）───────── */
-const BOX = {
-  personal_flat:{A:20000,D:16000,M:28000,B:40000,C:60000,mgmt:15000,
-    R:{fee:0,mgmt:14000,deco:2000},L:{fee:0,mgmt:0,deco:0},W:{fee:0,mgmt:14000,deco:0}},
-  personal_eye:{A:25000,D:20000,M:35000,B:50000,C:80000,mgmt:15000,
-    R:{fee:5000,mgmt:14000,deco:2000},L:{fee:5000,mgmt:0,deco:0},W:{fee:5000,mgmt:14000,deco:0}},
-  couple_flat:{A:36000,D:28800,M:50400,B:72000,C:120000,mgmt:15000},
-  couple_eye:{A:50000,D:40000,M:70000,B:100000,C:160000,mgmt:15000},
-  urn_hi:{A:40000,D:32000,M:56000,B:80000,C:120000,mgmt:18500,R:{fee:24000,mgmt:17500,deco:4000}},
-  urn_lo:{A:36000,D:28800,M:50400,B:72000,C:110000,mgmt:18500,R:{fee:20000,mgmt:17500,deco:4000}}
-};
-const MOVE = {personal:10000,couple:15000,urn:10000,family:30000};
-
-const MULT = {E:1.6,F:1,G:0.8,H:0.6};
-const FAM = [
-  {id:'31u',g:'a',seats:8, F:300000,label:'8 位｜60×30×140cm 上排'},
-  {id:'31d',g:'a',seats:12,F:540000,label:'12 位｜60×30×200cm 下排'},
-  {id:'32u',g:'a',seats:10,F:380000,label:'10 位｜60×30×170cm 上排'},
-  {id:'32d',g:'a',seats:10,F:460000,label:'10 位｜60×30×170cm 下排'},
-  {id:'41u',g:'b',seats:16,F:480000,label:'16 位｜60×60×140cm 上排'},
-  {id:'41d',g:'b',seats:24,F:960000,label:'24 位｜60×60×200cm 下排'},
-  {id:'42u',g:'b',seats:20,F:620000,label:'20 位｜60×60×170cm 上排'},
-  {id:'42d',g:'b',seats:20,F:820000,label:'20 位｜60×60×170cm 下排'},
-  {id:'31uh',g:'c',seats:4,F:150000,label:'4 位｜30×30×140cm 上排'},
-  {id:'31dh',g:'c',seats:6,F:270000,label:'6 位｜30×30×200cm 下排'},
-  {id:'32uh',g:'c',seats:5,F:190000,label:'5 位｜30×30×170cm 上排'},
-  {id:'32dh',g:'c',seats:5,F:230000,label:'5 位｜30×30×170cm 下排'}
-];
-const FAM_G = {a:'60×30 系列（表3-1、3-2）',b:'60×60 系列（表4-1、4-2）',c:'半櫃 30×30（整櫃規費÷2）'};
-const famOf = id => FAM.find(f=>f.id===id) || FAM[0];
-const famFee = (id,t) => Math.round(famOf(id).F * MULT[t]);
-const famMgmt = id => famOf(id).seats * 10000;
-
-// 【修改】受葬人狀況擴充亡者本人戶籍選項（本鄉籍、三村村民）
-const KINDS = {
-  personal:{name:'個人式',spec:'30×30×30cm',unit:'座',decs:['none','vil','ds','M','R','L','W'],
-    grps:[['eye','平視層','3、5–8 層'],['flat','非平視層','1、2、9–12 層']]},
-  couple:{name:'夫妻式',spec:'60×30×30cm',unit:'座（2 位）',decs:['none','vil','ds','M'],
-    grps:[['eye','平視層','3、5–8 層'],['flat','非平視層','1、2、9–12 層']]},
-  urn:{name:'儲骨櫃',spec:'42×69×42cm',unit:'座',decs:['none','vil','ds','M','R'],
-    grps:[['hi','第 1–3 層',''],['lo','第 5–6 層','']]},
-  family:{name:'家族式',spec:'4–24 位',unit:'櫃',decs:['none','ds','M','R'],grps:null}
+const FY_PLAQUE = {
+  small: { name:'小型牌位（10.8×20cm）', fee:30000 },
+  large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const DEC = {
-  none:'一般（無身分優惠）',
-  vil:'亡者設籍鹿埔／得安／廣興村（滿3年）',
-  ds:'亡者設籍冬山鄉（滿3年或曾滿6年）',
-  M:'葬於本鄉公墓內起掘',
-  R:'葬於公告遷葬區',
-  L:'低收入戶死亡者',
-  W:'本鄉民因公作戰、演習死亡'
-};
-
-const AT_LABEL = {
-  A:'本鄉籍，堂位 5 折',
-  D:'鹿埔／得安／廣興村，堂位 4 折',
-  B:'宜蘭縣民標準價',
-  C:'外縣市價',
-  M:'葬於本鄉公墓內，堂位 7 折',
-  R:'葬於公告遷葬區',
-  L:'低收入戶死亡者',
-  W:'因公作戰、演習死亡者'
-};
-const FT_LABEL = {E:'外縣市價（標準價×1.6）',F:'宜蘭縣民標準價',G:'葬於本鄉公墓內，8 折',H:'本鄉籍或遷葬區，6 折'};
-const RES_LABEL = {ds:'冬山鄉',yl:'宜蘭縣其他鄉鎮市',ot:'外縣市'};
-
-/* ───────── 計算 ───────── */
-
-function feeOf(key,tier){
-  const p = BOX[key];
-  return ['A','D','B','C','M'].includes(tier) ? p[tier] : p[tier].fee;
+const KEY = 'tower-calc-fuyuan-v4';
+let nextId = 1;
+function newLine(){ 
+  return { id:nextId++, type:'ash', park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
 }
-
-function calcBox(l,at){
-  const p = BOX[l.kind+'_'+l.grp];
-  const c = [{tier:at,fee:p[at],mgmt:p.mgmt,deco:0}];
-
-  // 【修改】將亡者（受葬人）之鄉民與村民優惠加入比較，自動取最低
-  if(l.dec==='vil') c.push({tier:'D',fee:p.D,mgmt:p.mgmt,deco:0});
-  if(l.dec==='ds')  c.push({tier:'A',fee:p.A,mgmt:p.mgmt,deco:0});
-  if(l.dec==='M')   c.push({tier:'M',fee:p.M,mgmt:p.mgmt,deco:0});
-  if(['R','L','W'].includes(l.dec) && p[l.dec]) c.push({tier:l.dec,fee:p[l.dec].fee,mgmt:p[l.dec].mgmt,deco:p[l.dec].deco});
-
-  c.forEach(x=>x.sum=x.fee+x.mgmt+x.deco);
-  c.sort((a,b)=>a.sum-b.sum);
-  const b = c[0];
-
-  let moveFee=0, diff=0;
-  if(l.move){
-    moveFee = MOVE[l.kind];
-    if(b.tier==='R' && (at==='A'||at==='D'||l.dec==='ds'||l.dec==='vil')) moveFee = 0;   // 遷葬區：本鄉籍不收換位費（限一次）
-    const tk = l.kind+'_'+(l.target||l.grp);
-    diff = Math.max(0, feeOf(tk,b.tier) - b.fee);
-  }
-  return finish(l,b,AT_LABEL[b.tier],moveFee,diff, b.tier!==at);
+function fresh(){ 
+  return { res:'yilan', lines:[newLine()], plaques:[], temp:{ on:false, type:'ash', qty:1 } }; 
 }
-
-function calcFam(l,at){
-  const base = {A:'H',D:'H',B:'F',C:'E'}[at];
-  const tiers = [base];
-  if(l.dec==='ds') tiers.push('H'); // 亡者為本鄉籍，家族式享6折
-  if(l.dec==='M') tiers.push('G');
-  if(l.dec==='R') tiers.push('H');
-  if(l.half) tiers.push('H');
-  let best=null;
-  tiers.forEach(t=>{const f=famFee(l.fam,t); if(!best||f<best.fee) best={tier:t,fee:f};});
-  const b = {tier:best.tier,fee:best.fee,mgmt:famMgmt(l.fam),deco:0};
-  let moveFee=0, diff=0;
-  if(l.move){
-    moveFee = MOVE.family;
-    diff = Math.max(0, famFee(l.target||l.fam,b.tier) - b.fee);
-  }
-  return finish(l,b,FT_LABEL[b.tier],moveFee,diff, b.tier!==base);
-}
-
-function finish(l,b,label,moveFee,diff,better){
-  const unit = b.fee+b.mgmt+b.deco+moveFee+diff;
-  return {tier:b.tier,tierLabel:label,fee:b.fee,mgmt:b.mgmt,deco:b.deco,moveFee,diff,qty:l.qty,unit,sub:unit*l.qty,better};
-}
-
-const calc = (l,at) => l.kind==='family' ? calcFam(l,at) : calcBox(l,at);
-
-const PLAQUE = {s:{name:'小型',spec:'9×23×3.5cm',price:30000},l:{name:'大型',spec:'16×23×6cm',price:50000}};
-function calcPlaque(p){
-  const base=PLAQUE[p.size].price, pick=p.pick?Math.round(base*0.1):0;
-  return {base,pick,qty:p.qty,unit:base+pick,sub:(base+pick)*p.qty};
-}
-function tempOwned(){return S.temp.owned===null ? S.lines.length>0 : S.temp.owned;}
-function calcTemp(){
-  const t=S.temp; if(!t.on) return null;
-  let unit,label,note='';
-  if(t.mode==='half'){unit=3000;label='臨時寄存半年期優惠';}
-  else if(t.mode==='year'){unit=6000;label='臨時寄存一年期優惠';}
-  else{
-    const free=tempOwned()?30:0, pay=Math.max(0,t.days-free);
-    unit=pay*200;
-    label='按日計費 '+t.days+' 天';
-    note=free?('已購置存放設施，前 30 天免收；計費 '+pay+' 天 × 200'):'每日 200 元';
-  }
-  return {label,note,unit,qty:t.qty,sub:unit*t.qty};
-}
-
-function totals(res){
-  const t={fee:0,mgmt:0,deco:0,move:0,diff:0,plaque:0,temp:0,all:0};
-  res.forEach(r=>{ if(!r) return;
-    t.fee+=r.fee*r.qty; t.mgmt+=r.mgmt*r.qty; t.deco+=r.deco*r.qty;
-    t.move+=r.moveFee*r.qty; t.diff+=r.diff*r.qty; t.all+=r.sub; });
-  S.plaques.forEach(p=>{t.plaque+=calcPlaque(p).sub;});
-  const tp=calcTemp(); if(tp) t.temp=tp.sub;
-  t.all+=t.plaque+t.temp;
-  return t;
-}
-
-/* ───────── 狀態 ───────── */
-
-const KEY='tower-calc-dongshan-v2';
-let nextId=1;
-function newLine(){return {id:nextId++,kind:'personal',grp:'eye',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
-function fresh(){return {res:null,yr3:null,vil:null,yl1:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'day',days:30,qty:1,owned:null}};}
 function load(){
   try{
-    const s=JSON.parse(localStorage.getItem(KEY)||'null');
+    const s = JSON.parse(localStorage.getItem(KEY)||'null');
     if(s && Array.isArray(s.lines)){
-      s.plaques=Array.isArray(s.plaques)?s.plaques:[];
-      s.temp=s.temp||{on:false,mode:'day',days:30,qty:1,owned:null};
-      const ids=s.lines.concat(s.plaques).map(x=>x.id);
-      nextId=(ids.length?Math.max.apply(null,ids):0)+1; return s;
+      const ids = s.lines.concat(s.plaques||[]).map(x=>x.id);
+      nextId = (ids.length?Math.max.apply(null,ids):0)+1; return s;
     }
   }catch(e){}
   return null;
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+function save(){ try{localStorage.setItem(KEY, JSON.stringify(S));}catch(e){} }
 let S = load() || fresh();
 
-function appTier(){
-  if(!S.res) return null;
-  if(S.res==='ds'){
-    if(S.yr3===true) return S.vil===null ? null : (S.vil?'D':'A');
-    if(S.yr3===false) return S.yl1===null ? null : (S.yl1?'B':'C');
-    return null;
-  }
-  if(S.res==='yl'){
-    if(S.yr3===true) return 'A';
-    if(S.yr3===false) return S.yl1===null ? null : (S.yl1?'B':'C');
-    return null;
-  }
-  if(S.yr3===true) return 'A';
-  if(S.yr3===false) return 'C';
-  return null;
-}
-
-/* ───────── 畫面 ───────── */
-
-const root = document.getElementById('panel-my');
-const $ = s => root.querySelector(s);
+const root = document.getElementById('panel-fy');
+const container = document.getElementById('app-fy-container');
 const fmt = n => n.toLocaleString('en-US');
 const money = n => 'NT$ '+fmt(n);
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -359,355 +210,378 @@ const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>
 function chip(label,on,attrs,sub,cls){
   return '<button type="button" class="chip'+(on?' on':'')+(cls?' '+cls:'')+'" aria-pressed="'+(on?'true':'false')+'" '+attrs+'>'+label+(sub?'<small>'+sub+'</small>':'')+'</button>';
 }
-function yn(field,text){
-  const v=S[field];
-  return '<div class="q">'+text+'</div><div class="chips two">'
-    +chip('是',v===true,'data-a="yn" data-f="'+field+'" data-v="1"')
-    +chip('否',v===false,'data-a="yn" data-f="'+field+'" data-v="0"')+'</div>';
-}
-
-function qualHTML(at){
-  let h='<section class="card"><h2><span class="n">1</span>申請人資格</h2>';
-  if(!S.lines.length) h+='<p class="hint">目前沒有塔位項目。只算牌位或寄放時，可以略過這一步。</p>';
-  h+='<div class="q">申請人（辦理者）的戶籍在哪裡？</div><div class="chips three">'
-    +chip('冬山鄉',S.res==='ds','data-a="res" data-v="ds"')
-    +chip('宜蘭縣其他鄉鎮市',S.res==='yl','data-a="res" data-v="yl"')
-    +chip('外縣市',S.res==='ot','data-a="res" data-v="ot"')+'</div>';
-  if(S.res==='ds'){
-    h+=yn('yr3','設籍冬山鄉滿 3 年，或曾設籍冬山鄉累計滿 6 年以上？');
-    if(S.yr3===true) h+=yn('vil','是否設籍在鹿埔、得安、廣興村，且滿 3 年？');
-    if(S.yr3===false) h+=yn('yl1','宜蘭縣設籍是否滿 1 年？');
-  }else if(S.res==='yl'){
-    h+=yn('yr3','曾設籍冬山鄉累計滿 6 年以上？');
-    if(S.yr3===false) h+=yn('yl1','宜蘭縣設籍是否滿 1 年？');
-  }else if(S.res==='ot'){
-    h+=yn('yr3','曾設籍冬山鄉累計滿 6 年以上？');
-  }
-  if(at){
-    const fam={A:'6 折',D:'6 折（家族式沒有三村加碼）',B:'標準價',C:'標準價×1.6'}[at];
-    h+='<div class="banner"><b>申請人適用：'+AT_LABEL[at]+'</b><small>家族式對應：'+fam+'（若受葬亡者資格更優，將自動採用亡者優惠計收）</small></div>';
-  }else{
-    h+='<div class="banner idle">回答完上面的問題，才能算出價級。</div>';
-  }
-  return h+'</section>';
-}
-
-function famSelect(id,cur,attr){
-  let h='<select data-a="'+attr+'" data-id="' + id + '" aria-label="家族櫃型">';
-  ['a','b','c'].forEach(g=>{
-    h+='<optgroup label="'+FAM_G[g]+'">';
-    FAM.filter(f=>f.g===g).forEach(f=>{h+='<option value="'+f.id+'"'+(f.id===cur?' selected':'')+'>'+f.label+(attr==='target'&&f.id===cur?'（同款，僅換位置）':'')+'</option>';});
-    h+='</optgroup>';
-  });
-  return h+'</select>';
-}
-
-function lineHTML(l,i,r){
-  const K=KINDS[l.kind];
-  let h='<div class="line"><div class="line-h"><b>項目 '+(i+1)+'</b>'
-    +'<button type="button" class="link" data-a="del" data-id="'+l.id+'">刪除此項目</button></div>';
-
-  h+='<div class="q">櫃型</div><div class="chips two">'
-    +Object.keys(KINDS).map(k=>chip(KINDS[k].name,l.kind===k,'data-a="kind" data-id="'+l.id+'" data-v="'+k+'"',KINDS[k].spec)).join('')+'</div>';
-
-  if(l.kind==='family'){
-    h+='<div class="q">家族櫃型</div>'+famSelect(l.id,l.fam,'fam');
-    h+='<p class="hint">須受葬人 1 人以上。管理費每位 10,000。</p>';
-  }else{
-    h+='<div class="q">層別</div><div class="chips two">'
-      +K.grps.map(g=>chip(g[1],l.grp===g[0],'data-a="grp" data-id="'+l.id+'" data-v="'+g[0]+'"',g[2])).join('')+'</div>';
-    let hint='本館沒有第 4 層（避諱）。';
-    if(l.kind==='urn') hint+='儲骨櫃反過來，第 1–3 層比第 5–6 層貴。';
-    if(l.kind==='couple') hint+='夫妻式以每座（2 位）計價，表上未列遷葬區與低收入戶優惠。';
-    h+='<p class="hint">'+hint+'</p>';
-  }
-
-  // 【修改】受葬人選項展示
-  h+='<div class="q">受葬人（亡者）身分與狀況</div><div class="chips">'
-    +K.decs.map(d=>chip(DEC[d],l.dec===d,'data-a="dec" data-id="'+l.id+'" data-v="'+d+'"')).join('')+'</div>';
-  if(l.kind==='family'){
-    h+='<div class="chips" style="margin-top:8px">'+chip('比照鄉民價的特例',l.half,'data-a="half" data-id="'+l.id+'"',
-      '受葬人達櫃位半數，且在冬山鄉死亡並設籍滿 3 年，或（非在冬山鄉死亡）曾設籍滿 6 年以上（以除戶資料認定）','wide')+'</div>';
-  }
-
-  // 【修改】數量採用步進按鈕 + 中間輸入框
-  h+='<div class="q">數量（'+K.unit.replace('（','，').replace('）','')+'）</div><div class="qtyrow">'
-    +'<button type="button" aria-label="減少" data-a="qty" data-id="'+l.id+'" data-v="-1">−</button>'
-    +'<input type="number" min="1" max="99" value="'+l.qty+'" data-a="qtyinput" data-id="'+l.id+'">'
-    +'<button type="button" aria-label="增加" data-a="qty" data-id="'+l.id+'" data-v="1">＋</button></div>';
-
-  h+='<div class="chips" style="margin-top:14px">'+chip('購買後要換位置',l.move,'data-a="move" data-id="'+l.id+'"','進堂前申請免換位費，限一次','wide')+'</div>';
-  if(l.move){
-    h+='<div class="q">換到</div>';
-    if(l.kind==='family') h+=famSelect(l.id,l.target||l.fam,'target');
-    else{
-      h+='<select data-a="target" data-id="'+l.id+'" aria-label="換位目標">'
-        +K.grps.map(g=>'<option value="'+g[0]+'"'+((l.target||l.grp)===g[0]?' selected':'')+'>'
-          +(g[0]===l.grp?'同為'+g[1]+'（僅換位置）':'換到'+g[1])+'</option>').join('')+'</select>';
-    }
-  }
-
-  if(r){
-    h+='<div class="calc"><div class="tier">採用價級：'+r.tierLabel+'</div>';
-    if(r.better) h+='<p class="hint" style="margin:0 0 6px;color:var(--accent)">★ 受葬人（亡者）身分條件較優，已自動採用受葬人身分優惠計收。</p>';
-    const q=r.qty;
-    h+=row('堂位使用規費',r.fee*q,q>1?money(r.fee)+' × '+q:'');
-    h+=row('管理費',r.mgmt*q,q>1?money(r.mgmt)+' × '+q:'');
-    if(r.deco) h+=row('儲櫃（裝潢）費',r.deco*q,q>1?money(r.deco)+' × '+q:'');
-    if(l.move){
-      h+=row('換位費',r.moveFee*q,r.moveFee===0?'遷葬區本鄉籍免收':(q>1?money(r.moveFee)+' × '+q:''));
-      h+=row('換位補差額',r.diff*q,'換到較貴的位置才補；較便宜不退');
-    }
-    h+='<div class="row sum"><span>此項目小計</span><span>'+money(r.sub)+'</span></div></div>';
-  }
-  return h+'</div>';
-}
-
 function row(label,amt,note){
   return '<div class="row"><span>'+label+(note?'<small>'+note+'</small>':'')+'</span><span>'+(amt===0?'免收':money(amt))+'</span></div>';
 }
 
-function itemsHTML(res){
-  let h='<section class="card"><h2><span class="n">2</span>購買項目</h2>'
-    +'<p class="hint">不同櫃型、層別或受葬人狀況，請分成不同項目。</p>';
-  S.lines.forEach((l,i)=>{h+=lineHTML(l,i,res[i]);});
-  return h+'<button type="button" class="btn add" data-a="add">＋ 新增另一種項目</button></section>';
+function calcLine(l){
+  let name = '', baseUsage = 0, mgmtFee = 0, unitName = '位';
+  const isAsh = l.type === 'ash';
+
+  if (l.park === 'fuyuan') {
+    if (l.layout === 'single') {
+      name = isAsh ? '個人骨灰甕（小甕）' : '個人骨骸罈（大甕）';
+      baseUsage = isAsh ? 40000 : 50000;
+      mgmtFee = isAsh ? 14000 : 17500;
+    } else if (l.layout === 'combo') {
+      name = isAsh ? '合一雙骨灰甕（同時寄存2甕）' : '合一雙骨骸罈（同時寄存2罈）';
+      baseUsage = isAsh ? 70000 : 80000;
+      mgmtFee = isAsh ? 14000 : 17500;
+      unitName = '座';
+    } else if (l.layout === 'buddha') {
+      name = '宗教區雙人位（限骨灰）';
+      baseUsage = 100000;
+      mgmtFee = 28000;
+      unitName = '組';
+    } else if (l.layout === 'family') {
+      if (l.famType === '12') {
+        name = '12 人式家族櫃（可安奉 12 位）';
+        baseUsage = 600000;
+        mgmtFee = 168000;
+      } else {
+        name = '6 人式家族櫃（可安奉 6 位）';
+        baseUsage = 300000;
+        mgmtFee = 84000;
+      }
+      unitName = '座';
+    }
+  } else {
+    if (l.layout === 'single') {
+      const isEye = l.tier === 'eye';
+      if (isAsh) {
+        name = isEye ? '骨灰甕 · 成人平視層（第 4、5 層）' : '骨灰甕 · 非平視層（第 1–3、6–10 層）';
+        baseUsage = isEye ? 50000 : 40000;
+        mgmtFee = 14000;
+      } else {
+        name = isEye ? '骨骸罈 · 成人平視層（第 2、3 層）' : '骨骸罈 · 非平視層（第 1、4 層）';
+        baseUsage = isEye ? 60000 : 50000;
+        mgmtFee = 17500;
+      }
+    } else if (l.layout === 'couple') {
+      name = isAsh ? '雙人合奉位（骨灰，每位減收 5%）' : '雙人合奉位（骨骸，每位減收 5%）';
+      baseUsage = isAsh ? 76000 : 95000;
+      mgmtFee = isAsh ? 28000 : 35000;
+      unitName = '組';
+    } else if (l.layout === 'four') {
+      name = isAsh ? '4 位合奉區（骨灰，每位減收 5%）' : '4 位合奉區（骨骸，每位減收 5%）';
+      baseUsage = isAsh ? 152000 : 190000;
+      mgmtFee = isAsh ? 56000 : 70000;
+      unitName = '座';
+    }
+  }
+
+  const isOther = S.res === 'other';
+  const usageFee = isOther ? baseUsage * 2 : baseUsage;
+  const moveFee = l.move ? 10000 : 0;
+  const unit = usageFee + mgmtFee + moveFee;
+  return { name, usageFee, mgmtFee, moveFee, unit, sub: unit * l.qty, unitName };
 }
 
-function descOf(l){
-  if(l.kind==='family') return '家族式 '+famOf(l.fam).label;
-  const K=KINDS[l.kind], g=K.grps.find(x=>x[0]===l.grp);
-  return K.name+' '+g[1]+(g[2]?'（'+g[2]+'）':'');
+function calcPlaque(p){
+  const conf = FY_PLAQUE[p.type];
+  const isOther = S.res === 'other';
+  const base = isOther ? conf.fee * 2 : conf.fee;
+  const pick = p.pick ? 3000 : 0;
+  const unit = base + pick;
+  return { conf, unit, sub: unit * p.qty };
 }
 
-function summary(at,res){
-  let s='【冬山鄉立納骨塔位 費用試算】\n';
-  if(S.lines.length) s+='申請人：'+RES_LABEL[S.res]+'，'+AT_LABEL[at]+'\n';
-  S.lines.forEach((l,i)=>{
-    const r=res[i]; if(!r) return;
-    const q=l.qty;
-    s+='\n'+(i+1)+'. '+descOf(l)+' × '+q+' '+KINDS[l.kind].unit.replace(/（.*）/,'')+'\n';
-    s+='   受葬人：'+DEC[l.dec]+(l.half?'（比照鄉民價特例）':'')+'\n';
-    s+='   核定價級：'+r.tierLabel+(r.better?'（採用受葬人最優身分）':'')+'\n';
-    s+='   堂位規費 '+money(r.fee*q)+'｜管理費 '+money(r.mgmt*q);
-    if(r.deco) s+='｜儲櫃費 '+money(r.deco*q);
-    if(l.move) s+='｜換位費 '+money(r.moveFee*q)+'｜補差額 '+money(r.diff*q);
-    s+='\n   小計 '+money(r.sub)+'\n';
+function calcTemp(){
+  if(!S.temp.on) return null;
+  const isAsh = S.temp.type === 'ash';
+  const useBase = isAsh ? 40000 : 50000;
+  const mgmt = isAsh ? 1200 : 1500;
+  const isOther = S.res === 'other';
+  const use = isOther ? useBase * 2 : useBase;
+  const unit = use + mgmt;
+  return { label: isAsh ? '臨時納存骨灰甕（3年）' : '臨時納存骨骸罈（3年）', unit, sub: unit * S.temp.qty };
+}
+
+function totals(){
+  const t = { usage:0, mgmt:0, move:0, plaque:0, temp:0, all:0 };
+  S.lines.forEach(l => {
+    const r = calcLine(l);
+    t.usage += r.usageFee * l.qty;
+    t.mgmt += r.mgmtFee * l.qty;
+    t.move += r.moveFee * l.qty;
   });
-  S.plaques.forEach((p,i)=>{
-    const c=calcPlaque(p), P=PLAQUE[p.size];
-    s+='\n牌位 '+(i+1)+'. 神主牌位 '+P.name+' '+P.spec+' × '+p.qty+(p.pick?'（自選位置，加收 10%）':'')+'\n   小計 '+money(c.sub)+'\n';
-  });
-  const tp=calcTemp();
-  if(tp) s+='\n臨時寄放：'+tp.label+' × '+tp.qty+' 份\n   小計 '+money(tp.sub)+'\n';
-  const t=totals(res);
-  s+='\n合計：'+money(t.all)+'\n※ 試算僅供參考，實際以冬山鄉立殯葬管理所公告與審核為準 (03) 951-5677';
-  return s;
+  (S.plaques||[]).forEach(p => { t.plaque += calcPlaque(p).sub; });
+  const tp = calcTemp();
+  if(tp) t.temp = tp.sub;
+  t.all = t.usage + t.mgmt + t.move + t.plaque + t.temp;
+  return t;
 }
 
-function plaqueHTML(p,i){
-  const c=calcPlaque(p), q=p.qty;
-  let h='<div class="line"><div class="line-h"><b>牌位 '+(i+1)+'</b>'
-    +'<button type="button" class="link" data-a="pdel" data-id="'+p.id+'">刪除此牌位</button></div>';
-  h+='<div class="q">尺寸</div><div class="chips two">'
-    +Object.keys(PLAQUE).map(k=>chip(PLAQUE[k].name+' '+PLAQUE[k].spec,p.size===k,'data-a="psize" data-id="'+p.id+'" data-v="'+k+'"',money(PLAQUE[k].price))).join('')+'</div>';
-  h+='<div class="chips" style="margin-top:10px">'+chip('自選牌位位置',p.pick,'data-a="ppick" data-id="'+p.id+'"','加收 10% 選位費','wide')+'</div>';
-  h+='<div class="q">數量（個）</div><div class="qtyrow">'
-    +'<button type="button" aria-label="減少" data-a="pqty" data-id="'+p.id+'" data-v="-1">−</button>'
-    +'<input type="number" min="1" max="99" value="'+q+'" data-a="pqtyinput" data-id="'+p.id+'">'
-    +'<button type="button" aria-label="增加" data-a="pqty" data-id="'+p.id+'" data-v="1">＋</button></div>';
-  h+='<div class="calc">'+row('牌位費',c.base*q,q>1?money(c.base)+' × '+q:'');
-  if(p.pick) h+=row('自選位置選位費',c.pick*q,q>1?money(c.pick)+' × '+q:'');
-  h+='<div class="row sum"><span>此牌位小計</span><span>'+money(c.sub)+'</span></div></div></div>';
+function qualHTML(){
+  let h = '<section class="card"><h2><span class="n">1</span>設籍與身分</h2>';
+  h += '<div class="q">適用之身分資格？</div><div class="chips two">'
+    + chip('宜蘭縣民', S.res==='yilan', 'data-a="fy_res" data-v="yilan"', '標準價（曾設籍本縣滿6年同）')
+    + chip('外縣市民眾', S.res==='other', 'data-a="fy_res" data-v="other"', '使用費加一倍（2倍計收）') + '</div>';
+  const note = S.res==='other' ? '外縣市：使用費按標準價 2 倍計收；骨灰(骸)管理費比照縣籍民眾收費（不加倍）。' : '宜蘭縣民：依標準收費表計收。';
+  h += '<div class="banner"><b>目前適用：'+(S.res==='other'?'外縣市（使用費 2 倍）':'宜蘭縣民（標準價）')+'</b><small>'+note+'</small></div>';
+  return h + '</section>';
+}
+
+function lineHTML(l, i){
+  let h = '<div class="line"><div class="line-h"><b>項目 '+(i+1)+'</b>'
+    + '<button type="button" class="link" data-a="fy_del" data-id="'+l.id+'">刪除此項目</button></div>';
+
+  h += '<div class="q">存放形式</div><div class="chips two">'
+    + chip('骨灰甕（小甕）', l.type==='ash', 'data-a="fy_type" data-id="'+l.id+'" data-v="ash"')
+    + chip('骨骸罈（大甕）', l.type==='bone', 'data-a="fy_type" data-id="'+l.id+'" data-v="bone"') + '</div>';
+
+  h += '<div class="q">存放園區</div><div class="chips two">'
+    + chip('員山福園本館', l.park==='fuyuan', 'data-a="fy_park" data-id="'+l.id+'" data-v="fuyuan"', '一般位・合奉雙人・家族位')
+    + chip('礁溪櫻花陵園', l.park==='sakura', 'data-a="fy_park" data-id="'+l.id+'" data-v="sakura"', '景觀陵園・層別平視層') + '</div>';
+
+  h += '<div class="q">格局規格</div><div class="chips">';
+  if (l.park === 'fuyuan') {
+    h += chip('個人位', l.layout==='single', 'data-a="fy_layout" data-id="'+l.id+'" data-v="single"', l.type==='ash'?'標準價 4 萬':'標準價 5 萬');
+    h += chip('合一雙人位', l.layout==='combo', 'data-a="fy_layout" data-id="'+l.id+'" data-v="combo"', '1 櫃放 2 具合葬');
+    if (l.type === 'ash') {
+      h += chip('宗教區雙人位', l.layout==='buddha', 'data-a="fy_layout" data-id="'+l.id+'" data-v="buddha"', '標準價 10 萬');
+    }
+    h += chip('家族式納骨櫃', l.layout==='family', 'data-a="fy_layout" data-id="'+l.id+'" data-v="family"', '6 人式 / 12 人式');
+  } else {
+    h += chip('個人位', l.layout==='single', 'data-a="fy_layout" data-id="'+l.id+'" data-v="single"', '有平視層與非平視層');
+    h += chip('雙人合奉位', l.layout==='couple', 'data-a="fy_layout" data-id="'+l.id+'" data-v="couple"', '享使用費 95 折');
+    h += chip('4 位合奉區', l.layout==='four', 'data-a="fy_layout" data-id="'+l.id+'" data-v="four"', '享使用費 95 折');
+  }
+  h += '</div>';
+
+  if (l.park === 'fuyuan' && l.layout === 'family') {
+    h += '<div class="q">家族位容量選擇</div><div class="chips two">'
+      + chip('6 人式家族櫃', l.famType==='6', 'data-a="fy_famType" data-id="'+l.id+'" data-v="6"', '總額 NT$ 38.4 萬（安奉6位）')
+      + chip('12 人式家族櫃', l.famType==='12', 'data-a="fy_famType" data-id="'+l.id+'" data-v="12"', '總額 NT$ 76.8 萬（安奉12位）') + '</div>';
+  }
+
+  if (l.park === 'sakura' && l.layout === 'single') {
+    const eyeDesc = l.type==='ash' ? '第 4、5 層（5 萬元）' : '第 2、3 層（6 萬元）';
+    const flatDesc = l.type==='ash' ? '第 1–3、6–10 層（4 萬元）' : '第 1、4 層（5 萬元）';
+    h += '<div class="q">位置層別高度</div><div class="chips two">'
+      + chip('成人平視層', l.tier==='eye', 'data-a="fy_tier" data-id="'+l.id+'" data-v="eye"', eyeDesc)
+      + chip('非平視層', l.tier==='flat', 'data-a="fy_tier" data-id="'+l.id+'" data-v="flat"', flatDesc) + '</div>';
+  }
+
+  const r = calcLine(l), q = l.qty;
+
+  h += '<div class="q">購買數量（'+r.unitName+'）</div><div class="qtyrow">'
+    + '<button type="button" aria-label="減少" data-a="fy_qty" data-id="'+l.id+'" data-v="-1">−</button>'
+    + '<input type="number" min="1" max="99" value="'+l.qty+'" data-a="fy_qtyinput" data-id="'+l.id+'">'
+    + '<button type="button" aria-label="增加" data-a="fy_qty" data-id="'+l.id+'" data-v="1">＋</button></div>';
+
+  h += '<div class="chips" style="margin-top:14px">'
+    + chip('申請已安置更換位置', l.move, 'data-a="fy_move" data-id="'+l.id+'"', '加收換位費 10,000 元（較貴補差額，較低不退）', 'wide') + '</div>';
+
+  h += '<div class="calc"><div class="tier">'+(l.park==='fuyuan'?'員山福園':'櫻花陵園')+' · '+r.name+'</div>';
+  h += row('堂位使用費', r.usageFee * q, (q>1?money(r.usageFee)+' × '+q+'；':'')+(S.res==='other'?'外縣市 2 倍計收':'縣民標準價'));
+  h += row('設施管理費', r.mgmtFee * q, (q>1?money(r.mgmtFee)+' × '+q+'；':'')+'首次申辦一次計收 35 年（外縣市不加倍）');
+  if(l.move) h += row('換位手續費', r.moveFee * q, '已安置重新換位規費');
+  h += '<div class="row sum"><span>此項目小計</span><span>'+money(r.sub)+'</span></div></div>';
+
+  return h + '</div>';
+}
+
+function itemsHTML(){
+  let h = '<section class="card"><h2><span class="n">2</span>購買項目清單</h2>'
+    + '<p class="hint">可新增多組項目合併試算（小甕、大甕、合奉或家族位）。</p>';
+  S.lines.forEach((l, i) => { h += lineHTML(l, i); });
+  return h + '<button type="button" class="btn add" data-a="fy_add">＋ 新增另一種項目</button></section>';
+}
+
+function plaqueHTML(p, i){
+  const c = calcPlaque(p), q = p.qty;
+  let h = '<div class="line"><div class="line-h"><b>牌位 '+(i+1)+'</b>'
+    + '<button type="button" class="link" data-a="fy_pdel" data-id="'+p.id+'">刪除此牌位</button></div>';
+  h += '<div class="q">尺寸規格</div><div class="chips two">'
+    + chip('小型牌位', p.type==='small', 'data-a="fy_ptype" data-id="'+p.id+'" data-v="small"', '10.8×20cm｜標準價 3 萬')
+    + chip('大型牌位', p.type==='large', 'data-a="fy_ptype" data-id="'+p.id+'" data-v="large"', '21.7×40cm｜標準價 6 萬') + '</div>';
+  h += '<div class="chips" style="margin-top:10px">'
+    + chip('自選牌位位置', p.pick, 'data-a="fy_ppick" data-id="'+p.id+'"', '加收 3,000 元選位費', 'wide') + '</div>';
+  h += '<div class="q">數量（位）</div><div class="qtyrow">'
+    + '<button type="button" aria-label="減少" data-a="fy_pqty" data-id="'+p.id+'" data-v="-1">−</button>'
+    + '<input type="number" min="1" max="99" value="'+q+'" data-a="fy_pqtyinput" data-id="'+p.id+'">'
+    + '<button type="button" aria-label="增加" data-a="fy_pqty" data-id="'+p.id+'" data-v="1">＋</button></div>';
+  h += '<div class="calc">' + row('牌位使用費', c.unit * q, (q>1?money(c.unit)+' × '+q:''))
+    + '<div class="row sum"><span>此牌位小計</span><span>'+money(c.sub)+'</span></div></div></div>';
   return h;
 }
 
 function tempHTML(){
-  const t=S.temp;
-  let h='<div class="q" style="margin-top:22px">臨時寄放骨灰（骸）</div><div class="chips">'
-    +chip('需要臨時寄放',t.on,'data-a="ton"','','wide')+'</div>';
+  const t = S.temp;
+  let h = '<div class="q" style="margin-top:22px">臨時納存骨灰（骸）</div><div class="chips">'
+    + chip('需要辦理臨時納存', t.on, 'data-a="fy_ton"', '', 'wide') + '</div>';
   if(!t.on) return h;
-  h+='<div class="q">計費方式</div><div class="chips three">'
-    +chip('按日計費',t.mode==='day','data-a="tmode" data-v="day"','2 個月以內<br>每日 200')
-    +chip('半年期',t.mode==='half','data-a="tmode" data-v="half"','優惠價 3,000')
-    +chip('一年期',t.mode==='year','data-a="tmode" data-v="year"','優惠價 6,000')+'</div>';
-  if(t.mode==='day'){
-    h+='<div class="q">寄放天數</div><div class="qtyrow">'
-      +'<button type="button" aria-label="減少一天" data-a="tdays" data-v="-1">−</button>'
-      +'<input type="number" min="1" max="60" value="'+t.days+'" data-a="tdaysinput">'
-      +'<button type="button" aria-label="增加一天" data-a="tdays" data-v="1">＋</button>'
-      +'<span class="hint" style="margin:0">最長 60 天</span></div>';
-    h+='<div class="chips" style="margin-top:8px">'
-      +[7,14,30,60].map(d=>chip(d+' 天',t.days===d,'data-a="tset" data-v="'+d+'"')).join('')+'</div>';
-    const own=tempOwned();
-    h+='<div class="q">已購置（或本次同時購買）本鄉納骨堂的存放設施？</div><div class="chips two">'
-      +chip('是',own===true,'data-a="towned" data-v="1"','一個月內免收')
-      +chip('否',own===false,'data-a="towned" data-v="0"')+'</div>';
-  }
-  h+='<div class="q">數量（份）</div><div class="qtyrow">'
-    +'<button type="button" aria-label="減少" data-a="tqty" data-v="-1">−</button>'
-    +'<input type="number" min="1" max="99" value="'+t.qty+'" data-a="tqtyinput">'
-    +'<button type="button" aria-label="增加" data-a="tqty" data-v="1">＋</button></div>';
-  const c=calcTemp();
-  h+='<div class="calc"><div class="tier">'+c.label+'</div>'
-    +row('臨時寄放費',c.sub,(c.note?c.note+'；':'')+(c.qty>1?money(c.unit)+' × '+c.qty:''))+'</div>';
+  h += '<div class="q">納存種類</div><div class="chips two">'
+    + chip('骨灰甕（小甕）', t.type==='ash', 'data-a="fy_ttype" data-v="ash"', '3 年使用費 4 萬＋管理費 1,200')
+    + chip('骨骸罈（大甕）', t.type==='bone', 'data-a="fy_ttype" data-v="bone"', '3 年使用費 5 萬＋管理費 1,500') + '</div>';
+  h += '<div class="q">數量（具）</div><div class="qtyrow">'
+    + '<button type="button" aria-label="減少" data-a="fy_tqty" data-v="-1">−</button>'
+    + '<input type="number" min="1" max="99" value="'+t.qty+'" data-a="fy_tqtyinput">'
+    + '<button type="button" aria-label="增加" data-a="fy_tqty" data-v="1">＋</button></div>';
+  const c = calcTemp();
+  h += '<div class="calc"><div class="tier">'+c.label+'</div>'
+    + row('臨時使用費與管理費', c.sub, '已購置存放設施者，火化後 14 日內免收使用費') + '</div>';
   return h;
 }
 
 function extrasHTML(){
-  let h='<section class="card"><h2><span class="n">3</span>其他項目</h2>'
-    +'<div class="q" style="margin-top:14px">神主牌位</div><p class="hint" style="margin-top:0">牌位沒有戶籍優惠，一律標準價。</p>';
-  S.plaques.forEach((p,i)=>{h+=plaqueHTML(p,i);});
-  h+='<button type="button" class="btn add" data-a="padd">＋ 新增神主牌位</button>';
-  h+=tempHTML();
-  return h+'</section>';
+  let h = '<section class="card"><h2><span class="n">3</span>其他附屬項目</h2>'
+    + '<div class="q" style="margin-top:14px">神主牌位</div><p class="hint" style="margin-top:0">牌位設施不提供換位服務。</p>';
+  (S.plaques||[]).forEach((p, i) => { h += plaqueHTML(p, i); });
+  h += '<button type="button" class="btn add" data-a="fy_padd">＋ 新增神主牌位</button>';
+  h += tempHTML();
+  return h + '</section>';
 }
 
-function resultHTML(at,res){
-  let h='<section class="card"><h2><span class="n">4</span>費用總計</h2>';
-  if(S.lines.length && !at) return h+'<p class="hint">完成第 1 步的申請人資格後，這裡會顯示總金額。</p></section>';
-  if(!S.lines.length && !S.plaques.length && !S.temp.on) return h+'<p class="hint">還沒有加入任何項目。</p></section>';
-  const t=totals(res);
+function summary(){
+  let s = '【宜蘭縣立殯葬設施（福園・櫻花陵園）費用試算】\n';
+  s += '申請資格：' + (S.res==='other'?'設籍外縣市（使用費 2 倍）':'宜蘭縣民（標準價）') + '\n';
+  S.lines.forEach((l, i) => {
+    const r = calcLine(l), q = l.qty;
+    const parkName = l.park==='fuyuan' ? '員山福園' : '櫻花陵園';
+    s += '\n' + (i+1) + '. 【' + parkName + '】' + r.name + ' × ' + q + ' ' + r.unitName + '\n';
+    s += '   使用費：' + money(r.usageFee * q) + '｜管理費（35年）：' + money(r.mgmtFee * q);
+    if(l.move) s += '｜換位手續費：' + money(r.moveFee * q);
+    s += '\n   小計：' + money(r.sub) + '\n';
+  });
+  (S.plaques||[]).forEach((p, i) => {
+    const c = calcPlaque(p);
+    s += '\n牌位 ' + (i+1) + '. ' + c.conf.name + (p.pick?'（自選位置）':'') + ' × ' + p.qty + ' 位\n   小計：' + money(c.sub) + '\n';
+  });
+  const tp = calcTemp();
+  if(tp) s += '\n' + tp.label + ' × ' + S.temp.qty + ' 具\n   小計：' + money(tp.sub) + '\n';
+  const t = totals();
+  s += '\n總計應繳納金額：' + money(t.all) + '\n※ 本試算依宜蘭縣立殯葬設施使用費收費標準編製，實際金額以管理所現場核發繳款單為準。電話 (03) 922-0433';
+  return s;
+}
+
+function resultHTML(){
+  let h = '<section class="card"><h2><span class="n">4</span>費用總計</h2>';
+  const t = totals();
   if(S.lines.length){
-    h+=row('堂位使用規費',t.fee)+row('管理費',t.mgmt);
-    if(t.deco) h+=row('儲櫃（裝潢）費',t.deco);
-    if(t.move) h+=row('換位費',t.move);
-    if(t.diff) h+=row('換位補差額',t.diff);
+    h += row('堂位使用費總計', t.usage);
+    h += row('設施管理費總計（35年）', t.mgmt);
+    if(t.move) h += row('換位手續費', t.move);
   }
-  if(S.plaques.length) h+=row('神主牌位',t.plaque);
-  if(S.temp.on) h+=row('臨時寄放',t.temp);
-  h+='<div class="row total"><span>合計</span><span>'+money(t.all)+'</span></div>';
-  h+='<div class="q">文字摘要</div><textarea class="sum" readonly rows="12">'+esc(summary(at,res))+'</textarea>';
-  h+='<div class="actions"><button type="button" class="btn" data-a="copy">複製摘要</button>'
-    +'<button type="button" class="btn ghost" data-a="reset">全部重來</button></div>';
-  return h+'</section>';
+  if((S.plaques||[]).length) h += row('神主牌位費用', t.plaque);
+  if(S.temp.on) h += row('臨時納存費用', t.temp);
+  h += '<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
+  h += '<div class="q">文字摘要</div><textarea class="sum" readonly rows="12">'+esc(summary())+'</textarea>';
+  h += '<div class="actions"><button type="button" class="btn" data-a="fy_copy">複製摘要</button>'
+    + '<button type="button" class="btn ghost" data-a="fy_reset">全部重設</button></div></section>';
+  return h;
 }
 
 function notesHTML(){
-  return '<details><summary>計算依據與需要確認的地方</summary><ul>'
-   +'<li>價目來自冬山鄉立殯葬管理所「收費標準」頁（109.2.1 版）。正式收費以管理所公告與審核為準，電話 (03) 951-5677。</li>'
-   +'<li>各級優惠不疊加，系統會在申請人條件與受葬人（亡者）身分中自動選取最優惠價。</li>'
-   +'<li>若申請人戶籍為外縣市，但亡者具本鄉籍或三村籍，憑除戶謄本可依自治條例認定享有鄉民 5 折或村民 4 折優惠。</li>'
-   +'<li>低收入戶死亡者：堂位使用規費全免，由所方指定位置；選平視層補繳 5,000 元差額。</li>'
-   +'<li>夫妻式以每座（2 位）計價。儲骨櫃的換位費暫依個人式 10,000 元計。</li>'
-   +'<li>家族式沒有三村加碼。遷葬區與本鄉籍同列 6 折。</li>'
-   +'<li>神主牌位不分身分，一律標準價，自選位置加收 10%。</li>'
-   +'<li>臨時寄放的「一個月內免收」，以 30 天計；只有「已購置本鄉納骨堂存放設施」者適用，本工具把骨灰櫃、儲骨櫃、家族櫃視為存放設施，牌位不算。半年期、一年期為優惠價。</li>'
-   +'</ul></details>';
+  return '<details><summary>員山福園／櫻花陵園 收費依據與說明</summary><ul>'
+   + '<li>依據「宜蘭縣立殯葬設施保證金及使用費收費標準表」自治條例編製。電話：(03) 922-0433。</li>'
+   + '<li>外縣市民眾使用費按標準價 2 倍計收；骨灰(骸)管理費比照縣籍民眾收費（不加倍）。</li>'
+   + '<li>管理費首次申辦一次計收 35 年。</li>'
+   + '<li>福園現場家族櫃位以 6 人式（38.4萬）與 12 人式（76.8萬）為主。</li>'
+   + '<li>櫻花陵園個人位第 4、5 層（骨灰）及第 2、3 層（骨骸）為成人平視層，使用費較非平視層調升 1 萬元。</li>'
+   + '</ul></details>';
 }
 
 function render(){
-  const at=appTier();
-  const res=S.lines.map(l=>at?calc(l,at):null);
-  $('.app').innerHTML=qualHTML(at)+itemsHTML(res)+extrasHTML()+resultHTML(at,res)+notesHTML();
-  const ready=!S.lines.length||at;
-  $('.amt').textContent = ready ? money(totals(res).all) : '請先填資格';
+  container.innerHTML = qualHTML() + itemsHTML() + extrasHTML() + resultHTML() + notesHTML();
+  document.getElementById('amt-fy').textContent = money(totals().all);
   save();
 }
 
-/* ───────── 互動 ───────── */
-
 function toast(msg){
-  const t=$('.toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2200);
+  const t = document.getElementById('toast-fy'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 async function doCopy(){
-  const at=appTier();
-  if(S.lines.length && !at){toast('請先完成申請人資格');return;}
-  const text=summary(at,S.lines.map(l=>calc(l,at)));
-  let ok=false;
-  try{ await navigator.clipboard.writeText(text); ok=true; }catch(e){
+  const text = summary();
+  let ok = false;
+  try { await navigator.clipboard.writeText(text); ok = true; } catch(e){
     try{
-      const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.select(); ok=document.execCommand('copy'); ta.remove();
+      const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove();
     }catch(e2){}
   }
-  if(ok) toast('已複製，可貼到 LINE');
-  else{
-    toast('無法自動複製，請在文字摘要框內全選複製');
-    const sum=$('.sum'); if(sum){sum.scrollIntoView({block:'center'}); sum.focus(); sum.select();}
+  if(ok) toast('已複製報價，可直接貼入 LINE');
+  else {
+    toast('請在文字摘要框內全選複製');
+    const sum = root.querySelector('.sum'); if(sum){ sum.scrollIntoView({block:'center'}); sum.focus(); sum.select(); }
   }
 }
 
 function act(d){
-  const l = d.id ? S.lines.find(x=>String(x.id)===String(d.id)) : null;
-  const pl = d.id ? S.plaques.find(x=>String(x.id)===String(d.id)) : null;
-  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const l = d.id ? S.lines.find(x => String(x.id)===String(d.id)) : null;
+  const pl = d.id ? S.plaques.find(x => String(x.id)===String(d.id)) : null;
+  const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
   switch(d.a){
-    case 'res': S.res=d.v; S.yr3=S.vil=S.yl1=null; break;
-    case 'yn':
-      S[d.f]=(d.v==='1');
-      if(d.f==='yr3'){S.vil=null;S.yl1=null;}
+    case 'fy_res': S.res = d.v; break;
+    case 'fy_add': S.lines.push(newLine()); break;
+    case 'fy_del': S.lines = S.lines.filter(x => x!==l); break;
+    case 'fy_type':
+      l.type = d.v;
+      if (l.type === 'bone' && l.layout === 'buddha') l.layout = 'single';
       break;
-    case 'add': S.lines.push(newLine()); break;
-    case 'del': S.lines=S.lines.filter(x=>x!==l); break;
-    case 'kind':
-      l.kind=d.v; l.grp=(d.v==='urn'?'hi':'eye'); l.half=false; l.move=false; l.target=null;
-      if(!KINDS[d.v].decs.includes(l.dec)) l.dec='none';
+    case 'fy_park':
+      l.park = d.v;
+      l.layout = 'single';
       break;
-    case 'grp': l.grp=d.v; l.target=null; break;
-    case 'fam': l.fam=d.v; l.target=null; break;
-    case 'dec': l.dec=d.v; break;
-    case 'half': l.half=!l.half; break;
-    case 'qty': l.qty=Math.max(1,Math.min(99,l.qty+Number(d.v))); break;
-    case 'move': l.move=!l.move; if(!l.move) l.target=null; break;
-    case 'target': l.target=d.v; break;
-    case 'copy': doCopy(); return;
-    case 'padd': S.plaques.push({id:nextId++,size:'s',pick:false,qty:1}); break;
-    case 'pdel': S.plaques=S.plaques.filter(x=>x!==pl); break;
-    case 'psize': pl.size=d.v; break;
-    case 'ppick': pl.pick=!pl.pick; break;
-    case 'pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
-    case 'ton': S.temp.on=!S.temp.on; break;
-    case 'tmode': S.temp.mode=d.v; break;
-    case 'tdays': S.temp.days=clamp(S.temp.days+Number(d.v),1,60); break;
-    case 'tset': S.temp.days=Number(d.v); break;
-    case 'towned': S.temp.owned=(d.v==='1'); break;
-    case 'tqty': S.temp.qty=clamp(S.temp.qty+Number(d.v),1,99); break;
-    case 'reset': nextId=1; S=fresh(); break;
+    case 'fy_layout':
+      l.layout = d.v;
+      break;
+    case 'fy_famType':
+      l.famType = d.v;
+      break;
+    case 'fy_tier':
+      l.tier = d.v;
+      break;
+    case 'fy_qty': l.qty = clamp(l.qty + Number(d.v), 1, 99); break;
+    case 'fy_move': l.move = !l.move; break;
+    case 'fy_padd': S.plaques = S.plaques || []; S.plaques.push({ id:nextId++, type:'small', pick:false, qty:1 }); break;
+    case 'fy_pdel': S.plaques = S.plaques.filter(x => x!==pl); break;
+    case 'fy_ptype': pl.type = d.v; break;
+    case 'fy_ppick': pl.pick = !pl.pick; break;
+    case 'fy_pqty': pl.qty = clamp(pl.qty + Number(d.v), 1, 99); break;
+    case 'fy_ton': S.temp.on = !S.temp.on; break;
+    case 'fy_ttype': S.temp.type = d.v; break;
+    case 'fy_tqty': S.temp.qty = clamp(S.temp.qty + Number(d.v), 1, 99); break;
+    case 'fy_copy': doCopy(); return;
+    case 'fy_reset': nextId = 1; S = fresh(); break;
     default: return;
   }
   render();
 }
 
-root.addEventListener('click',e=>{
-  const b=e.target.closest('button[data-a]');
-  if(b) act(b.dataset);
-});
-root.addEventListener('change',e=>{
-  const s=e.target;
-  if(s.matches && s.matches('select[data-a]')) act({a:s.dataset.a,id:s.dataset.id,v:s.value});
+root.addEventListener('click', e => {
+  const b = e.target.closest('button[data-a]');
+  if(b && b.dataset.a.startsWith('fy_')) act(b.dataset);
 });
 root.addEventListener('input', e => {
   const inp = e.target;
   const val = parseInt(inp.value, 10);
-  if (isNaN(val) || val < 1) return;
+  if(isNaN(val) || val < 1) return;
   const a = inp.dataset.a;
   const id = inp.dataset.id;
-  if (a === 'qtyinput') {
-    const l = S.lines.find(x => String(x.id) === String(id));
-    if (l) { l.qty = Math.min(99, val); render(); }
-  } else if (a === 'pqtyinput') {
-    const pl = S.plaques.find(x => String(x.id) === String(id));
-    if (pl) { pl.qty = Math.min(99, val); render(); }
-  } else if (a === 'tdaysinput') {
-    S.temp.days = Math.min(60, val); render();
-  } else if (a === 'tqtyinput') {
+  if(a === 'fy_qtyinput'){
+    const l = S.lines.find(x => String(x.id)===String(id));
+    if(l){ l.qty = Math.min(99, val); render(); }
+  } else if(a === 'fy_pqtyinput'){
+    const pl = S.plaques.find(x => String(x.id)===String(id));
+    if(pl){ pl.qty = Math.min(99, val); render(); }
+  } else if(a === 'fy_tqtyinput'){
     S.temp.qty = Math.min(99, val); render();
   }
 });
 
-window.__TC={BOX,FAM,famFee,calcBox,calcFam,totals,calcPlaque,calcTemp,getS:()=>S};
+window.__FY = { render };
 render();
 })();
 </script>
 
-<script id="app-sy">
+<!-- ═════════ 腳本 2：羅東鎮壽園 ═════════ -->
+<script id="script-sy">
 (function(){
 'use strict';
-
-/* ───────── 價目資料（羅東鎮立殯葬設施使用收費標準表，115 年 6 月修訂）───────── */
 const BASE = {
   single:{lo:36000,hi:48000},
   couple:{lo:72000,hi:96000},
@@ -715,33 +589,30 @@ const BASE = {
   family:{'6':338400,'8':434400,'10':530400,'12':626400},
   buddha:{lo:150000,hi:200000}
 };
-
 const MGF = {single:15000,couple:30000,urn:18500,buddha:30000,family:{'6':60000,'8':80000,'10':100000,'12':120000}};
 const KINDS = {
-  single:{name:'單人式骨甕',spec:'安置火化後骨灰',unit:'位'},
+  single:{name:'單人式骨甕',spec:'安置火化骨灰',unit:'位'},
   couple:{name:'雙人式骨甕',spec:'安置骨灰，2 位',unit:'組'},
   urn:{name:'骨罈（單人式）',spec:'安置骨骸（撿骨晉塔）',unit:'位'},
   family:{name:'家族式納骨位',spec:'6–12 位，附家族牌位',unit:'組'},
   buddha:{name:'佛祖區雙人位',spec:'僅壽園寶塔一樓',unit:'組'}
 };
 const GRPS = {
-  single:[['lo','第一、二層'],['hi','第三至八層']],
-  couple:[['lo','第一、二層'],['hi','第三至七層']],
-  urn:[['-','']],
-  family:[['6','6 人'],['8','8 人'],['10','10 人'],['12','12 人']],
-  buddha:[['lo','第一、二層'],['hi','第三至八層']]
+  single:[['lo','第一、二層（非平視）'],['hi','第三至八層（成人平視）']],
+  couple:[['lo','第一、二層（非平視）'],['hi','第三至七層（成人平視）']],
+  urn:[['-','全區標準位']],
+  family:[['6','6 人家族位'],['8','8 人家族位'],['10','10 人家族位'],['12','12 人家族位']],
+  buddha:[['lo','第一、二層（非平視）'],['hi','第三至八層（成人平視）']]
 };
 const TOWER = {ba:'壽園寶塔',fu:'福恩塔'};
 const RES = {
-  local:{name:'羅東鎮',sub:'使用費減收 10%',banner:'本鎮鎮民：使用費減收 10%（預購長生位不適用）'},
-  county:{name:'宜蘭縣其他鄉鎮市',sub:'標準價',banner:'本縣他鄉鎮市：標準價'},
-  other:{name:'外縣市',sub:'使用費加一倍',banner:'設籍外縣市：使用費加一倍（2倍計收）'}
+  local:{name:'羅東鎮民',sub:'使用費減收 10%',banner:'本鎮鎮民：使用費減收 10%（長生位不適用）'},
+  county:{name:'宜蘭縣民',sub:'其他鄉鎮標準價',banner:'本縣他鄉鎮市：標準價'},
+  other:{name:'外縣市民',sub:'使用費加一倍（2倍）',banner:'設籍外縣市：使用費加一倍（2倍計收）'}
 };
 const PLAQUE = {plain:30000,pick:33000};
 const TEMP = {y3:36000,perMonth:1000,mgmt:15000};
 const MOVE_FEE = 10000, PRE_MOVE_FEE = 2000, RENAME_FEE = 2000;
-
-/* ───────── 計算 ───────── */
 
 function resFactor(pre){
   if(S.res==='local') return pre?1:0.9;
@@ -770,13 +641,11 @@ function calcLine(l){
   const unit=fee+mgmt+rename+moveFee+dFee+dMgmt;
   return {tower,fee,mgmt,rename,moveFee,dFee,dMgmt,qty:l.qty,unit,sub:unit*l.qty};
 }
-
 function calcPlaque(p){
   const base=p.pick?PLAQUE.pick:PLAQUE.plain;
   const unit=Math.round(base*resFactor(false));
   return {base,unit,qty:p.qty,sub:unit*p.qty};
 }
-
 function tempOwned(){return S.temp.owned===null ? S.lines.length>0 : S.temp.owned;}
 function calcTemp(){
   const t=S.temp; if(!t.on) return null;
@@ -786,7 +655,6 @@ function calcTemp(){
   const label=t.mode==='y3'?'臨時寄放 3 年':'臨時寄放 '+t.months+' 個月（切結期限）';
   return {label,use,mgmt:TEMP.mgmt,qty:t.qty,note,base,sub:(use+TEMP.mgmt)*t.qty};
 }
-
 function totals(){
   const t={fee:0,mgmt:0,rename:0,move:0,dFee:0,dMgmt:0,plaque:0,tempUse:0,tempMgmt:0,credit:0,all:0};
   S.lines.forEach(l=>{const r=calcLine(l);
@@ -799,9 +667,7 @@ function totals(){
   return t;
 }
 
-/* ───────── 狀態 ───────── */
-
-const KEY='tower-calc-luodong-v2';
+const KEY='tower-calc-luodong-v5';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'single',tower:'ba',grp:'lo',pre:false,rename:false,qty:1,move:false,target:null};}
 function fresh(){return {res:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'y3',months:12,qty:1,owned:null,credit:false}};}
@@ -818,10 +684,8 @@ function load(){
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 let S = load() || fresh();
 
-/* ───────── 畫面 ───────── */
-
 const root = document.getElementById('panel-sy');
-const $ = s => root.querySelector(s);
+const container = document.getElementById('app-sy-container');
 const fmt = n => n.toLocaleString('en-US');
 const money = n => 'NT$ '+fmt(n);
 const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -834,7 +698,7 @@ function row(label,amt,note){
 }
 function resNote(base,pre){
   if(S.res==='local') return '標準價 '+fmt(base)+(pre?'，長生位不減收':'，鎮民減收 10%');
-  if(S.res==='other') return '標準價 '+fmt(base)+' 加一倍';
+  if(S.res==='other') return '標準價 '+fmt(base)+' 加一倍（2倍）';
   return '標準價 '+fmt(base);
 }
 function stepper(act,idAttr,val,unitHint){
@@ -846,10 +710,10 @@ function stepper(act,idAttr,val,unitHint){
 }
 
 function qualHTML(){
-  let h='<section class="card"><h2><span class="n">1</span>使用者戶籍</h2>';
+  let h='<section class="card"><h2><span class="n">1</span>使用者設籍資格</h2>';
   h+='<div class="q">使用者的戶籍在哪裡？</div><div class="chips three">'
-    +Object.keys(RES).map(k=>chip(RES[k].name,S.res===k,'data-a="res" data-v="'+k+'"',RES[k].sub)).join('')+'</div>';
-  h+='<p class="hint">表上載明「設籍外縣市者，其使用費加一倍計收」。</p>';
+    +Object.keys(RES).map(k=>chip(RES[k].name,S.res===k,'data-a="sy_res" data-v="'+k+'"',RES[k].sub)).join('')+'</div>';
+  h+='<p class="hint">設籍外縣市者，其使用費加一倍（2倍）計收。</p>';
   h+= S.res ? '<div class="banner"><b>'+RES[S.res].banner+'</b></div>' : '<div class="banner idle">選好戶籍才能算出價格。</div>';
   return h+'</section>';
 }
@@ -857,7 +721,7 @@ function qualHTML(){
 function targetSelect(l){
   const towers=l.kind==='buddha'?['ba']:['ba','fu'];
   const cur=l.target||keyOf(l), same=keyOf(l);
-  let h='<select data-a="target" data-id="'+l.id+'" aria-label="換位目標">';
+  let h='<select data-a="sy_target" data-id="'+l.id+'" aria-label="換位目標">';
   towers.forEach(tw=>GRPS[l.kind].forEach(g=>{
     const v=tw+':'+g[0];
     h+='<option value="'+v+'"'+(v===cur?' selected':'')+'>'+TOWER[tw]+(g[1]?' '+g[1]:'')+(v===same?'（同款，僅換位置）':'')+'</option>';
@@ -868,14 +732,14 @@ function targetSelect(l){
 function lineHTML(l,i){
   const K=KINDS[l.kind], bud=l.kind==='buddha';
   let h='<div class="line"><div class="line-h"><b>項目 '+(i+1)+'</b>'
-    +'<button type="button" class="link" data-a="del" data-id="'+l.id+'">刪除此項目</button></div>';
+    +'<button type="button" class="link" data-a="sy_del" data-id="'+l.id+'">刪除此項目</button></div>';
 
   h+='<div class="q">櫃型</div><div class="chips two">'
-    +Object.keys(KINDS).map(k=>chip(KINDS[k].name,l.kind===k,'data-a="kind" data-id="'+l.id+'" data-v="'+k+'"',KINDS[k].spec)).join('')+'</div>';
+    +Object.keys(KINDS).map(k=>chip(KINDS[k].name,l.kind===k,'data-a="sy_kind" data-id="'+l.id+'" data-v="' + k + '"',KINDS[k].spec)).join('')+'</div>';
 
   if(GRPS[l.kind].length>1){
     h+='<div class="q">'+(l.kind==='family'?'家族人數':'層別')+'</div><div class="chips two">'
-      +GRPS[l.kind].map(g=>chip(g[1],l.grp===g[0],'data-a="grp" data-id="'+l.id+'" data-v="'+g[0]+'"','標準價 '+fmt(BASE[l.kind][g[0]]))).join('')+'</div>';
+      +GRPS[l.kind].map(g=>chip(g[1],l.grp===g[0],'data-a="sy_grp" data-id="'+l.id+'" data-v="'+g[0]+'"','標準價 '+fmt(BASE[l.kind][g[0]]))).join('')+'</div>';
   }else{
     h+='<p class="hint">標準價 '+fmt(BASE[l.kind][l.grp])+'，不分層別。</p>';
   }
@@ -884,15 +748,15 @@ function lineHTML(l,i){
     h+='<p class="hint">佛祖區只在壽園寶塔一樓。</p>';
   }else{
     h+='<div class="q">塔別</div><div class="chips two">'
-      +['ba','fu'].map(tw=>chip(TOWER[tw],l.tower===tw,'data-a="tower" data-id="'+l.id+'" data-v="'+tw+'"','管理費 '+fmt(mgmtOf(l.kind,l.grp,tw)))).join('')+'</div>';
+      +['ba','fu'].map(tw=>chip(TOWER[tw],l.tower===tw,'data-a="sy_tower" data-id="'+l.id+'" data-v="'+tw+'"','管理費 '+fmt(mgmtOf(l.kind,l.grp,tw)))).join('')+'</div>';
   }
 
-  h+='<div class="chips" style="margin-top:14px">'+chip('預購長生位（生前預購）',l.pre,'data-a="pre" data-id="'+l.id+'"','鎮民減收 10% 不適用；需附預安奉者的戶籍謄本','wide')+'</div>';
-  if(l.pre) h+='<div class="chips" style="margin-top:8px">'+chip('長生位更名',l.rename,'data-a="rename" data-id="'+l.id+'"','登記費 2,000，限一次','wide')+'</div>';
+  h+='<div class="chips" style="margin-top:14px">'+chip('預購長生位（生前預購）',l.pre,'data-a="sy_pre" data-id="'+l.id+'"','鎮民減收 10% 不適用；需附預安奉者的戶籍謄本','wide')+'</div>';
+  if(l.pre) h+='<div class="chips" style="margin-top:8px">'+chip('長生位更名',l.rename,'data-a="sy_rename" data-id="'+l.id+'"','登記費 2,000，限一次','wide')+'</div>';
 
-  h+='<div class="q">數量（'+K.unit+'）</div>'+stepper('qty',' data-id="'+l.id+'"',l.qty);
+  h+='<div class="q">數量（'+K.unit+'）</div>'+stepper('sy_qty',' data-id="'+l.id+'"',l.qty);
 
-  h+='<div class="chips" style="margin-top:14px">'+chip('購買後要換位置',l.move,'data-a="move" data-id="'+l.id+'"',
+  h+='<div class="chips" style="margin-top:14px">'+chip('購買後要換位置',l.move,'data-a="sy_move" data-id="'+l.id+'"',
     l.pre?'長生位換位登記費 2,000，較貴要補差額':'已晉塔換位費 10,000，較貴要補差額','wide')+'</div>';
   if(l.move) h+='<div class="q">換到</div>'+targetSelect(l);
 
@@ -916,16 +780,16 @@ function itemsHTML(){
   let h='<section class="card"><h2><span class="n">2</span>塔位項目</h2>'
     +'<p class="hint">不同櫃型、層別、塔別，請分成不同項目。</p>';
   S.lines.forEach((l,i)=>{h+=lineHTML(l,i);});
-  return h+'<button type="button" class="btn add" data-a="add">＋ 新增另一種項目</button></section>';
+  return h+'<button type="button" class="btn add" data-a="sy_add">＋ 新增另一種項目</button></section>';
 }
 
 function plaqueHTML(p,i){
   let h='<div class="line"><div class="line-h"><b>牌位 '+(i+1)+'</b>'
-    +'<button type="button" class="link" data-a="pdel" data-id="'+p.id+'">刪除此牌位</button></div>';
+    +'<button type="button" class="link" data-a="sy_pdel" data-id="'+p.id+'">刪除此牌位</button></div>';
   h+='<div class="q">選位方式</div><div class="chips two">'
-    +chip('非選位',!p.pick,'data-a="ppick" data-id="'+p.id+'" data-v="0"','標準價 '+fmt(PLAQUE.plain))
-    +chip('自選位',p.pick,'data-a="ppick" data-id="'+p.id+'" data-v="1"','標準價 '+fmt(PLAQUE.pick))+'</div>';
-  h+='<div class="q">數量（位）</div>'+stepper('pqty',' data-id="'+p.id+'"',p.qty);
+    +chip('非選位',!p.pick,'data-a="sy_ppick" data-id="'+p.id+'" data-v="0"','標準價 '+fmt(PLAQUE.plain))
+    +chip('自選位',p.pick,'data-a="sy_ppick" data-id="'+p.id+'" data-v="1"','標準價 '+fmt(PLAQUE.pick))+'</div>';
+  h+='<div class="q">數量（位）</div>'+stepper('sy_pqty',' data-id="'+p.id+'"',p.qty);
   if(S.res){
     const c=calcPlaque(p);
     h+='<div class="calc">'+row('牌位使用費',c.sub,(p.qty>1?money(c.unit)+' × '+p.qty+'；':'')+resNote(c.base,false))+'</div>';
@@ -936,21 +800,21 @@ function plaqueHTML(p,i){
 function tempHTML(){
   const t=S.temp;
   let h='<div class="q" style="margin-top:22px">臨時寄放骨灰（骸）</div><div class="chips">'
-    +chip('需要臨時寄放',t.on,'data-a="ton"','','wide')+'</div>';
+    +chip('需要臨時寄放',t.on,'data-a="sy_ton"','','wide')+'</div>';
   if(!t.on) return h;
   h+='<div class="q">寄放期限</div><div class="chips two">'
-    +chip('3 年',t.mode==='y3','data-a="tmode" data-v="y3"','一次性，標準價 '+fmt(TEMP.y3))
-    +chip('切結較短期限',t.mode==='month','data-a="tmode" data-v="month"','按月，每月 '+fmt(TEMP.perMonth))+'</div>';
+    +chip('3 年',t.mode==='y3','data-a="sy_tmode" data-v="y3"','一次性，標準價 '+fmt(TEMP.y3))
+    +chip('切結較短期限',t.mode==='month','data-a="sy_tmode" data-v="month"','按月，每月 '+fmt(TEMP.perMonth))+'</div>';
   if(t.mode==='month'){
-    h+='<div class="q">寄放月數</div>'+stepper('tmonths','',t.months,'最長 36 個月');
-    h+='<div class="chips" style="margin-top:8px">'+[1,3,6,12].map(m=>chip(m+' 個月',t.months===m,'data-a="tset" data-v="'+m+'"')).join('')+'</div>';
+    h+='<div class="q">寄放月數</div>'+stepper('sy_tmonths','',t.months,'最長 36 個月');
+    h+='<div class="chips" style="margin-top:8px">'+[1,3,6,12].map(m=>chip(m+' 個月',t.months===m,'data-a="sy_tset" data-v="'+m+'"')).join('')+'</div>';
     const own=tempOwned();
-    h+='<div class="q">已購置（或本次同時購買）本鎮骨灰（骸）存放設施？</div><div class="chips two">'
-      +chip('是',own===true,'data-a="towned" data-v="1"','30 日內免收使用費')
-      +chip('否',own===false,'data-a="towned" data-v="0"')+'</div>';
+    h+='<div class="q">已購置本鎮骨灰（骸）存放設施？</div><div class="chips two">'
+      +chip('是',own===true,'data-a="sy_towned" data-v="1"', '30 日內免收使用費')
+      +chip('否',own===false,'data-a="sy_towned" data-v="0"')+'</div>';
   }
-  h+='<div class="q">數量（具）</div>'+stepper('tqty','',t.qty);
-  h+='<div class="chips" style="margin-top:14px">'+chip('期限屆滿前移置本鎮塔位',t.credit,'data-a="tcredit"','已繳使用費可折抵塔位使用費','wide')+'</div>';
+  h+='<div class="q">數量（具）</div>'+stepper('sy_tqty','',t.qty);
+  h+='<div class="chips" style="margin-top:14px">'+chip('期限屆滿前移置本鎮塔位',t.credit,'data-a="sy_tcredit"','已繳使用費可折抵塔位使用費','wide')+'</div>';
   if(S.res){
     const c=calcTemp();
     h+='<div class="calc"><div class="tier">'+c.label+'</div>'
@@ -964,7 +828,7 @@ function extrasHTML(){
   let h='<section class="card"><h2><span class="n">3</span>其他項目</h2>'
     +'<div class="q" style="margin-top:14px">牌位</div><p class="hint" style="margin-top:0">牌位不提供長生位、更名、換位。</p>';
   S.plaques.forEach((p,i)=>{h+=plaqueHTML(p,i);});
-  h+='<button type="button" class="btn add" data-a="padd">＋ 新增牌位</button>';
+  h+='<button type="button" class="btn add" data-a="sy_padd">＋ 新增牌位</button>';
   h+=tempHTML();
   return h+'</section>';
 }
@@ -992,7 +856,7 @@ function summary(){
   if(tp) s+='\n'+tp.label+' × '+tp.qty+' 具\n   使用費 '+money(tp.use*tp.qty)+'｜管理費 '+money(tp.mgmt*tp.qty)+'\n   小計 '+money(tp.sub)+'\n';
   const t=totals();
   if(t.credit) s+='\n臨時寄放使用費折抵：－'+money(t.credit)+'\n';
-  s+='\n合計：'+money(t.all)+'\n※ 試算僅供參考，實際以羅東鎮立殯葬管理所公告與審核為準 03-9898845';
+  s+='\n合計：'+money(t.all)+'\n※ 試算僅供參考，實際以羅東鎮立殯葬管理所公告與審核為準 (03) 989-8845';
   return s;
 }
 
@@ -1011,35 +875,31 @@ function resultHTML(){
   if(S.plaques.length) h+=row('牌位',t.plaque);
   if(S.temp.on){ h+=row('臨時寄放使用費',t.tempUse)+row('臨時寄放管理費',t.tempMgmt); }
   if(t.credit) h+=row('臨時寄放使用費折抵',-t.credit);
-  h+='<div class="row total"><span>合計</span><span>'+money(t.all)+'</span></div>';
+  h+='<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
   h+='<div class="q">文字摘要</div><textarea class="sum" readonly rows="12">'+esc(summary())+'</textarea>';
-  h+='<div class="actions"><button type="button" class="btn" data-a="copy">複製摘要</button>'
-    +'<button type="button" class="btn ghost" data-a="reset">全部重來</button></div>';
+  h+='<div class="actions"><button type="button" class="btn" data-a="sy_copy">複製摘要</button>'
+    + '<button type="button" class="btn ghost" data-a="sy_reset">全部重來</button></div>';
   return h+'</section>';
 }
 
 function notesHTML(){
-  return '<details><summary>計算依據與需要確認的地方</summary><ul>'
-   +'<li>價目來自「羅東鎮立殯葬設施使用收費標準表」（115 年 6 月修訂）的背面，只算骨灰（骸）存放設施。墓地、火化、殯儀不含。</li>'
-   +'<li>本鎮鎮民減收 10%、設籍外縣市加一倍，表上寫在臨時寄放列的說明欄。本工具套用到塔位、牌位、臨時寄放的使用費，管理費不調整，預購長生位不減收。</li>'
-   +'<li>壽園寶塔的管理費，表上寫「以福恩塔的 60%」，並寫單人 9,000。本工具依 60% 推算其他櫃型（雙人 18,000、家族 6 人 36,000 等），佛祖區以雙人式推算。</li>'
-   +'<li>換位：已晉塔換位費 10,000，加使用費與管理費的補差額（換到較便宜的不退）。換位費表上寫「位」，雙人式與家族式暫以每組計。</li>'
-   +'<li>長生位換位、更名登記費各 2,000，限一次；牌位不提供長生位、更名、換位。</li>'
-   +'<li>臨時寄放：3 年 36,000，切結較短期限按月（每月 1,000）。管理費 15,000 一次性。已購置本鎮設施者 30 日內免收使用費。</li>'
+  return '<details><summary>羅東壽園 收費依據與說明</summary><ul>'
+   +'<li>依據羅東鎮立殯葬設施使用收費標準表（115 年 7 月 16 日修訂版）試算。</li>'
+   +'<li>設籍外縣市者，其使用費加一倍（2倍）計收。鎮民減收 10%（長生位除外）。</li>'
+   +'<li>壽園寶塔管理費按福恩塔標準費率之 60% 計收；福恩塔按全額計收。</li>'
+   +'<li>已晉塔換位費 10,000 元，較貴補差額，較低不退差額。</li>'
    +'</ul></details>';
 }
 
 function render(){
-  $('.app').innerHTML=qualHTML()+itemsHTML()+extrasHTML()+resultHTML()+notesHTML();
-  $('.amt').textContent = S.res ? money(totals().all) : '請先選戶籍';
+  container.innerHTML=qualHTML()+itemsHTML()+extrasHTML()+resultHTML()+notesHTML();
+  document.getElementById('amt-sy').textContent = S.res ? money(totals().all) : '請先選戶籍';
   save();
 }
 
-/* ───────── 互動 ───────── */
-
 function toast(msg){
-  const t=$('.toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2200);
+  const t = document.getElementById('toast-sy'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
 async function doCopy(){
@@ -1055,7 +915,7 @@ async function doCopy(){
   if(ok) toast('已複製，可貼到 LINE');
   else{
     toast('無法自動複製，請在文字摘要框內全選複製');
-    const sum=$('.sum'); if(sum){sum.scrollIntoView({block:'center'}); sum.focus(); sum.select();}
+    const sum = root.querySelector('.sum'); if(sum){sum.scrollIntoView({block:'center'}); sum.focus(); sum.select();}
   }
 }
 
@@ -1064,33 +924,33 @@ function act(d){
   const pl = d.id ? S.plaques.find(x=>String(x.id)===String(d.id)) : null;
   const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
   switch(d.a){
-    case 'res': S.res=d.v; break;
-    case 'add': S.lines.push(newLine()); break;
-    case 'del': S.lines=S.lines.filter(x=>x!==l); break;
-    case 'kind':
+    case 'sy_res': S.res=d.v; break;
+    case 'sy_add': S.lines.push(newLine()); break;
+    case 'sy_del': S.lines=S.lines.filter(x=>x!==l); break;
+    case 'sy_kind':
       l.kind=d.v; l.grp=GRPS[d.v][0][0]; l.target=null; l.move=false;
       if(d.v==='buddha') l.tower='ba';
       break;
-    case 'grp': l.grp=d.v; l.target=null; break;
-    case 'tower': l.tower=d.v; l.target=null; break;
-    case 'pre': l.pre=!l.pre; if(!l.pre) l.rename=false; break;
-    case 'rename': l.rename=!l.rename; break;
-    case 'qty': l.qty=clamp(l.qty+Number(d.v),1,99); break;
-    case 'move': l.move=!l.move; if(!l.move) l.target=null; break;
-    case 'target': l.target=d.v; break;
-    case 'padd': S.plaques.push({id:nextId++,pick:false,qty:1}); break;
-    case 'pdel': S.plaques=S.plaques.filter(x=>x!==pl); break;
-    case 'ppick': pl.pick=(d.v==='1'); break;
-    case 'pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
-    case 'ton': S.temp.on=!S.temp.on; break;
-    case 'tmode': S.temp.mode=d.v; break;
-    case 'tmonths': S.temp.months=clamp(S.temp.months+Number(d.v),1,36); break;
-    case 'tset': S.temp.months=Number(d.v); break;
-    case 'towned': S.temp.owned=(d.v==='1'); break;
-    case 'tqty': S.temp.qty=clamp(S.temp.qty+Number(d.v),1,99); break;
-    case 'tcredit': S.temp.credit=!S.temp.credit; break;
-    case 'copy': doCopy(); return;
-    case 'reset': nextId=1; S=fresh(); break;
+    case 'sy_grp': l.grp=d.v; l.target=null; break;
+    case 'sy_tower': l.tower=d.v; l.target=null; break;
+    case 'sy_pre': l.pre=!l.pre; if(!l.pre) l.rename=false; break;
+    case 'sy_rename': l.rename=!l.rename; break;
+    case 'sy_qty': l.qty=clamp(l.qty+Number(d.v),1,99); break;
+    case 'sy_move': l.move=!l.move; if(!l.move) l.target=null; break;
+    case 'sy_target': l.target=d.v; break;
+    case 'sy_padd': S.plaques.push({id:nextId++,pick:false,qty:1}); break;
+    case 'sy_pdel': S.plaques=S.plaques.filter(x=>x!==pl); break;
+    case 'sy_ppick': pl.pick=(d.v==='1'); break;
+    case 'sy_pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
+    case 'sy_ton': S.temp.on=!S.temp.on; break;
+    case 'sy_tmode': S.temp.mode=d.v; break;
+    case 'sy_tmonths': S.temp.months=clamp(S.temp.months+Number(d.v),1,36); break;
+    case 'sy_tset': S.temp.months=Number(d.v); break;
+    case 'sy_towned': S.temp.owned=(d.v==='1'); break;
+    case 'sy_tqty': S.temp.qty=clamp(S.temp.qty+Number(d.v),1,99); break;
+    case 'sy_tcredit': S.temp.credit=!S.temp.credit; break;
+    case 'sy_copy': doCopy(); return;
+    case 'sy_reset': nextId=1; S=fresh(); break;
     default: return;
   }
   render();
@@ -1098,7 +958,7 @@ function act(d){
 
 root.addEventListener('click',e=>{
   const b=e.target.closest('button[data-a]');
-  if(b) act(b.dataset);
+  if(b && b.dataset.a.startsWith('sy_')) act(b.dataset);
 });
 root.addEventListener('change',e=>{
   const s=e.target;
@@ -1110,44 +970,571 @@ root.addEventListener('input', e => {
   if (isNaN(val) || val < 1) return;
   const a = inp.dataset.a;
   const id = inp.dataset.id;
-  if (a === 'qtyinput') {
+  if (a === 'sy_qtyinput') {
     const l = S.lines.find(x => String(x.id) === String(id));
     if (l) { l.qty = Math.min(99, val); render(); }
-  } else if (a === 'pqtyinput') {
+  } else if (a === 'sy_pqtyinput') {
     const pl = S.plaques.find(x => String(x.id) === String(id));
     if (pl) { pl.qty = Math.min(99, val); render(); }
-  } else if (a === 'tmonthsinput') {
+  } else if (a === 'sy_tmonthsinput') {
     S.temp.months = Math.min(36, val); render();
-  } else if (a === 'tqtyinput') {
+  } else if (a === 'sy_tqtyinput') {
     S.temp.qty = Math.min(99, val); render();
   }
 });
 
-window.__LD={calcLine,calcPlaque,calcTemp,totals,getS:()=>S,summary};
+window.__SY = { render };
 render();
 })();
 </script>
 
-<script id="tabs">
+<!-- ═════════ 腳本 3：冬山鄉梅園 ═════════ -->
+<script id="script-my">
+(function(){
+'use strict';
+const BOX = {
+  personal_flat:{A:20000,D:16000,M:28000,B:40000,C:60000,mgmt:15000,
+    R:{fee:0,mgmt:14000,deco:2000},L:{fee:0,mgmt:0,deco:0},W:{fee:0,mgmt:14000,deco:0}},
+  personal_eye:{A:25000,D:20000,M:35000,B:50000,C:80000,mgmt:15000,
+    R:{fee:5000,mgmt:14000,deco:2000},L:{fee:5000,mgmt:0,deco:0},W:{fee:5000,mgmt:14000,deco:0}},
+  couple_flat:{A:36000,D:28800,M:50400,B:72000,C:120000,mgmt:15000},
+  couple_eye:{A:50000,D:40000,M:70000,B:100000,C:160000,mgmt:15000},
+  urn_hi:{A:40000,D:32000,M:56000,B:80000,C:120000,mgmt:18500,R:{fee:24000,mgmt:17500,deco:4000}},
+  urn_lo:{A:36000,D:28800,M:50400,B:72000,C:110000,mgmt:18500,R:{fee:20000,mgmt:17500,deco:4000}}
+};
+const MOVE = {personal:10000,couple:15000,urn:10000,family:30000};
+const MULT = {E:1.6,F:1,G:0.8,H:0.6};
+const FAM = [
+  {id:'31u',g:'a',seats:8, F:300000,label:'8 位｜60×30×140cm 上排'},
+  {id:'31d',g:'a',seats:12,F:540000,label:'12 位｜60×30×200cm 下排'},
+  {id:'32u',g:'a',seats:10,F:380000,label:'10 位｜60×30×170cm 上排'},
+  {id:'32d',g:'a',seats:10,F:460000,label:'10 位｜60×30×170cm 下排'},
+  {id:'41u',g:'b',seats:16,F:480000,label:'16 位｜60×60×140cm 上排'},
+  {id:'41d',g:'b',seats:24,F:960000,label:'24 位｜60×60×200cm 下排'},
+  {id:'42u',g:'b',seats:20,F:620000,label:'20 位｜60×60×170cm 上排'},
+  {id:'42d',g:'b',seats:20,F:820000,label:'20 位｜60×60×170cm 下排'},
+  {id:'31uh',g:'c',seats:4,F:150000,label:'4 位｜30×30×140cm 上排'},
+  {id:'31dh',g:'c',seats:6,F:270000,label:'6 位｜30×30×200cm 下排'},
+  {id:'32uh',g:'c',seats:5,F:190000,label:'5 位｜30×30×170cm 上排'},
+  {id:'32dh',g:'c',seats:5,F:230000,label:'5 位｜30×30×170cm 下排'}
+];
+const FAM_G = {a:'60×30 系列（表3-1、3-2）',b:'60×60 系列（表4-1、4-2）',c:'半櫃 30×30（整櫃規費÷2）'};
+const famOf = id => FAM.find(f=>f.id===id) || FAM[0];
+const famFee = (id,t) => Math.round(famOf(id).F * MULT[t]);
+const famMgmt = id => famOf(id).seats * 10000;
+
+const KINDS = {
+  personal:{name:'個人式',spec:'30×30×30cm',unit:'座',decs:['none','vil','ds','M','R','L','W'],
+    grps:[['eye','成人平視層','第 3、5–8 層'],['flat','非平視層','第 1、2、9–12 層']]},
+  couple:{name:'夫妻式',spec:'60×30×30cm',unit:'座（2 位）',decs:['none','vil','ds','M'],
+    grps:[['eye','成人平視層','第 3、5–8 層'],['flat','非平視層','第 1、2、9–12 層']]},
+  urn:{name:'儲骨櫃',spec:'42×69×42cm',unit:'座',decs:['none','vil','ds','M','R'],
+    grps:[['hi','第 1–3 層',''],['lo','第 5–6 層','']]},
+  family:{name:'家族式',spec:'4–24 位',unit:'櫃',decs:['none','ds','M','R'],grps:null}
+};
+const DEC = {
+  none:'一般（無身分優惠）',
+  vil:'亡者設籍鹿埔／得安／廣興村（滿3年）',
+  ds:'亡者設籍冬山鄉（滿3年或曾滿6年）',
+  M:'葬於本鄉公墓內起掘',
+  R:'葬於公告遷葬區',
+  L:'低收入戶死亡者',
+  W:'因公作戰或演習死亡'
+};
+const AT_LABEL = {
+  A:'冬山鄉民，堂位 5 折',
+  D:'鹿埔／得安／廣興村，堂位 4 折',
+  B:'宜蘭縣民標準價',
+  C:'外縣市價',
+  M:'葬於本鄉公墓內，堂位 7 折',
+  R:'葬於公告遷葬區',
+  L:'低收入戶死亡者',
+  W:'因公作戰、演習死亡者'
+};
+const FT_LABEL = {E:'外縣市價（標準價×1.6）',F:'宜蘭縣民標準價',G:'葬於本鄉公墓內，8 折',H:'本鄉籍或遷葬區，6 折'};
+const RES_LABEL = {ds:'冬山鄉',yl:'宜蘭縣其他鄉鎮市',ot:'外縣市'};
+
+function feeOf(key,tier){
+  const p = BOX[key];
+  return ['A','D','B','C','M'].includes(tier) ? p[tier] : p[tier].fee;
+}
+
+function calcBox(l,at){
+  const p = BOX[l.kind+'_'+l.grp];
+  const c = [{tier:at,fee:p[at],mgmt:p.mgmt,deco:0}];
+  if(l.dec==='vil') c.push({tier:'D',fee:p.D,mgmt:p.mgmt,deco:0});
+  if(l.dec==='ds')  c.push({tier:'A',fee:p.A,mgmt:p.mgmt,deco:0});
+  if(l.dec==='M')   c.push({tier:'M',fee:p.M,mgmt:p.mgmt,deco:0});
+  if(['R','L','W'].includes(l.dec) && p[l.dec]) c.push({tier:l.dec,fee:p[l.dec].fee,mgmt:p[l.dec].mgmt,deco:p[l.dec].deco});
+
+  c.forEach(x=>x.sum=x.fee+x.mgmt+x.deco);
+  c.sort((a,b)=>a.sum-b.sum);
+  const b = c[0];
+  let moveFee=0, diff=0;
+  if(l.move){
+    moveFee = MOVE[l.kind];
+    if(b.tier==='R' && (at==='A'||at==='D'||l.dec==='ds'||l.dec==='vil')) moveFee = 0;
+    const tk = l.kind+'_'+(l.target||l.grp);
+    diff = Math.max(0, feeOf(tk,b.tier) - b.fee);
+  }
+  const unit = b.fee+b.mgmt+b.deco+moveFee+diff;
+  return {tier:b.tier,tierLabel:AT_LABEL[b.tier],fee:b.fee,mgmt:b.mgmt,deco:b.deco,moveFee,diff,qty:l.qty,unit,sub:unit*l.qty,better:b.tier!==at};
+}
+
+function calcFam(l,at){
+  const base = {A:'H',D:'H',B:'F',C:'E'}[at];
+  const tiers = [base];
+  if(l.dec==='ds') tiers.push('H');
+  if(l.dec==='M') tiers.push('G');
+  if(l.dec==='R') tiers.push('H');
+  if(l.half) tiers.push('H');
+  let best=null;
+  tiers.forEach(t=>{const f=famFee(l.fam,t); if(!best||f<best.fee) best={tier:t,fee:f};});
+  const b = {tier:best.tier,fee:best.fee,mgmt:famMgmt(l.fam),deco:0};
+  let moveFee=0, diff=0;
+  if(l.move){
+    moveFee = MOVE.family;
+    diff = Math.max(0, famFee(l.target||l.fam,b.tier) - b.fee);
+  }
+  const unit = b.fee+b.mgmt+b.deco+moveFee+diff;
+  return {tier:b.tier,tierLabel:FT_LABEL[b.tier],fee:b.fee,mgmt:b.mgmt,deco:b.deco,moveFee,diff,qty:l.qty,unit,sub:unit*l.qty,better:b.tier!==base};
+}
+const calc = (l,at) => l.kind==='family' ? calcFam(l,at) : calcBox(l,at);
+
+const PLAQUE = {s:{name:'小型',spec:'9×23×3.5cm',price:30000},l:{name:'大型',spec:'16×23×6cm',price:50000}};
+function calcPlaque(p){
+  const base=PLAQUE[p.size].price, pick=p.pick?Math.round(base*0.1):0;
+  return {base,pick,qty:p.qty,unit:base+pick,sub:(base+pick)*p.qty};
+}
+function tempOwned(){return S.temp.owned===null ? S.lines.length>0 : S.temp.owned;}
+function calcTemp(){
+  const t=S.temp; if(!t.on) return null;
+  let unit,label,note='';
+  if(t.mode==='half'){unit=3000;label='臨時寄存半年期優惠';}
+  else if(t.mode==='year'){unit=6000;label='臨時寄存一年期優惠';}
+  else{
+    const free=tempOwned()?30:0, pay=Math.max(0,t.days-free);
+    unit=pay*200;
+    label='按日計費 '+t.days+' 天';
+    note=free?('已購置存放設施，前 30 天免收；計費 '+pay+' 天 × 200'):'每日 200 元';
+  }
+  return {label,note,unit,qty:t.qty,sub:unit*t.qty};
+}
+function totals(res){
+  const t={fee:0,mgmt:0,deco:0,move:0,diff:0,plaque:0,temp:0,all:0};
+  res.forEach(r=>{ if(!r) return;
+    t.fee+=r.fee*r.qty; t.mgmt+=r.mgmt*r.qty; t.deco+=r.deco*r.qty;
+    t.move+=r.moveFee*r.qty; t.diff+=r.diff*r.qty; t.all+=r.sub; });
+  S.plaques.forEach(p=>{t.plaque+=calcPlaque(p).sub;});
+  const tp=calcTemp(); if(tp) t.temp=tp.sub;
+  t.all+=t.plaque+t.temp;
+  return t;
+}
+
+const KEY='tower-calc-dongshan-v5';
+let nextId=1;
+function newLine(){return {id:nextId++,kind:'personal',grp:'eye',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
+function fresh(){return {res:null,yr3:null,vil:null,yl1:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'day',days:30,qty:1,owned:null}};}
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(s && Array.isArray(s.lines)){
+      const ids=s.lines.concat(s.plaques||[]).map(x=>x.id);
+      nextId=(ids.length?Math.max.apply(null,ids):0)+1; return s;
+    }
+  }catch(e){}
+  return null;
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S = load() || fresh();
+
+function appTier(){
+  if(!S.res) return null;
+  if(S.res==='ds'){
+    if(S.yr3===true) return S.vil===null ? null : (S.vil?'D':'A');
+    if(S.yr3===false) return S.yl1===null ? null : (S.yl1?'B':'C');
+    return null;
+  }
+  if(S.res==='yl'){
+    if(S.yr3===true) return 'A';
+    if(S.yr3===false) return S.yl1===null ? null : (S.yl1?'B':'C');
+    return null;
+  }
+  if(S.yr3===true) return 'A';
+  if(S.yr3===false) return 'C';
+  return null;
+}
+
+const root = document.getElementById('panel-my');
+const container = document.getElementById('app-my-container');
+const fmt = n => n.toLocaleString('en-US');
+const money = n => 'NT$ '+fmt(n);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+function chip(label,on,attrs,sub,cls){
+  return '<button type="button" class="chip'+(on?' on':'')+(cls?' '+cls:'')+'" aria-pressed="'+(on?'true':'false')+'" '+attrs+'>'+label+(sub?'<small>'+sub+'</small>':'')+'</button>';
+}
+function yn(field,text){
+  const v=S[field];
+  return '<div class="q">'+text+'</div><div class="chips two">'
+    +chip('是',v===true,'data-a="my_yn" data-f="'+field+'" data-v="1"')
+    +chip('否',v===false,'data-a="my_yn" data-f="'+field+'" data-v="0"')+'</div>';
+}
+
+function qualHTML(at){
+  let h='<section class="card"><h2><span class="n">1</span>申請人家屬戶籍</h2>';
+  if(!S.lines.length) h+='<p class="hint">目前沒有塔位項目。只算牌位或寄放時，可以略過這一步。</p>';
+  h+='<div class="q">申請人（辦理者）的戶籍在哪裡？</div><div class="chips three">'
+    +chip('冬山鄉',S.res==='ds','data-a="my_res" data-v="ds"')
+    +chip('宜蘭縣其他鄉鎮市',S.res==='yl','data-a="my_res" data-v="yl"')
+    +chip('外縣市',S.res==='ot','data-a="my_res" data-v="ot"')+'</div>';
+  if(S.res==='ds'){
+    h+=yn('yr3','設籍冬山鄉滿 3 年，或曾設籍冬山鄉累計滿 6 年以上？');
+    if(S.yr3===true) h+=yn('vil','是否設籍在鹿埔、得安、廣興村，且滿 3 年？');
+    if(S.yr3===false) h+=yn('yl1','宜蘭縣設籍是否滿 1 年？');
+  }else if(S.res==='yl'){
+    h+=yn('yr3','曾設籍冬山鄉累計滿 6 年以上？');
+    if(S.yr3===false) h+=yn('yl1','宜蘭縣設籍是否滿 1 年？');
+  }else if(S.res==='ot'){
+    h+=yn('yr3','曾設籍冬山鄉累計滿 6 年以上？');
+  }
+  if(at){
+    const fam={A:'6 折',D:'6 折（家族式無三村加碼）',B:'標準價',C:'標準價×1.6'}[at];
+    h+='<div class="banner"><b>申請人適用：'+AT_LABEL[at]+'</b><small>家族式對應：'+fam+'（若受葬亡者資格更優，將自動採用亡者優惠）</small></div>';
+  }else{
+    h+='<div class="banner idle">回答完上面的問題，才能算出價級。</div>';
+  }
+  return h+'</section>';
+}
+
+function famSelect(id,cur,attr){
+  let h='<select data-a="'+attr+'" data-id="' + id + '" aria-label="家族櫃型">';
+  ['a','b','c'].forEach(g=>{
+    h+='<optgroup label="'+FAM_G[g]+'">';
+    FAM.filter(f=>f.g===g).forEach(f=>{h+='<option value="'+f.id+'"'+(f.id===cur?' selected':'')+'>'+f.label+(attr==='my_target'&&f.id===cur?'（同款，僅換位置）':'')+'</option>';});
+    h+='</optgroup>';
+  });
+  return h+'</select>';
+}
+
+function lineHTML(l,i,r){
+  const K=KINDS[l.kind];
+  let h='<div class="line"><div class="line-h"><b>項目 '+(i+1)+'</b>'
+    +'<button type="button" class="link" data-a="my_del" data-id="'+l.id+'">刪除此項目</button></div>';
+
+  h+='<div class="q">櫃型</div><div class="chips two">'
+    +Object.keys(KINDS).map(k=>chip(KINDS[k].name,l.kind===k,'data-a="my_kind" data-id="'+l.id+'" data-v="'+k+'"',KINDS[k].spec)).join('')+'</div>';
+
+  if(l.kind==='family'){
+    h+='<div class="q">家族櫃型</div>'+famSelect(l.id,l.fam,'my_fam');
+    h+='<p class="hint">須受葬人 1 人以上。管理費每位 10,000。</p>';
+  }else{
+    h+='<div class="q">層別</div><div class="chips two">'
+      +K.grps.map(g=>chip(g[1],l.grp===g[0],'data-a="my_grp" data-id="'+l.id+'" data-v="'+g[0]+'"',g[2])).join('')+'</div>';
+    let hint='本館無第 4 層。';
+    if(l.kind==='urn') hint+='儲骨櫃第 1–3 層比第 5–6 層貴。';
+    if(l.kind==='couple') hint+='夫妻式以每座（2 位）計價。';
+    h+='<p class="hint">'+hint+'</p>';
+  }
+
+  h+='<div class="q">受葬人（亡者）身分與狀況</div><div class="chips">'
+    +K.decs.map(d=>chip(DEC[d],l.dec===d,'data-a="my_dec" data-id="'+l.id+'" data-v="'+d+'"')).join('')+'</div>';
+  if(l.kind==='family'){
+    h+='<div class="chips" style="margin-top:8px">'+chip('比照鄉民價的特例',l.half,'data-a="my_half" data-id="'+l.id+'"',
+      '受葬人達半數且設籍滿 3 年（或曾設籍滿 6 年）','wide')+'</div>';
+  }
+
+  h+='<div class="q">數量（'+K.unit.replace('（','，').replace('）','')+'）</div><div class="qtyrow">'
+    +'<button type="button" aria-label="減少" data-a="my_qty" data-id="'+l.id+'" data-v="-1">−</button>'
+    +'<input type="number" min="1" max="99" value="'+l.qty+'" data-a="my_qtyinput" data-id="'+l.id+'">'
+    +'<button type="button" aria-label="增加" data-a="my_qty" data-id="'+l.id+'" data-v="1">＋</button></div>';
+
+  h+='<div class="chips" style="margin-top:14px">'+chip('購買後要換位置',l.move,'data-a="my_move" data-id="'+l.id+'"','進堂前申請免換位費，限一次','wide')+'</div>';
+  if(l.move){
+    h+='<div class="q">換到</div>';
+    if(l.kind==='family') h+=famSelect(l.id,l.target||l.fam,'my_target');
+    else{
+      h+='<select data-a="my_target" data-id="'+l.id+'" aria-label="換位目標">'
+        +K.grps.map(g=>'<option value="'+g[0]+'"'+((l.target||l.grp)===g[0]?' selected':'')+'>'
+          +(g[0]===l.grp?'同為'+g[1]+'（僅換位置）':'換到'+g[1])+'</option>').join('')+'</select>';
+    }
+  }
+
+  if(r){
+    h+='<div class="calc"><div class="tier">採用價級：'+r.tierLabel+'</div>';
+    if(r.better) h+='<p class="hint" style="margin:0 0 6px;color:var(--accent)">★ 受葬亡者身分條件較優，已自動採用亡者優惠計收。</p>';
+    const q=r.qty;
+    h+=row('堂位使用規費',r.fee*q,q>1?money(r.fee)+' × '+q:'');
+    h+=row('管理費',r.mgmt*q,q>1?money(r.mgmt)+' × '+q:'');
+    if(r.deco) h+=row('儲櫃（裝潢）費',r.deco*q,q>1?money(r.deco)+' × '+q:'');
+    if(l.move){
+      h+=row('換位費',r.moveFee*q,r.moveFee===0?'遷葬區本鄉籍免收':(q>1?money(r.moveFee)+' × '+q:''));
+      h+=row('換位補差額',r.diff*q,'換到較貴的位置才補；較便宜不退');
+    }
+    h+='<div class="row sum"><span>此項目小計</span><span>'+money(r.sub)+'</span></div></div>';
+  }
+  return h+'</div>';
+}
+
+function row(label,amt,note){
+  return '<div class="row"><span>'+label+(note?'<small>'+note+'</small>':'')+'</span><span>'+(amt===0?'免收':money(amt))+'</span></div>';
+}
+
+function itemsHTML(res){
+  let h='<section class="card"><h2><span class="n">2</span>購買項目</h2>'
+    +'<p class="hint">不同櫃型、層別或受葬人狀況，請分成不同項目。</p>';
+  S.lines.forEach((l,i)=>{h+=lineHTML(l,i,res[i]);});
+  return h+'<button type="button" class="btn add" data-a="my_add">＋ 新增另一種項目</button></section>';
+}
+
+function descOf(l){
+  if(l.kind==='family') return '家族式 '+famOf(l.fam).label;
+  const K=KINDS[l.kind], g=K.grps.find(x=>x[0]===l.grp);
+  return K.name+' '+g[1]+(g[2]?'（'+g[2]+'）':'');
+}
+
+function summary(at,res){
+  let s='【冬山鄉立梅園納骨堂 費用試算明細】\n';
+  if(S.lines.length) s+='申請人：'+RES_LABEL[S.res]+'，'+AT_LABEL[at]+'\n';
+  S.lines.forEach((l,i)=>{
+    const r=res[i]; if(!r) return;
+    const q=l.qty;
+    s+='\n'+(i+1)+'. '+descOf(l)+' × '+q+' '+KINDS[l.kind].unit.replace(/（.*）/,'')+'\n';
+    s+='   受葬人：'+DEC[l.dec]+(l.half?'（比照鄉民價特例）':'')+'\n';
+    s+='   核定價級：'+r.tierLabel+(r.better?'（採用亡者最優身分）':'')+'\n';
+    s+='   堂位規費 '+money(r.fee*q)+'｜管理費 '+money(r.mgmt*q);
+    if(r.deco) s+='｜儲櫃費 '+money(r.deco*q);
+    if(l.move) s+='｜換位費 '+money(r.moveFee*q)+'｜補差額 '+money(r.diff*q);
+    s+='\n   小計 '+money(r.sub)+'\n';
+  });
+  S.plaques.forEach((p,i)=>{
+    const c=calcPlaque(p), P=PLAQUE[p.size];
+    s+='\n牌位 '+(i+1)+'. 神主牌位 '+P.name+' '+P.spec+' × '+p.qty+(p.pick?'（自選位置，加收 10%）':'')+'\n   小計 '+money(c.sub)+'\n';
+  });
+  const tp=calcTemp();
+  if(tp) s+='\n臨時寄放：'+tp.label+' × '+tp.qty+' 份\n   小計 '+money(tp.sub)+'\n';
+  const t=totals(res);
+  s+='\n合計總金額：'+money(t.all)+'\n※ 試算僅供參考，實際以冬山鄉立殯葬管理所核發繳款聯為準 (03) 951-5677';
+  return s;
+}
+
+function plaqueHTML(p,i){
+  const c=calcPlaque(p), q=p.qty;
+  let h='<div class="line"><div class="line-h"><b>牌位 '+(i+1)+'</b>'
+    +'<button type="button" class="link" data-a="my_pdel" data-id="'+p.id+'">刪除此牌位</button></div>';
+  h+='<div class="q">尺寸</div><div class="chips two">'
+    +Object.keys(PLAQUE).map(k=>chip(PLAQUE[k].name+' '+PLAQUE[k].spec,p.size===k,'data-a="my_psize" data-id="'+p.id+'" data-v="'+k+'"',money(PLAQUE[k].price))).join('')+'</div>';
+  h+='<div class="chips" style="margin-top:10px">'+chip('自選牌位位置',p.pick,'data-a="my_ppick" data-id="'+p.id+'"','加收 10% 選位費','wide')+'</div>';
+  h+='<div class="q">數量</div><div class="qtyrow">'
+    +'<button type="button" aria-label="減少" data-a="my_pqty" data-id="'+p.id+'" data-v="-1">−</button>'
+    +'<input type="number" min="1" max="99" value="'+q+'" data-a="my_pqtyinput" data-id="'+p.id+'">'
+    +'<button type="button" aria-label="增加" data-a="my_pqty" data-id="'+p.id+'" data-v="1">＋</button></div>';
+  h+='<div class="calc">'+row('牌位費',c.base*q,q>1?money(c.base)+' × '+q:'');
+  if(p.pick) h+=row('自選位置選位費',c.pick*q,q>1?money(c.pick)+' × '+q:'');
+  h+='<div class="row sum"><span>此牌位小計</span><span>'+money(c.sub)+'</span></div></div></div>';
+  return h;
+}
+
+function tempHTML(){
+  const t=S.temp;
+  let h='<div class="q" style="margin-top:22px">臨時寄放骨灰（骸）</div><div class="chips">'
+    +chip('需要臨時寄放',t.on,'data-a="my_ton"','','wide')+'</div>';
+  if(!t.on) return h;
+  h+='<div class="q">計費方式</div><div class="chips three">'
+    +chip('按日計費',t.mode==='day','data-a="my_tmode" data-v="day"','2 個月以內<br>每日 200')
+    +chip('半年期',t.mode==='half','data-a="my_tmode" data-v="half"','優惠價 3,000')
+    +chip('一年期',t.mode==='year','data-a="my_tmode" data-v="year"','優惠價 6,000')+'</div>';
+  if(t.mode==='day'){
+    h+='<div class="q">寄放天數</div><div class="qtyrow">'
+      +'<button type="button" aria-label="減少一天" data-a="my_tdays" data-v="-1">−</button>'
+      +'<input type="number" min="1" max="60" value="' + t.days + '" data-a="my_tdaysinput">'
+      +'<button type="button" aria-label="增加一天" data-a="my_tdays" data-v="1">＋</button>'
+      +'<span class="hint" style="margin:0">最長 60 天</span></div>';
+    h+='<div class="chips" style="margin-top:8px">'
+      +[7,14,30,60].map(d=>chip(d+' 天',t.days===d,'data-a="my_tset" data-v="'+d+'"')).join('')+'</div>';
+    const own=tempOwned();
+    h+='<div class="q">已購置（或本次同時購買）本鄉納骨堂的存放設施？</div><div class="chips two">'
+      +chip('是',own===true,'data-a="my_towned" data-v="1"','一個月內免收')
+      +chip('否',own===false,'data-a="my_towned" data-v="0"')+'</div>';
+  }
+  h+='<div class="q">數量（份）</div><div class="qtyrow">'
+    +'<button type="button" aria-label="減少" data-a="my_tqty" data-id="my_temp" data-v="-1">−</button>'
+    +'<input type="number" min="1" max="99" value="'+t.qty+'" data-a="my_tqtyinput">'
+    +'<button type="button" aria-label="增加" data-a="my_tqty" data-id="my_temp" data-v="1">＋</button></div>';
+  const c=calcTemp();
+  h+='<div class="calc"><div class="tier">'+c.label+'</div>'
+    +row('臨時寄放費',c.sub,(c.note?c.note+'；':'')+money(c.unit)+' × '+c.qty)+'</div>';
+  return h;
+}
+
+function extrasHTML(){
+  let h='<section class="card"><h2><span class="n">3</span>其他項目</h2>'
+    +'<div class="q" style="margin-top:14px">神主牌位</div><p class="hint" style="margin-top:0">牌位沒有戶籍優惠，一律標準價。</p>';
+  S.plaques.forEach((p,i)=>{h+=plaqueHTML(p,i);});
+  h+='<button type="button" class="btn add" data-a="my_padd">＋ 新增神主牌位</button>';
+  h+=tempHTML();
+  return h+'</section>';
+}
+
+function resultHTML(at,res){
+  let h='<section class="card"><h2><span class="n">4</span>費用總計</h2>';
+  if(S.lines.length && !at) return h+'<p class="hint">完成第 1 步的申請人資格後，這裡會顯示總金額。</p></section>';
+  if(!S.lines.length && !S.plaques.length && !S.temp.on) return h+'<p class="hint">還沒有加入任何項目。</p></section>';
+  const t=totals(res);
+  if(S.lines.length){
+    h+=row('堂位使用規費',t.fee)+row('管理費',t.mgmt);
+    if(t.deco) h+=row('儲櫃（裝潢）費',t.deco);
+    if(t.move) h+=row('換位費',t.move);
+    if(t.diff) h+=row('換位補差額',t.diff);
+  }
+  if(S.plaques.length) h+=row('神主牌位',t.plaque);
+  if(S.temp.on) h+=row('臨時寄放',t.temp);
+  h+='<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
+  h+='<div class="q">文字摘要</div><textarea class="sum" readonly rows="12">'+esc(summary(at,res))+'</textarea>';
+  h+='<div class="actions"><button type="button" class="btn" data-a="my_copy">複製摘要</button>'
+    + '<button type="button" class="btn ghost" data-a="my_reset">全部重來</button></div>';
+  return h+'</section>';
+}
+
+function notesHTML(){
+  return '<details><summary>冬山梅園 收費依據與說明</summary><ul>'
+   +'<li>依據冬山鄉立殯葬管理所「收費標準」（109.2.1 版）自治條例編製。電話 (03) 951-5677。</li>'
+   +'<li>各級優惠不重複累加，系統會在申請人與受葬亡者身分中自動選取最優惠價。</li>'
+   +'<li>低收入戶死亡者：堂位使用規費全免，由所方指定位置；選平視層補繳 5,000 元差額。</li>'
+   +'</ul></details>';
+}
+
+function render(){
+  container.innerHTML=qualHTML(at)+itemsHTML(res)+extrasHTML()+resultHTML(at,res)+notesHTML();
+  const ready=!S.lines.length||at;
+  document.getElementById('amt-my').textContent = ready ? money(totals(res).all) : '請先填資格';
+  save();
+}
+
+function toast(msg){
+  const t = document.getElementById('toast-my'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+async function doCopy(){
+  const at=appTier();
+  if(S.lines.length && !at){toast('請先完成申請人資格');return;}
+  const text=summary(at,S.lines.map(l=>calc(l,at)));
+  let ok=false;
+  try{ await navigator.clipboard.writeText(text); ok=true; }catch(e){
+    try{
+      const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select(); ok=document.execCommand('copy'); ta.remove();
+    }catch(e2){}
+  }
+  if(ok) toast('已複製報價，可貼到 LINE');
+  else{
+    toast('無法自動複製，請在文字摘要框內全選複製');
+    const sum = root.querySelector('.sum'); if(sum){sum.scrollIntoView({block:'center'}); sum.focus(); sum.select();}
+  }
+}
+
+function act(d){
+  const l = d.id ? S.lines.find(x=>String(x.id)===String(d.id)) : null;
+  const pl = d.id ? S.plaques.find(x=>String(x.id)===String(d.id)) : null;
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  switch(d.a){
+    case 'my_res': S.res=d.v; S.yr3=S.vil=S.yl1=null; break;
+    case 'my_yn':
+      S[d.f]=(d.v==='1');
+      if(d.f==='yr3'){S.vil=null;S.yl1=null;}
+      break;
+    case 'my_add': S.lines.push(newLine()); break;
+    case 'my_del': S.lines=S.lines.filter(x=>x!==l); break;
+    case 'my_kind':
+      l.kind=d.v; l.grp=(d.v==='urn'?'hi':'eye'); l.half=false; l.move=false; l.target=null;
+      if(!KINDS[d.v].decs.includes(l.dec)) l.dec='none';
+      break;
+    case 'my_grp': l.grp=d.v; l.target=null; break;
+    case 'my_fam': l.fam=d.v; l.target=null; break;
+    case 'my_dec': l.dec=d.v; break;
+    case 'my_half': l.half=!l.half; break;
+    case 'my_qty': l.qty=Math.max(1,Math.min(99,l.qty+Number(d.v))); break;
+    case 'my_move': l.move=!l.move; if(!l.move) l.target=null; break;
+    case 'my_target': l.target=d.v; break;
+    case 'my_copy': doCopy(); return;
+    case 'my_padd': S.plaques.push({id:nextId++,size:'s',pick:false,qty:1}); break;
+    case 'my_pdel': S.plaques=S.plaques.filter(x=>x!==pl); break;
+    case 'my_psize': pl.size=d.v; break;
+    case 'my_ppick': pl.pick=!pl.pick; break;
+    case 'my_pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
+    case 'my_ton': S.temp.on=!S.temp.on; break;
+    case 'my_tmode': S.temp.mode=d.v; break;
+    case 'my_tdays': S.temp.days=clamp(S.temp.days+Number(d.v),1,60); break;
+    case 'my_tset': S.temp.days=Number(d.v); break;
+    case 'my_towned': S.temp.owned=(d.v==='1'); break;
+    case 'my_tqty': S.temp.qty=clamp(S.temp.qty+Number(d.v),1,99); break;
+    case 'my_reset': nextId=1; S=fresh(); break;
+    default: return;
+  }
+  render();
+}
+
+root.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-a]');
+  if(b && b.dataset.a.startsWith('my_')) act(b.dataset);
+});
+root.addEventListener('change',e=>{
+  const s=e.target;
+  if(s.matches && s.matches('select[data-a]')) act({a:s.dataset.a,id:s.dataset.id,v:s.value});
+});
+root.addEventListener('input', e => {
+  const inp = e.target;
+  const val = parseInt(inp.value, 10);
+  if (isNaN(val) || val < 1) return;
+  const a = inp.dataset.a;
+  const id = inp.dataset.id;
+  if (a === 'my_qtyinput') {
+    const l = S.lines.find(x => String(x.id) === String(id));
+    if (l) { l.qty = Math.min(99, val); render(); }
+  } else if (a === 'my_pqtyinput') {
+    const pl = S.plaques.find(x => String(x.id) === String(id));
+    if (pl) { pl.qty = Math.min(99, val); render(); }
+  } else if (a === 'my_tdaysinput') {
+    S.temp.days = Math.min(60, val); render();
+  } else if (a === 'my_tqtyinput') {
+    S.temp.qty = Math.min(99, val); render();
+  }
+});
+
+let at, res;
+function update(){
+  at = appTier();
+  res = S.lines.map(l=>at?calc(l,at):null);
+  render();
+}
+window.__MY = { render: update };
+update();
+})();
+</script>
+
+<!-- ═════════ 腳本 4：頂部頁籤切換主控 ═════════ -->
+<script id="script-tabs">
 (function(){
   'use strict';
-  const KEY='tower-calc-tab';
-  const tabs=Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
-  function show(id,scroll){
-    tabs.forEach(t=>{
-      const on=t.dataset.panel===id;
-      t.setAttribute('aria-selected',on?'true':'false');
-      t.classList.toggle('on',on);
-      document.getElementById(t.dataset.panel).hidden=!on;
+  const KEY = 'tower-calc-tab-v6';
+  const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]:not(.disabled)'));
+  function show(id, scroll){
+    tabs.forEach(t => {
+      const on = t.dataset.panel === id;
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+      t.classList.toggle('on', on);
+      const p = document.getElementById(t.dataset.panel);
+      if(p) p.hidden = !on;
     });
-    try{localStorage.setItem(KEY,id);}catch(e){}
+    try{ localStorage.setItem(KEY, id); }catch(e){}
     if(scroll) window.scrollTo(0,0);
   }
-  tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.panel,true)));
-  let cur='panel-my';
-  try{cur=localStorage.getItem(KEY)||cur;}catch(e){}
-  if(!document.getElementById(cur)) cur='panel-my';
-  show(cur,false);
+  tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.panel, true)));
+  let cur = 'panel-fy';
+  try{ cur = localStorage.getItem(KEY) || cur; }catch(e){}
+  if(!document.getElementById(cur)) cur = 'panel-fy';
+  show(cur, false);
 })();
 </script>
 </body>

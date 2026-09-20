@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>宜蘭公立塔位費用計算器｜福園・壽園・梅園</title>
+<title>宜蘭公立塔位費用計算器｜福園・壽園・梅園・五結蘭園</title>
 <style>
 :root{
   box-sizing:border-box;
@@ -101,6 +101,7 @@ details{margin:16px 0}
 summary{cursor:pointer;min-height:48px;display:flex;align-items:center;font-weight:600}
 details ul{margin:4px 0 0;padding-left:20px;color:var(--muted);font-size:15px}
 details li{margin:6px 0}
+
 .bar{
   position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);
   padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));
@@ -128,7 +129,7 @@ details li{margin:6px 0}
     <button type="button" role="tab" class="chip" id="tab-fy" data-panel="panel-fy" aria-selected="true">員山福園<small>宜蘭縣立・櫻花</small></button>
     <button type="button" role="tab" class="chip" id="tab-sy" data-panel="panel-sy" aria-selected="false">羅東壽園<small>羅東鎮立</small></button>
     <button type="button" role="tab" class="chip" id="tab-my" data-panel="panel-my" aria-selected="false">冬山梅園<small>冬山鄉立</small></button>
-    <button type="button" role="tab" class="chip disabled" id="tab-wj" title="五結鄉立第二納骨堂興建中，落成公告後開放" disabled>五結鄉立<small>規劃籌建中</small></button>
+    <button type="button" role="tab" class="chip disabled" id="tab-wj" title="五結蘭園興建中，落成公告自治條例後開放" disabled>五結蘭園<small>五結鄉立・籌建中</small></button>
   </nav>
 
   <!-- 面板 1：員山福園與櫻花陵園 -->
@@ -180,7 +181,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v4';
+const KEY = 'tower-calc-fuyuan-v8';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, type:'ash', park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -416,9 +417,9 @@ function tempHTML(){
     + chip('骨灰甕（小甕）', t.type==='ash', 'data-a="fy_ttype" data-v="ash"', '3 年使用費 4 萬＋管理費 1,200')
     + chip('骨骸罈（大甕）', t.type==='bone', 'data-a="fy_ttype" data-v="bone"', '3 年使用費 5 萬＋管理費 1,500') + '</div>';
   h += '<div class="q">數量（具）</div><div class="qtyrow">'
-    + '<button type="button" aria-label="減少" data-a="fy_tqty" data-v="-1">−</button>'
+    + '<button type="button" aria-label="減少" data-a="fy_tqty" data-id="temp" data-v="-1">−</button>'
     + '<input type="number" min="1" max="99" value="'+t.qty+'" data-a="fy_tqtyinput">'
-    + '<button type="button" aria-label="增加" data-a="fy_tqty" data-v="1">＋</button></div>';
+    + '<button type="button" aria-label="增加" data-a="fy_tqty" data-id="temp" data-v="1">＋</button></div>';
   const c = calcTemp();
   h += '<div class="calc"><div class="tier">'+c.label+'</div>'
     + row('臨時使用費與管理費', c.sub, '已購置存放設施者，火化後 14 日內免收使用費') + '</div>';
@@ -452,7 +453,11 @@ function summary(){
   const tp = calcTemp();
   if(tp) s += '\n' + tp.label + ' × ' + S.temp.qty + ' 具\n   小計：' + money(tp.sub) + '\n';
   const t = totals();
-  s += '\n總計應繳納金額：' + money(t.all) + '\n※ 本試算依宜蘭縣立殯葬設施使用費收費標準編製，實際金額以管理所現場核發繳款單為準。電話 (03) 922-0433';
+  s += '\n總計應繳納金額：' + money(t.all) + '\n※ 本試算依宜蘭縣立殯葬設施使用費收費標準編製，實際金額以管理所現場核發繳款單為準。電話 (03) 922-0433\n'
+    + '--------------------------------\n'
+    + '規費標準整理：重生禮儀（簡先生）\n'
+    + '諮詢電話：0922-382533\n'
+    + 'LINE：https://line.me/ti/p/XF2bg2UUic';
   return s;
 }
 
@@ -467,7 +472,7 @@ function resultHTML(){
   if((S.plaques||[]).length) h += row('神主牌位費用', t.plaque);
   if(S.temp.on) h += row('臨時納存費用', t.temp);
   h += '<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
-  h += '<div class="q">文字摘要</div><textarea class="sum" readonly rows="12">'+esc(summary())+'</textarea>';
+  h += '<div class="q">文字摘要</div><textarea class="sum" readonly rows="14">'+esc(summary())+'</textarea>';
   h += '<div class="actions"><button type="button" class="btn" data-a="fy_copy">複製摘要</button>'
     + '<button type="button" class="btn ghost" data-a="fy_reset">全部重設</button></div></section>';
   return h;
@@ -667,7 +672,7 @@ function totals(){
   return t;
 }
 
-const KEY='tower-calc-luodong-v5';
+const KEY='tower-calc-luodong-v9';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'single',tower:'ba',grp:'lo',pre:false,rename:false,qty:1,move:false,target:null};}
 function fresh(){return {res:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'y3',months:12,qty:1,owned:null,credit:false}};}
@@ -800,7 +805,7 @@ function plaqueHTML(p,i){
 function tempHTML(){
   const t=S.temp;
   let h='<div class="q" style="margin-top:22px">臨時寄放骨灰（骸）</div><div class="chips">'
-    +chip('需要臨時寄放',t.on,'data-a="sy_ton"','','wide')+'</div>';
+    +chip('需要臨時寄放',t.on,'data-a="sy_ton"', '', 'wide')+'</div>';
   if(!t.on) return h;
   h+='<div class="q">寄放期限</div><div class="chips two">'
     +chip('3 年',t.mode==='y3','data-a="sy_tmode" data-v="y3"','一次性，標準價 '+fmt(TEMP.y3))
@@ -856,7 +861,11 @@ function summary(){
   if(tp) s+='\n'+tp.label+' × '+tp.qty+' 具\n   使用費 '+money(tp.use*tp.qty)+'｜管理費 '+money(tp.mgmt*tp.qty)+'\n   小計 '+money(tp.sub)+'\n';
   const t=totals();
   if(t.credit) s+='\n臨時寄放使用費折抵：－'+money(t.credit)+'\n';
-  s+='\n合計：'+money(t.all)+'\n※ 試算僅供參考，實際以羅東鎮立殯葬管理所公告與審核為準 (03) 989-8845';
+  s+='\n合計：'+money(t.all)+'\n※ 試算僅供參考，實際以羅東鎮立殯葬管理所公告與審核為準 (03) 989-8845\n'
+    + '--------------------------------\n'
+    + '規費標準整理：重生禮儀（簡先生）\n'
+    + '諮詢電話：0922-382533\n'
+    + 'LINE：https://line.me/ti/p/XF2bg2UUic';
   return s;
 }
 
@@ -876,7 +885,7 @@ function resultHTML(){
   if(S.temp.on){ h+=row('臨時寄放使用費',t.tempUse)+row('臨時寄放管理費',t.tempMgmt); }
   if(t.credit) h+=row('臨時寄放使用費折抵',-t.credit);
   h+='<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
-  h+='<div class="q">文字摘要</div><textarea class="sum" readonly rows="12">'+esc(summary())+'</textarea>';
+  h+='<div class="q">文字摘要</div><textarea class="sum" readonly rows="14">'+esc(summary())+'</textarea>';
   h+='<div class="actions"><button type="button" class="btn" data-a="sy_copy">複製摘要</button>'
     + '<button type="button" class="btn ghost" data-a="sy_reset">全部重來</button></div>';
   return h+'</section>';
@@ -912,7 +921,7 @@ async function doCopy(){
       document.body.appendChild(ta); ta.select(); ok=document.execCommand('copy'); ta.remove();
     }catch(e2){}
   }
-  if(ok) toast('已複製，可貼到 LINE');
+  if(ok) toast('已複製報價，可貼到 LINE');
   else{
     toast('無法自動複製，請在文字摘要框內全選複製');
     const sum = root.querySelector('.sum'); if(sum){sum.scrollIntoView({block:'center'}); sum.focus(); sum.select();}
@@ -1131,7 +1140,7 @@ function totals(res){
   return t;
 }
 
-const KEY='tower-calc-dongshan-v5';
+const KEY='tower-calc-dongshan-v9';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
 function fresh(){return {res:null,yr3:null,vil:null,yl1:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'day',days:30,qty:1,owned:null}};}
@@ -1295,7 +1304,8 @@ function descOf(l){
 
 function summary(at,res){
   let s='【冬山鄉立梅園納骨堂 費用試算明細】\n';
-  if(S.lines.length) s+='申請人：'+RES_LABEL[S.res]+'，'+AT_LABEL[at]+'\n';
+  const ready = !S.lines.length || at;
+  if(S.lines.length && at) s+='申請人：'+RES_LABEL[S.res]+'，'+AT_LABEL[at]+'\n';
   S.lines.forEach((l,i)=>{
     const r=res[i]; if(!r) return;
     const q=l.qty;
@@ -1314,7 +1324,11 @@ function summary(at,res){
   const tp=calcTemp();
   if(tp) s+='\n臨時寄放：'+tp.label+' × '+tp.qty+' 份\n   小計 '+money(tp.sub)+'\n';
   const t=totals(res);
-  s+='\n合計總金額：'+money(t.all)+'\n※ 試算僅供參考，實際以冬山鄉立殯葬管理所核發繳款聯為準 (03) 951-5677';
+  s+='\n合計總金額：'+(ready?money(t.all):'請先完成步驟1資格選取')+'\n※ 試算僅供參考，實際以冬山鄉立殯葬管理所核發繳款聯為準 (03) 951-5677\n'
+    + '--------------------------------\n'
+    + '規費標準整理：重生禮儀（簡先生）\n'
+    + '諮詢電話：0922-382533\n'
+    + 'LINE：https://line.me/ti/p/XF2bg2UUic';
   return s;
 }
 
@@ -1338,7 +1352,7 @@ function plaqueHTML(p,i){
 function tempHTML(){
   const t=S.temp;
   let h='<div class="q" style="margin-top:22px">臨時寄放骨灰（骸）</div><div class="chips">'
-    +chip('需要臨時寄放',t.on,'data-a="my_ton"','','wide')+'</div>';
+    +chip('需要臨時寄放',t.on,'data-a="my_ton"', '', 'wide')+'</div>';
   if(!t.on) return h;
   h+='<div class="q">計費方式</div><div class="chips three">'
     +chip('按日計費',t.mode==='day','data-a="my_tmode" data-v="day"','2 個月以內<br>每日 200')
@@ -1354,12 +1368,12 @@ function tempHTML(){
       +[7,14,30,60].map(d=>chip(d+' 天',t.days===d,'data-a="my_tset" data-v="'+d+'"')).join('')+'</div>';
     const own=tempOwned();
     h+='<div class="q">已購置（或本次同時購買）本鄉納骨堂的存放設施？</div><div class="chips two">'
-      +chip('是',own===true,'data-a="my_towned" data-v="1"','一個月內免收')
+      +chip('是',own===true,'data-a="my_towned" data-v="1"', '一個月內免收')
       +chip('否',own===false,'data-a="my_towned" data-v="0"')+'</div>';
   }
   h+='<div class="q">數量（份）</div><div class="qtyrow">'
     +'<button type="button" aria-label="減少" data-a="my_tqty" data-id="my_temp" data-v="-1">−</button>'
-    +'<input type="number" min="1" max="99" value="'+t.qty+'" data-a="my_tqtyinput">'
+    +'<input type="number" min="1" max="99" value="' + t.qty + '" data-a="my_tqtyinput">'
     +'<button type="button" aria-label="增加" data-a="my_tqty" data-id="my_temp" data-v="1">＋</button></div>';
   const c=calcTemp();
   h+='<div class="calc"><div class="tier">'+c.label+'</div>'
@@ -1378,22 +1392,25 @@ function extrasHTML(){
 
 function resultHTML(at,res){
   let h='<section class="card"><h2><span class="n">4</span>費用總計</h2>';
-  if(S.lines.length && !at) return h+'<p class="hint">完成第 1 步的申請人資格後，這裡會顯示總金額。</p></section>';
-  if(!S.lines.length && !S.plaques.length && !S.temp.on) return h+'<p class="hint">還沒有加入任何項目。</p></section>';
-  const t=totals(res);
-  if(S.lines.length){
-    h+=row('堂位使用規費',t.fee)+row('管理費',t.mgmt);
-    if(t.deco) h+=row('儲櫃（裝潢）費',t.deco);
-    if(t.move) h+=row('換位費',t.move);
-    if(t.diff) h+=row('換位補差額',t.diff);
+  const ready = !S.lines.length || at;
+  const tot = ready ? totals(res) : { fee:0, mgmt:0, deco:0, move:0, diff:0, plaque:0, temp:0, all:0 };
+
+  if (S.lines.length && !at) {
+    h += '<p class="hint" style="color:var(--accent)">請先在步驟 1 回答申請人設籍問題，即可自動試算出精準金額與價級。</p>';
+  } else if (S.lines.length) {
+    h += row('堂位使用規費', tot.fee) + row('管理費', tot.mgmt);
+    if (tot.deco) h += row('儲櫃（裝潢）費', tot.deco);
+    if (tot.move) h += row('換位費', tot.move);
+    if (tot.diff) h += row('換位補差額', tot.diff);
   }
-  if(S.plaques.length) h+=row('神主牌位',t.plaque);
-  if(S.temp.on) h+=row('臨時寄放',t.temp);
-  h+='<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
-  h+='<div class="q">文字摘要</div><textarea class="sum" readonly rows="12">'+esc(summary(at,res))+'</textarea>';
-  h+='<div class="actions"><button type="button" class="btn" data-a="my_copy">複製摘要</button>'
-    + '<button type="button" class="btn ghost" data-a="my_reset">全部重來</button></div>';
-  return h+'</section>';
+  if (S.plaques.length) h += row('神主牌位', tot.plaque);
+  if (S.temp.on) h += row('臨時寄放', tot.temp);
+
+  h += '<div class="row total"><span>合計總額</span><span>' + (ready ? money(tot.all) : '請先填資格') + '</span></div>';
+  h += '<div class="q">文字摘要</div><textarea class="sum" readonly rows="14">' + esc(summary(at, res)) + '</textarea>';
+  h += '<div class="actions"><button type="button" class="btn" data-a="my_copy">複製摘要</button>'
+    + '<button type="button" class="btn ghost" data-a="my_reset">全部重來</button></div></section>';
+  return h;
 }
 
 function notesHTML(){
@@ -1405,8 +1422,8 @@ function notesHTML(){
 }
 
 function render(){
-  container.innerHTML=qualHTML(at)+itemsHTML(res)+extrasHTML()+resultHTML(at,res)+notesHTML();
-  const ready=!S.lines.length||at;
+  container.innerHTML = qualHTML(at) + itemsHTML(res) + extrasHTML() + resultHTML(at, res) + notesHTML();
+  const ready = !S.lines.length || at;
   document.getElementById('amt-my').textContent = ready ? money(totals(res).all) : '請先填資格';
   save();
 }
@@ -1417,20 +1434,20 @@ function toast(msg){
 }
 
 async function doCopy(){
-  const at=appTier();
-  if(S.lines.length && !at){toast('請先完成申請人資格');return;}
-  const text=summary(at,S.lines.map(l=>calc(l,at)));
-  let ok=false;
-  try{ await navigator.clipboard.writeText(text); ok=true; }catch(e){
+  const atVal = appTier();
+  if(S.lines.length && !atVal){ toast('請先完成步驟1申請人資格'); return; }
+  const text = summary(atVal, S.lines.map(l=>calc(l, atVal)));
+  let ok = false;
+  try{ await navigator.clipboard.writeText(text); ok = true; }catch(e){
     try{
-      const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
-      document.body.appendChild(ta); ta.select(); ok=document.execCommand('copy'); ta.remove();
+      const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove();
     }catch(e2){}
   }
   if(ok) toast('已複製報價，可貼到 LINE');
   else{
     toast('無法自動複製，請在文字摘要框內全選複製');
-    const sum = root.querySelector('.sum'); if(sum){sum.scrollIntoView({block:'center'}); sum.focus(); sum.select();}
+    const sum = root.querySelector('.sum'); if(sum){ sum.scrollIntoView({block:'center'}); sum.focus(); sum.select(); }
   }
 }
 
@@ -1461,18 +1478,18 @@ function act(d){
     case 'my_padd': S.plaques.push({id:nextId++,size:'s',pick:false,qty:1}); break;
     case 'my_pdel': S.plaques=S.plaques.filter(x=>x!==pl); break;
     case 'my_psize': pl.size=d.v; break;
-    case 'my_ppick': pl.pick=!pl.pick; break;
-    case 'my_pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
+    case 'ppick': pl.pick=!pl.pick; break;
+    case 'pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
     case 'my_ton': S.temp.on=!S.temp.on; break;
     case 'my_tmode': S.temp.mode=d.v; break;
     case 'my_tdays': S.temp.days=clamp(S.temp.days+Number(d.v),1,60); break;
     case 'my_tset': S.temp.days=Number(d.v); break;
-    case 'my_towned': S.temp.owned=(d.v==='1'); break;
+    case 'towned': S.temp.owned=(d.v==='1'); break;
     case 'my_tqty': S.temp.qty=clamp(S.temp.qty+Number(d.v),1,99); break;
     case 'my_reset': nextId=1; S=fresh(); break;
     default: return;
   }
-  render();
+  update();
 }
 
 root.addEventListener('click',e=>{
@@ -1491,14 +1508,14 @@ root.addEventListener('input', e => {
   const id = inp.dataset.id;
   if (a === 'my_qtyinput') {
     const l = S.lines.find(x => String(x.id) === String(id));
-    if (l) { l.qty = Math.min(99, val); render(); }
+    if (l) { l.qty = Math.min(99, val); update(); }
   } else if (a === 'my_pqtyinput') {
     const pl = S.plaques.find(x => String(x.id) === String(id));
-    if (pl) { pl.qty = Math.min(99, val); render(); }
+    if (pl) { pl.qty = Math.min(99, val); update(); }
   } else if (a === 'my_tdaysinput') {
-    S.temp.days = Math.min(60, val); render();
+    S.temp.days = Math.min(60, val); update();
   } else if (a === 'my_tqtyinput') {
-    S.temp.qty = Math.min(99, val); render();
+    S.temp.qty = Math.min(99, val); update();
   }
 });
 
@@ -1517,7 +1534,7 @@ update();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v6';
+  const KEY = 'tower-calc-tab-v10';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]:not(.disabled)'));
   function show(id, scroll){
     tabs.forEach(t => {

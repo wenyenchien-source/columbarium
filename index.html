@@ -38,9 +38,9 @@ h1{font-size:26px;letter-spacing:.04em}
 h2{font-size:20px}
 .sub{color:var(--muted);margin:4px 0 0;font-size:14px}
 
-/* 2x2 網格頁籤，手機不再被截斷 */
+/* 取消 sticky，往下滑時隨內容一起向上捲動移出螢幕 */
 .tabs{
-  position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--bg);
+  position:relative;background:var(--bg);
   display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0 6px;margin-top:6px;
 }
 .tabs .chip{
@@ -133,7 +133,7 @@ details li{margin:6px 0}
     <p class="sub">依宜蘭縣各公立殯葬管理所最新自治條例標準試算</p>
   </header>
 
-  <!-- 2x2 排列頁籤，375px 小螢幕不再截斷 -->
+  <!-- 2x2 網格頁籤：一般相對定位，往下滑時向上移出 -->
   <nav class="tabs" role="tablist" aria-label="選擇納骨塔">
     <button type="button" role="tab" class="chip" id="tab-fy" data-panel="panel-fy" aria-selected="true">員山福園<small>宜蘭縣立・櫻花</small></button>
     <button type="button" role="tab" class="chip" id="tab-sy" data-panel="panel-sy" aria-selected="false">羅東壽園<small>羅東鎮立</small></button>
@@ -190,7 +190,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v13';
+const KEY = 'tower-calc-fuyuan-v14';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, type:'ash', park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -236,7 +236,7 @@ function calcLine(l){
     } else if (l.layout === 'combo') {
       name = isAsh ? '合一雙骨灰甕（同時寄存2甕）' : '合一雙骨骸罈（同時寄存2罈）';
       baseUsage = isAsh ? 70000 : 80000;
-      mgmtFee = isAsh ? 28000 : 35000; // 合一雙人為兩位，校正為雙人管理費
+      mgmtFee = isAsh ? 28000 : 35000;
       unitName = '座';
     } else if (l.layout === 'buddha') {
       name = '宗教區雙人位（限骨灰）';
@@ -571,7 +571,6 @@ root.addEventListener('click', e => {
   if(b && b.dataset.a.startsWith('fy_')) act(b.dataset);
 });
 
-// 改用 change 事件監聽，鍵盤輸入第二個字不再失焦
 root.addEventListener('change', e => {
   const inp = e.target;
   if (!inp.dataset.a) return;
@@ -684,7 +683,7 @@ function totals(){
   return t;
 }
 
-const KEY = 'tower-calc-luodong-v13';
+const KEY = 'tower-calc-luodong-v14';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'single',tower:'ba',grp:'lo',pre:false,rename:false,qty:1,move:false,target:null};}
 function fresh(){
@@ -992,7 +991,6 @@ root.addEventListener('click',e=>{
   if(b && b.dataset.a.startsWith('sy_')) act(b.dataset);
 });
 
-// 改用 change 事件監聽，鍵盤輸入不再被打斷
 root.addEventListener('change', e => {
   const inp = e.target;
   if (!inp.dataset.a) return;
@@ -1035,7 +1033,7 @@ const BOX = {
 const MOVE = {personal:10000,couple:15000,urn:10000,family:30000};
 const MULT = {E:1.6,F:1,G:0.8,H:0.6};
 
-// 冬山家族式完整模型（補回 5 位半櫃下排）
+// 完整 12 款規格（包含補回之 32dh 5位半櫃下排）
 const FAM = [
   {id:'31uh', cat:'small', seats:4, F:150000, label:'4 位（半櫃上排）'},
   {id:'32uh', cat:'small', seats:5, F:190000, label:'5 位（半櫃上排）'},
@@ -1051,7 +1049,6 @@ const FAM = [
   {id:'41d',  cat:'huge',  seats:24,F:960000, label:'24 位（加深型大容量）'}
 ];
 
-// 工整四字規格
 const FAM_CATS = {
   small: { name: '小型精巧（4～6 位）', sub: '精巧實惠、小家庭首選' },
   mid:   { name: '中型標準（8～10 位）', sub: '熱門首選、祭拜平視好高度' },
@@ -1059,7 +1056,7 @@ const FAM_CATS = {
   huge:  { name: '宗族大櫃（16～24 位）', sub: '加深型雙排大櫃、宗族合葬' }
 };
 
-const famOf = id => FAM.find(f=>f.id===id) || FAM[4]; // 預設 8 位
+const famOf = id => FAM.find(f=>f.id===id) || FAM[4];
 const famFee = (id,t) => Math.round(famOf(id).F * MULT[t]);
 const famMgmt = id => famOf(id).seats * 10000;
 
@@ -1171,7 +1168,7 @@ function totals(res){
   return t;
 }
 
-const KEY = 'tower-calc-dongshan-v13';
+const KEY = 'tower-calc-dongshan-v14';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
 function fresh(){return {res:null,yr3:null,vil:null,yl1:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'day',days:30,qty:1,owned:null}};}
@@ -1480,7 +1477,6 @@ async function doCopy(){
   }
 }
 
-// 修正 1：補齊 my_ppick 與 my_towned 前綴
 function act(d){
   const l = d.id ? S.lines.find(x=>String(x.id)===String(d.id)) : null;
   const pl = d.id ? S.plaques.find(x=>String(x.id)===String(d.id)) : null;
@@ -1512,13 +1508,13 @@ function act(d){
     case 'my_padd': S.plaques.push({id:nextId++,size:'s',pick:false,qty:1}); break;
     case 'my_pdel': S.plaques=S.plaques.filter(x=>x!==pl); break;
     case 'my_psize': pl.size=d.v; break;
-    case 'my_ppick': pl.pick=!pl.pick; break; // 修復 my_ppick
+    case 'my_ppick': pl.pick=!pl.pick; break;
     case 'my_pqty': pl.qty=clamp(pl.qty+Number(d.v),1,99); break;
     case 'my_ton': S.temp.on=!S.temp.on; break;
     case 'my_tmode': S.temp.mode=d.v; break;
     case 'my_tdays': S.temp.days=clamp(S.temp.days+Number(d.v),1,60); break;
     case 'my_tset': S.temp.days=Number(d.v); break;
-    case 'my_towned': S.temp.owned=(d.v==='1'); break; // 修復 my_towned
+    case 'my_towned': S.temp.owned=(d.v==='1'); break;
     case 'my_tqty': S.temp.qty=clamp(S.temp.qty+Number(d.v),1,99); break;
     case 'my_reset': nextId=1; S=fresh(); break;
     default: return;
@@ -1531,7 +1527,6 @@ root.addEventListener('click',e=>{
   if(b && b.dataset.a.startsWith('my_')) act(b.dataset);
 });
 
-// 改用 change 事件監聽，鍵盤輸入不再被打斷
 root.addEventListener('change', e => {
   const inp = e.target;
   if (!inp.dataset.a) return;
@@ -1567,7 +1562,7 @@ update();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v14';
+  const KEY = 'tower-calc-tab-v15';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]:not(.disabled)'));
   function show(id, scroll){
     tabs.forEach(t => {

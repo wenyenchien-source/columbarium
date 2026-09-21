@@ -38,7 +38,7 @@ h1{font-size:26px;letter-spacing:.04em}
 h2{font-size:20px}
 .sub{color:var(--muted);margin:4px 0 0;font-size:14px}
 
-/* 取消 sticky，往下滑時隨內容一起向上捲動移出螢幕 */
+/* 2x2 網格頁籤：一般相對定位，滾動時自然移出 */
 .tabs{
   position:relative;background:var(--bg);
   display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0 6px;margin-top:6px;
@@ -133,7 +133,7 @@ details li{margin:6px 0}
     <p class="sub">依宜蘭縣各公立殯葬管理所最新自治條例標準試算</p>
   </header>
 
-  <!-- 2x2 網格頁籤：一般相對定位，往下滑時向上移出 -->
+  <!-- 2x2 排列頁籤 -->
   <nav class="tabs" role="tablist" aria-label="選擇納骨塔">
     <button type="button" role="tab" class="chip" id="tab-fy" data-panel="panel-fy" aria-selected="true">員山福園<small>宜蘭縣立・櫻花</small></button>
     <button type="button" role="tab" class="chip" id="tab-sy" data-panel="panel-sy" aria-selected="false">羅東壽園<small>羅東鎮立</small></button>
@@ -190,7 +190,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v14';
+const KEY = 'tower-calc-fuyuan-v15';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, type:'ash', park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -287,10 +287,10 @@ function calcLine(l){
   return { name, usageFee, mgmtFee, moveFee, unit, sub: unit * l.qty, unitName };
 }
 
+// 福園牌位：不分戶籍，外縣市不加倍，均為標準價
 function calcPlaque(p){
   const conf = FY_PLAQUE[p.type];
-  const isOther = S.res === 'other';
-  const base = isOther ? conf.fee * 2 : conf.fee;
+  const base = conf.fee; // 外縣市不加倍
   const pick = p.pick ? 3000 : 0;
   const unit = base + pick;
   return { conf, unit, sub: unit * p.qty };
@@ -327,8 +327,8 @@ function qualHTML(){
   h += '<div class="q">適用之身分資格？</div><div class="chips two">'
     + chip('宜蘭縣民', S.res==='yilan', 'data-a="fy_res" data-v="yilan"', '標準價（曾設籍本縣滿6年同）')
     + chip('外縣市民眾', S.res==='other', 'data-a="fy_res" data-v="other"', '使用費加一倍（2倍計收）') + '</div>';
-  const note = S.res==='other' ? '外縣市：使用費按標準價 2 倍計收；骨灰(骸)管理費比照縣籍民眾收費（不加倍）。' : '宜蘭縣民：依標準收費表計收。';
-  h += '<div class="banner"><b>目前適用：'+(S.res==='other'?'外縣市（使用費 2 倍）':'宜蘭縣民（標準價）')+'</b><small>'+note+'</small></div>';
+  const note = S.res==='other' ? '外縣市：塔位使用費按標準價 2 倍計收；管理費與神主牌位比照縣籍民眾收費（不加倍）。' : '宜蘭縣民：依標準收費表計收。';
+  h += '<div class="banner"><b>目前適用：'+(S.res==='other'?'外縣市（塔位使用費 2 倍）':'宜蘭縣民（標準價）')+'</b><small>'+note+'</small></div>';
   return h + '</section>';
 }
 
@@ -412,7 +412,7 @@ function plaqueHTML(p, i){
     + '<button type="button" aria-label="減少" data-a="fy_pqty" data-id="'+p.id+'" data-v="-1">−</button>'
     + '<input type="number" min="1" max="99" value="'+q+'" data-a="fy_pqtyinput" data-id="'+p.id+'">'
     + '<button type="button" aria-label="增加" data-a="fy_pqty" data-id="'+p.id+'" data-v="1">＋</button></div>';
-  h += '<div class="calc">' + row('牌位使用費', c.unit * q, (q>1?money(c.unit)+' × '+q:''))
+  h += '<div class="calc">' + row('牌位使用費', c.unit * q, (q>1?money(c.unit)+' × '+q+'；':'')+'不分戶籍，比照縣民標準價')
     + '<div class="row sum"><span>此牌位小計</span><span>'+money(c.sub)+'</span></div></div></div>';
   return h;
 }
@@ -437,7 +437,7 @@ function tempHTML(){
 
 function extrasHTML(){
   let h = '<section class="card"><h2><span class="n">3</span>其他附屬項目</h2>'
-    + '<div class="q" style="margin-top:14px">神主牌位</div><p class="hint" style="margin-top:0">牌位設施不提供換位服務。</p>';
+    + '<div class="q" style="margin-top:14px">神主牌位</div><p class="hint" style="margin-top:0">神主牌位不分戶籍，外縣市比照縣民標準價，不加倍計收；不提供換位服務。</p>';
   (S.plaques||[]).forEach((p, i) => { h += plaqueHTML(p, i); });
   h += '<button type="button" class="btn add" data-a="fy_padd">＋ 新增神主牌位</button>';
   h += tempHTML();
@@ -446,7 +446,7 @@ function extrasHTML(){
 
 function summary(){
   let s = '【宜蘭縣立殯葬設施（福園・櫻花陵園）費用試算】\n';
-  s += '申請資格：' + (S.res==='other'?'設籍外縣市（使用費 2 倍）':'宜蘭縣民（標準價）') + '\n';
+  s += '申請資格：' + (S.res==='other'?'設籍外縣市（塔位使用費 2 倍，牌位管理費不加倍）':'宜蘭縣民（標準價）') + '\n';
   S.lines.forEach((l, i) => {
     const r = calcLine(l), q = l.qty;
     const parkName = l.park==='fuyuan' ? '員山福園' : '櫻花陵園';
@@ -457,7 +457,7 @@ function summary(){
   });
   (S.plaques||[]).forEach((p, i) => {
     const c = calcPlaque(p);
-    s += '\n牌位 ' + (i+1) + '. ' + c.conf.name + (p.pick?'（自選位置）':'') + ' × ' + p.qty + ' 位\n   小計：' + money(c.sub) + '\n';
+    s += '\n牌位 ' + (i+1) + '. ' + c.conf.name + (p.pick?'（自選位置）':'') + ' × ' + p.qty + ' 位（標準價不加倍）\n   小計：' + money(c.sub) + '\n';
   });
   const tp = calcTemp();
   if(tp) s += '\n' + tp.label + ' × ' + S.temp.qty + ' 具\n   小計：' + money(tp.sub) + '\n';
@@ -478,7 +478,7 @@ function resultHTML(){
     h += row('設施管理費總計（35年）', t.mgmt);
     if(t.move) h += row('換位手續費', t.move);
   }
-  if((S.plaques||[]).length) h += row('神主牌位費用', t.plaque);
+  if((S.plaques||[]).length) h += row('神主牌位費用', t.plaque, '不分戶籍標準價');
   if(S.temp.on) h += row('臨時納存費用', t.temp);
   h += '<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
   h += '<div class="q">文字摘要</div><textarea class="sum" readonly rows="14">'+esc(summary())+'</textarea>';
@@ -490,7 +490,7 @@ function resultHTML(){
 function notesHTML(){
   return '<details><summary>員山福園／櫻花陵園 收費依據與說明</summary><ul>'
    + '<li>依據「宜蘭縣立殯葬設施保證金及使用費收費標準表」自治條例編製。電話：(03) 922-0433。</li>'
-   + '<li>外縣市民眾使用費按標準價 2 倍計收；骨灰(骸)管理費比照縣籍民眾收費（不加倍）。</li>'
+   + '<li>外縣市民眾塔位使用費按標準價 2 倍計收；骨灰(骸)管理費與神主牌位比照縣籍民眾收費（不加倍）。</li>'
    + '<li>管理費首次申辦一次計收 35 年。</li>'
    + '<li>福園現場家族櫃位以 6 人式（38.4萬）與 12 人式（76.8萬）為主。</li>'
    + '<li>櫻花陵園個人位第 4、5 層（骨灰）及第 2、3 層（骨骸）為成人平視層，使用費較非平視層調升 1 萬元。</li>'
@@ -622,9 +622,9 @@ const GRPS = {
 };
 const TOWER = {ba:'壽園寶塔',fu:'福恩塔'};
 const RES = {
-  local:{name:'羅東鎮民',sub:'使用費減收 10%',banner:'本鎮鎮民：使用費減收 10%（長生位不適用）'},
+  local:{name:'羅東鎮民',sub:'塔位使用費減收 10%',banner:'本鎮鎮民：塔位使用費減收 10%（長生位不適用）'},
   county:{name:'宜蘭縣民',sub:'其他鄉鎮標準價',banner:'本縣他鄉鎮市：標準價'},
-  other:{name:'外縣市民',sub:'使用費加一倍（2倍）',banner:'設籍外縣市：使用費加一倍（2倍計收）'}
+  other:{name:'外縣市民',sub:'塔位使用費加一倍（2倍）',banner:'設籍外縣市：塔位使用費加一倍（2倍計收），牌位不加倍'}
 };
 const PLAQUE = {plain:30000,pick:33000};
 const TEMP = {y3:36000,perMonth:1000,mgmt:15000};
@@ -657,11 +657,14 @@ function calcLine(l){
   const unit=fee+mgmt+rename+moveFee+dFee+dMgmt;
   return {tower,fee,mgmt,rename,moveFee,dFee,dMgmt,qty:l.qty,unit,sub:unit*l.qty};
 }
+
+// 壽園牌位：不分戶籍，外縣市不加倍，均為標準價
 function calcPlaque(p){
-  const base=p.pick?PLAQUE.pick:PLAQUE.plain;
-  const unit=Math.round(base*resFactor(false));
+  const base = p.pick ? PLAQUE.pick : PLAQUE.plain;
+  const unit = base; // 外縣市不加倍
   return {base,unit,qty:p.qty,sub:unit*p.qty};
 }
+
 function tempOwned(){return S.temp.owned===null ? S.lines.length>0 : S.temp.owned;}
 function calcTemp(){
   const t=S.temp; if(!t.on) return null;
@@ -683,7 +686,7 @@ function totals(){
   return t;
 }
 
-const KEY = 'tower-calc-luodong-v14';
+const KEY = 'tower-calc-luodong-v15';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'single',tower:'ba',grp:'lo',pre:false,rename:false,qty:1,move:false,target:null};}
 function fresh(){
@@ -736,7 +739,7 @@ function qualHTML(){
   let h='<section class="card"><h2><span class="n">1</span>使用者設籍資格</h2>';
   h+='<div class="q">使用者的戶籍在哪裡？</div><div class="chips three">'
     +Object.keys(RES).map(k=>chip(RES[k].name,S.res===k,'data-a="sy_res" data-v="'+k+'"',RES[k].sub)).join('')+'</div>';
-  h+='<p class="hint">設籍外縣市者，其使用費加一倍（2倍）計收。</p>';
+  h+='<p class="hint">設籍外縣市者，其塔位使用費加一倍（2倍）計收，牌位比照標準價。</p>';
   h+= S.res ? '<div class="banner"><b>'+RES[S.res].banner+'</b></div>' : '<div class="banner idle">選好戶籍才能算出價格。</div>';
   return h+'</section>';
 }
@@ -815,7 +818,7 @@ function plaqueHTML(p,i){
   h+='<div class="q">數量（位）</div>'+stepper('sy_pqty',' data-id="'+p.id+'"',p.qty);
   if(S.res){
     const c=calcPlaque(p);
-    h+='<div class="calc">'+row('牌位使用費',c.sub,(p.qty>1?money(c.unit)+' × '+p.qty+'；':'')+resNote(c.base,false))+'</div>';
+    h+='<div class="calc">'+row('牌位使用費',c.sub,(p.qty>1?money(c.unit)+' × '+p.qty+'；':'')+'不分戶籍，比照縣民標準價')+'</div>';
   }
   return h+'</div>';
 }
@@ -849,7 +852,7 @@ function tempHTML(){
 
 function extrasHTML(){
   let h='<section class="card"><h2><span class="n">3</span>其他項目</h2>'
-    +'<div class="q" style="margin-top:14px">牌位</div><p class="hint" style="margin-top:0">牌位不提供長生位、更名、換位。</p>';
+    +'<div class="q" style="margin-top:14px">牌位</div><p class="hint" style="margin-top:0">神主牌位不分戶籍，外縣市比照縣民標準價，不加倍計收；不提供長生位、更名、換位。</p>';
   S.plaques.forEach((p,i)=>{h+=plaqueHTML(p,i);});
   h+='<button type="button" class="btn add" data-a="sy_padd">＋ 新增牌位</button>';
   h+=tempHTML();
@@ -873,7 +876,7 @@ function summary(){
   });
   S.plaques.forEach((p,i)=>{
     const c=calcPlaque(p);
-    s+='\n牌位 '+(i+1)+'. '+(p.pick?'自選位':'非選位')+' × '+p.qty+' 位\n   小計 '+money(c.sub)+'\n';
+    s+='\n牌位 '+(i+1)+'. '+(p.pick?'自選位':'非選位')+' × '+p.qty+' 位（標準價不加倍）\n   小計 '+money(c.sub)+'\n';
   });
   const tp=calcTemp();
   if(tp) s+='\n'+tp.label+' × '+tp.qty+' 具\n   使用費 '+money(tp.use*tp.qty)+'｜管理費 '+money(tp.mgmt*tp.qty)+'\n   小計 '+money(tp.sub)+'\n';
@@ -901,7 +904,7 @@ function resultHTML(){
     if(t.dFee) h+=row('換位使用費補差額',t.dFee);
     if(t.dMgmt) h+=row('換位管理費補差額',t.dMgmt);
   }
-  if(S.plaques.length) h+=row('牌位',t.plaque);
+  if(S.plaques.length) h+=row('牌位',t.plaque, '不分戶籍標準價');
   if(S.temp.on){ h+=row('臨時寄放使用費',t.tempUse)+row('臨時寄放管理費',t.tempMgmt); }
   if(t.credit) h+=row('臨時寄放使用費折抵',-t.credit);
 
@@ -915,7 +918,7 @@ function resultHTML(){
 function notesHTML(){
   return '<details><summary>羅東壽園 收費依據與說明</summary><ul>'
    +'<li>依據羅東鎮立殯葬設施使用收費標準表（115 年 7 月 16 日修訂版）試算。</li>'
-   +'<li>設籍外縣市者，其使用費加一倍（2倍）計收。鎮民減收 10%（長生位除外）。</li>'
+   +'<li>設籍外縣市者，其塔位使用費加一倍（2倍）計收，牌位比照標準價不加倍。鎮民減收 10%（長生位除外）。</li>'
    +'<li>壽園寶塔管理費按福恩塔標準費率之 60% 計收；福恩塔按全額計收。</li>'
    +'<li>已晉塔換位費 10,000 元，較貴補差額，較低不退差額。</li>'
    +'</ul></details>';
@@ -1033,7 +1036,6 @@ const BOX = {
 const MOVE = {personal:10000,couple:15000,urn:10000,family:30000};
 const MULT = {E:1.6,F:1,G:0.8,H:0.6};
 
-// 完整 12 款規格（包含補回之 32dh 5位半櫃下排）
 const FAM = [
   {id:'31uh', cat:'small', seats:4, F:150000, label:'4 位（半櫃上排）'},
   {id:'32uh', cat:'small', seats:5, F:190000, label:'5 位（半櫃上排）'},
@@ -1138,6 +1140,7 @@ function calcFam(l,at){
 }
 const calc = (l,at) => l.kind==='family' ? calcFam(l,at) : calcBox(l,at);
 
+// 梅園牌位：不分戶籍，一律標準價
 const PLAQUE = {s:{name:'小型',spec:'9×23×3.5cm',price:30000},l:{name:'大型',spec:'16×23×6cm',price:50000}};
 function calcPlaque(p){
   const base=PLAQUE[p.size].price, pick=p.pick?Math.round(base*0.1):0;
@@ -1168,7 +1171,7 @@ function totals(res){
   return t;
 }
 
-const KEY = 'tower-calc-dongshan-v14';
+const KEY = 'tower-calc-dongshan-v15';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
 function fresh(){return {res:null,yr3:null,vil:null,yl1:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'day',days:30,qty:1,owned:null}};}
@@ -1409,7 +1412,7 @@ function tempHTML(){
 
 function extrasHTML(){
   let h='<section class="card"><h2><span class="n">3</span>其他項目</h2>'
-    +'<div class="q" style="margin-top:14px">神主牌位</div><p class="hint" style="margin-top:0">牌位沒有戶籍優惠，一律標準價。</p>';
+    +'<div class="q" style="margin-top:14px">神主牌位</div><p class="hint" style="margin-top:0">神主牌位不分戶籍，外縣市比照縣民標準價，不加倍計收；牌位無換位服務。</p>';
   S.plaques.forEach((p,i)=>{h+=plaqueHTML(p,i);});
   h+='<button type="button" class="btn add" data-a="my_padd">＋ 新增神主牌位</button>';
   h+=tempHTML();
@@ -1429,7 +1432,7 @@ function resultHTML(at,res){
     if (tot.move) h += row('換位費', tot.move);
     if (tot.diff) h += row('換位補差額', tot.diff);
   }
-  if (S.plaques.length) h += row('神主牌位', tot.plaque);
+  if (S.plaques.length) h += row('神主牌位', tot.plaque, '不分戶籍標準價');
   if (S.temp.on) h += row('臨時寄放', tot.temp);
 
   h += '<div class="row total"><span>合計總額</span><span>' + (ready ? money(tot.all) : '請先填資格') + '</span></div>';
@@ -1443,6 +1446,7 @@ function notesHTML(){
   return '<details><summary>冬山梅園 收費依據與說明</summary><ul>'
    +'<li>依據冬山鄉立殯葬管理所「收費標準」（109.2.1 版）自治條例編製。電話 (03) 951-5677。</li>'
    +'<li>各級優惠不重複累加，系統會在申請人與受葬亡者身分中自動選取最優惠價。</li>'
+   +'<li>神主牌位不分戶籍，外縣市比照標準價不加倍。</li>'
    +'<li>低收入戶死亡者：堂位使用規費全免，由所方指定位置；選平視層補繳 5,000 元差額。</li>'
    +'</ul></details>';
 }
@@ -1562,7 +1566,7 @@ update();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v15';
+  const KEY = 'tower-calc-tab-v16';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]:not(.disabled)'));
   function show(id, scroll){
     tabs.forEach(t => {

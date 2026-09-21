@@ -190,7 +190,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v15';
+const KEY = 'tower-calc-fuyuan-v17';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, type:'ash', park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -287,22 +287,21 @@ function calcLine(l){
   return { name, usageFee, mgmtFee, moveFee, unit, sub: unit * l.qty, unitName };
 }
 
-// 福園牌位：不分戶籍，外縣市不加倍，均為標準價
+// 福園牌位：外縣市免收 2 倍，一律標準價
 function calcPlaque(p){
   const conf = FY_PLAQUE[p.type];
-  const base = conf.fee; // 外縣市不加倍
+  const base = conf.fee;
   const pick = p.pick ? 3000 : 0;
   const unit = base + pick;
   return { conf, unit, sub: unit * p.qty };
 }
 
+// 福園臨時納存校正：外縣市免收 2 倍，一律標準價
 function calcTemp(){
   if(!S.temp.on) return null;
   const isAsh = S.temp.type === 'ash';
-  const useBase = isAsh ? 40000 : 50000;
+  const use = isAsh ? 40000 : 50000; // 外縣市不加倍
   const mgmt = isAsh ? 1200 : 1500;
-  const isOther = S.res === 'other';
-  const use = isOther ? useBase * 2 : useBase;
   const unit = use + mgmt;
   return { label: isAsh ? '臨時納存骨灰甕（3年）' : '臨時納存骨骸罈（3年）', unit, sub: unit * S.temp.qty };
 }
@@ -326,8 +325,8 @@ function qualHTML(){
   let h = '<section class="card"><h2><span class="n">1</span>設籍與身分</h2>';
   h += '<div class="q">適用之身分資格？</div><div class="chips two">'
     + chip('宜蘭縣民', S.res==='yilan', 'data-a="fy_res" data-v="yilan"', '標準價（曾設籍本縣滿6年同）')
-    + chip('外縣市民眾', S.res==='other', 'data-a="fy_res" data-v="other"', '使用費加一倍（2倍計收）') + '</div>';
-  const note = S.res==='other' ? '外縣市：塔位使用費按標準價 2 倍計收；管理費與神主牌位比照縣籍民眾收費（不加倍）。' : '宜蘭縣民：依標準收費表計收。';
+    + chip('外縣市民眾', S.res==='other', 'data-a="fy_res" data-v="other"', '塔位使用費加一倍（2倍計收）') + '</div>';
+  const note = S.res==='other' ? '外縣市：塔位使用費按標準價 2 倍計收；牌位、臨時納存及管理費比照縣籍民眾收費（不加倍）。' : '宜蘭縣民：依標準收費表計收。';
   h += '<div class="banner"><b>目前適用：'+(S.res==='other'?'外縣市（塔位使用費 2 倍）':'宜蘭縣民（標準價）')+'</b><small>'+note+'</small></div>';
   return h + '</section>';
 }
@@ -412,7 +411,7 @@ function plaqueHTML(p, i){
     + '<button type="button" aria-label="減少" data-a="fy_pqty" data-id="'+p.id+'" data-v="-1">−</button>'
     + '<input type="number" min="1" max="99" value="'+q+'" data-a="fy_pqtyinput" data-id="'+p.id+'">'
     + '<button type="button" aria-label="增加" data-a="fy_pqty" data-id="'+p.id+'" data-v="1">＋</button></div>';
-  h += '<div class="calc">' + row('牌位使用費', c.unit * q, (q>1?money(c.unit)+' × '+q+'；':'')+'不分戶籍，比照縣民標準價')
+  h += '<div class="calc">' + row('牌位使用費', c.unit * q, (q>1?money(c.unit)+' × '+q+'；':'')+'不分戶籍標準價，外縣市不加倍')
     + '<div class="row sum"><span>此牌位小計</span><span>'+money(c.sub)+'</span></div></div></div>';
   return h;
 }
@@ -431,7 +430,7 @@ function tempHTML(){
     + '<button type="button" aria-label="增加" data-a="fy_tqty" data-id="temp" data-v="1">＋</button></div>';
   const c = calcTemp();
   h += '<div class="calc"><div class="tier">'+c.label+'</div>'
-    + row('臨時使用費與管理費', c.sub, '已購置存放設施者，火化後 14 日內免收使用費') + '</div>';
+    + row('臨時納存費用', c.sub, '不分戶籍標準價（已購置設施者火化後 14 日內免收使用費）') + '</div>';
   return h;
 }
 
@@ -446,7 +445,7 @@ function extrasHTML(){
 
 function summary(){
   let s = '【宜蘭縣立殯葬設施（福園・櫻花陵園）費用試算】\n';
-  s += '申請資格：' + (S.res==='other'?'設籍外縣市（塔位使用費 2 倍，牌位管理費不加倍）':'宜蘭縣民（標準價）') + '\n';
+  s += '申請資格：' + (S.res==='other'?'設籍外縣市（塔位使用費 2 倍，牌位與臨時納存不加倍）':'宜蘭縣民（標準價）') + '\n';
   S.lines.forEach((l, i) => {
     const r = calcLine(l), q = l.qty;
     const parkName = l.park==='fuyuan' ? '員山福園' : '櫻花陵園';
@@ -460,7 +459,7 @@ function summary(){
     s += '\n牌位 ' + (i+1) + '. ' + c.conf.name + (p.pick?'（自選位置）':'') + ' × ' + p.qty + ' 位（標準價不加倍）\n   小計：' + money(c.sub) + '\n';
   });
   const tp = calcTemp();
-  if(tp) s += '\n' + tp.label + ' × ' + S.temp.qty + ' 具\n   小計：' + money(tp.sub) + '\n';
+  if(tp) s += '\n' + tp.label + ' × ' + S.temp.qty + ' 具（標準價不加倍）\n   小計：' + money(tp.sub) + '\n';
   const t = totals();
   s += '\n總計應繳納金額：' + money(t.all) + '\n※ 本試算依宜蘭縣立殯葬設施使用費收費標準編製，實際金額以管理所現場核發繳款單為準。電話 (03) 922-0433\n'
     + '--------------------------------\n'
@@ -479,7 +478,7 @@ function resultHTML(){
     if(t.move) h += row('換位手續費', t.move);
   }
   if((S.plaques||[]).length) h += row('神主牌位費用', t.plaque, '不分戶籍標準價');
-  if(S.temp.on) h += row('臨時納存費用', t.temp);
+  if(S.temp.on) h += row('臨時納存費用', t.temp, '不分戶籍標準價');
   h += '<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
   h += '<div class="q">文字摘要</div><textarea class="sum" readonly rows="14">'+esc(summary())+'</textarea>';
   h += '<div class="actions"><button type="button" class="btn" data-a="fy_copy">複製摘要</button>'
@@ -490,7 +489,7 @@ function resultHTML(){
 function notesHTML(){
   return '<details><summary>員山福園／櫻花陵園 收費依據與說明</summary><ul>'
    + '<li>依據「宜蘭縣立殯葬設施保證金及使用費收費標準表」自治條例編製。電話：(03) 922-0433。</li>'
-   + '<li>外縣市民眾塔位使用費按標準價 2 倍計收；骨灰(骸)管理費與神主牌位比照縣籍民眾收費（不加倍）。</li>'
+   + '<li>外縣市民眾塔位使用費按標準價 2 倍計收；骨灰(骸)管理費、神主牌位及臨時納存比照縣籍民眾收費（不加倍）。</li>'
    + '<li>管理費首次申辦一次計收 35 年。</li>'
    + '<li>福園現場家族櫃位以 6 人式（38.4萬）與 12 人式（76.8萬）為主。</li>'
    + '<li>櫻花陵園個人位第 4、5 層（骨灰）及第 2、3 層（骨骸）為成人平視層，使用費較非平視層調升 1 萬元。</li>'
@@ -622,9 +621,9 @@ const GRPS = {
 };
 const TOWER = {ba:'壽園寶塔',fu:'福恩塔'};
 const RES = {
-  local:{name:'羅東鎮民',sub:'塔位使用費減收 10%',banner:'本鎮鎮民：塔位使用費減收 10%（長生位不適用）'},
+  local:{name:'羅東鎮民',sub:'塔位使用費減收 10%',banner:'本鎮鎮民：塔位使用費減收 10%（長生位、牌位、臨時寄放不適用）'},
   county:{name:'宜蘭縣民',sub:'其他鄉鎮標準價',banner:'本縣他鄉鎮市：標準價'},
-  other:{name:'外縣市民',sub:'塔位使用費加一倍（2倍）',banner:'設籍外縣市：塔位使用費加一倍（2倍計收），牌位不加倍'}
+  other:{name:'外縣市民',sub:'塔位使用費加一倍（2倍）',banner:'設籍外縣市：塔位使用費加一倍（2倍計收），牌位與臨時寄放不加倍'}
 };
 const PLAQUE = {plain:30000,pick:33000};
 const TEMP = {y3:36000,perMonth:1000,mgmt:15000};
@@ -661,19 +660,22 @@ function calcLine(l){
 // 壽園牌位：不分戶籍，外縣市不加倍，均為標準價
 function calcPlaque(p){
   const base = p.pick ? PLAQUE.pick : PLAQUE.plain;
-  const unit = base; // 外縣市不加倍
+  const unit = base;
   return {base,unit,qty:p.qty,sub:unit*p.qty};
 }
 
 function tempOwned(){return S.temp.owned===null ? S.lines.length>0 : S.temp.owned;}
+
+// 壽園臨時寄放校正：全體（含外縣市與鎮民）一律按標準價計收，免收 2 倍
 function calcTemp(){
   const t=S.temp; if(!t.on) return null;
   const base=t.mode==='y3'?TEMP.y3:TEMP.perMonth*t.months;
-  let use=Math.round(base*resFactor(false)), note='';
+  let use=base, note=''; // 不分戶籍，全數標準價
   if(tempOwned() && t.mode==='month' && t.months<=1){use=0; note='已購置本鎮設施，30 日內免收使用費';}
   const label=t.mode==='y3'?'臨時寄放 3 年':'臨時寄放 '+t.months+' 個月（切結期限）';
   return {label,use,mgmt:TEMP.mgmt,qty:t.qty,note,base,sub:(use+TEMP.mgmt)*t.qty};
 }
+
 function totals(){
   const t={fee:0,mgmt:0,rename:0,move:0,dFee:0,dMgmt:0,plaque:0,tempUse:0,tempMgmt:0,credit:0,all:0};
   S.lines.forEach(l=>{const r=calcLine(l);
@@ -686,7 +688,7 @@ function totals(){
   return t;
 }
 
-const KEY = 'tower-calc-luodong-v15';
+const KEY = 'tower-calc-luodong-v17';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'single',tower:'ba',grp:'lo',pre:false,rename:false,qty:1,move:false,target:null};}
 function fresh(){
@@ -739,7 +741,7 @@ function qualHTML(){
   let h='<section class="card"><h2><span class="n">1</span>使用者設籍資格</h2>';
   h+='<div class="q">使用者的戶籍在哪裡？</div><div class="chips three">'
     +Object.keys(RES).map(k=>chip(RES[k].name,S.res===k,'data-a="sy_res" data-v="'+k+'"',RES[k].sub)).join('')+'</div>';
-  h+='<p class="hint">設籍外縣市者，其塔位使用費加一倍（2倍）計收，牌位比照標準價。</p>';
+  h+='<p class="hint">設籍外縣市者，其塔位使用費加一倍（2倍）計收，牌位與臨時寄放比照標準價不加倍。</p>';
   h+= S.res ? '<div class="banner"><b>'+RES[S.res].banner+'</b></div>' : '<div class="banner idle">選好戶籍才能算出價格。</div>';
   return h+'</section>';
 }
@@ -788,7 +790,7 @@ function lineHTML(l,i){
 
   if(S.res){
     const r=calcLine(l), q=r.qty;
-    h+='<div class="calc"><div class="tier">'+TOWER[r.tower]+'　'+K.name+'</div>';
+    h+='<div class="calc"><div class="tier">'+TOWER[r.tower]+' '+K.name+'</div>';
     h+=row('使用費',r.fee*q,(q>1?money(r.fee)+' × '+q+'；':'')+resNote(BASE[l.kind][l.grp],l.pre));
     h+=row('管理費',r.mgmt*q,(q>1?money(r.mgmt)+' × '+q+'；':'')+(r.tower==='ba'?'福恩塔的 60%':'福恩塔'));
     if(r.rename) h+=row('長生位更名登記費',r.rename*q);
@@ -818,7 +820,7 @@ function plaqueHTML(p,i){
   h+='<div class="q">數量（位）</div>'+stepper('sy_pqty',' data-id="'+p.id+'"',p.qty);
   if(S.res){
     const c=calcPlaque(p);
-    h+='<div class="calc">'+row('牌位使用費',c.sub,(p.qty>1?money(c.unit)+' × '+p.qty+'；':'')+'不分戶籍，比照縣民標準價')+'</div>';
+    h+='<div class="calc">'+row('牌位使用費',c.sub,(p.qty>1?money(c.unit)+' × '+p.qty+'；':'')+'不分戶籍，比照標準價計收')+'</div>';
   }
   return h+'</div>';
 }
@@ -844,7 +846,7 @@ function tempHTML(){
   if(S.res){
     const c=calcTemp();
     h+='<div class="calc"><div class="tier">'+c.label+'</div>'
-      +row('臨時寄放使用費',c.use*c.qty,(c.note?c.note+'；':'')+resNote(c.base,false))
+      +row('臨時寄放使用費',c.use*c.qty,(c.note?c.note+'；':'')+(c.qty>1?money(c.use)+' × '+c.qty+'；':'')+'不分戶籍標準價（免收 2 倍，鎮民無減收）')
       +row('臨時寄放管理費',c.mgmt*c.qty,'一次性')+'</div>';
   }
   return h;
@@ -879,7 +881,7 @@ function summary(){
     s+='\n牌位 '+(i+1)+'. '+(p.pick?'自選位':'非選位')+' × '+p.qty+' 位（標準價不加倍）\n   小計 '+money(c.sub)+'\n';
   });
   const tp=calcTemp();
-  if(tp) s+='\n'+tp.label+' × '+tp.qty+' 具\n   使用費 '+money(tp.use*tp.qty)+'｜管理費 '+money(tp.mgmt*tp.qty)+'\n   小計 '+money(tp.sub)+'\n';
+  if(tp) s+='\n'+tp.label+' × '+tp.qty+' 具（標準價不加倍）\n   使用費 '+money(tp.use*tp.qty)+'｜管理費 '+money(tp.mgmt*tp.qty)+'\n   小計 '+money(tp.sub)+'\n';
   const t=totals();
   if(t.credit) s+='\n臨時寄放使用費折抵：－'+money(t.credit)+'\n';
   s+='\n合計：'+money(t.all)+'\n※ 試算僅供參考，實際以羅東鎮立殯葬管理所公告與審核為準 (03) 989-8845\n'
@@ -905,7 +907,7 @@ function resultHTML(){
     if(t.dMgmt) h+=row('換位管理費補差額',t.dMgmt);
   }
   if(S.plaques.length) h+=row('牌位',t.plaque, '不分戶籍標準價');
-  if(S.temp.on){ h+=row('臨時寄放使用費',t.tempUse)+row('臨時寄放管理費',t.tempMgmt); }
+  if(S.temp.on){ h+=row('臨時寄放使用費',t.tempUse, '全體標準價'); h+=row('臨時寄放管理費',t.tempMgmt); }
   if(t.credit) h+=row('臨時寄放使用費折抵',-t.credit);
 
   h+='<div class="row total"><span>合計總額</span><span>'+(ready ? money(t.all) : '請先選戶籍')+'</span></div>';
@@ -918,7 +920,7 @@ function resultHTML(){
 function notesHTML(){
   return '<details><summary>羅東壽園 收費依據與說明</summary><ul>'
    +'<li>依據羅東鎮立殯葬設施使用收費標準表（115 年 7 月 16 日修訂版）試算。</li>'
-   +'<li>設籍外縣市者，其塔位使用費加一倍（2倍）計收，牌位比照標準價不加倍。鎮民減收 10%（長生位除外）。</li>'
+   +'<li>設籍外縣市者，其塔位使用費加一倍（2倍）計收，牌位與臨時寄放比照標準價不加倍。鎮民減收 10% 僅適用於塔位（長生位、牌位、臨時寄放不適用）。</li>'
    +'<li>壽園寶塔管理費按福恩塔標準費率之 60% 計收；福恩塔按全額計收。</li>'
    +'<li>已晉塔換位費 10,000 元，較貴補差額，較低不退差額。</li>'
    +'</ul></details>';
@@ -1171,7 +1173,7 @@ function totals(res){
   return t;
 }
 
-const KEY = 'tower-calc-dongshan-v15';
+const KEY = 'tower-calc-dongshan-v17';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
 function fresh(){return {res:null,yr3:null,vil:null,yl1:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'day',days:30,qty:1,owned:null}};}
@@ -1566,7 +1568,7 @@ update();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v16';
+  const KEY = 'tower-calc-tab-v18';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]:not(.disabled)'));
   function show(id, scroll){
     tabs.forEach(t => {

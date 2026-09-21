@@ -181,7 +181,7 @@ details li{margin:6px 0}
   </section>
 </div>
 
-<!-- ═════════ 腳本 1：員山福園／櫻花陵園（純骨灰版） ═════════ -->
+<!-- ═════════ 腳本 1：員山福園／櫻花陵園（純骨灰版，合一雙8萬） ═════════ -->
 <script id="script-fy">
 (function(){
 'use strict';
@@ -190,7 +190,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v18';
+const KEY = 'tower-calc-fuyuan-v19';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -234,8 +234,8 @@ function calcLine(l){
       mgmtFee = 14000;
     } else if (l.layout === 'combo') {
       name = '合一雙骨灰甕（同時寄存2甕）';
-      baseUsage = 70000;
-      mgmtFee = 28000; // 雙人管理費
+      baseUsage = 80000; // 合一雙人骨灰使用費校正為 80,000
+      mgmtFee = 28000;  // 雙人管理費
       unitName = '座';
     } else if (l.layout === 'buddha') {
       name = '宗教區雙人位（骨灰）';
@@ -336,7 +336,7 @@ function lineHTML(l, i){
   h += '<div class="q">格局規格</div><div class="chips">';
   if (l.park === 'fuyuan') {
     h += chip('個人位', l.layout==='single', 'data-a="fy_layout" data-id="'+l.id+'" data-v="single"', '標準價 4 萬');
-    h += chip('合一雙人位', l.layout==='combo', 'data-a="fy_layout" data-id="'+l.id+'" data-v="combo"', '同時寄存 2 甕');
+    h += chip('合一雙人位', l.layout==='combo', 'data-a="fy_layout" data-id="'+l.id+'" data-v="combo"', '標準價 8 萬（同時寄存2甕）');
     h += chip('宗教區雙人位', l.layout==='buddha', 'data-a="fy_layout" data-id="'+l.id+'" data-v="buddha"', '標準價 10 萬');
     h += chip('家族式納骨櫃', l.layout==='family', 'data-a="fy_layout" data-id="'+l.id+'" data-v="family"', '6 人式 / 12 人式');
   } else {
@@ -669,7 +669,7 @@ function totals(){
   return t;
 }
 
-const KEY = 'tower-calc-luodong-v18';
+const KEY = 'tower-calc-luodong-v19';
 let nextId=1;
 function newLine(){ return { id:nextId++, kind:'single', tower:'ba', grp:'lo', pre:false, rename:false, qty:1, move:false, target:null }; }
 function fresh(){
@@ -1149,7 +1149,7 @@ function totals(res){
   return t;
 }
 
-const KEY = 'tower-calc-dongshan-v18';
+const KEY = 'tower-calc-dongshan-v19';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false,target:null};}
 function fresh(){return {res:null,yr3:null,vil:null,yl1:null,lines:[newLine()],plaques:[],temp:{on:false,mode:'day',days:30,qty:1,owned:null}};}
@@ -1543,7 +1543,7 @@ update();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v19';
+  const KEY = 'tower-calc-tab-v20';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]:not(.disabled)'));
   function show(id, scroll){
     tabs.forEach(t => {

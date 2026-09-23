@@ -316,20 +316,22 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v28';
+const KEY = 'tower-calc-fuyuan-v29';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
 }
 function fresh(){ 
-  return { res:'yilan', lines:[newLine()], plaques:[], temp:{ on:false, qty:1 } }; 
+  return { res:'yilan', lines:[newLine()], plaques:[], eco:{ tree:0, scatter:0 }, temp:{ on:false, qty:1 } }; 
 }
 function load(){
   try{
     const s = JSON.parse(localStorage.getItem(KEY)||'null');
     if(s && Array.isArray(s.lines) && Array.isArray(s.plaques) && s.temp){
       const ids = s.lines.concat(s.plaques).map(x=>x.id);
-      nextId = (ids.length?Math.max.apply(null,ids):0)+1; return s;
+      nextId = (ids.length?Math.max.apply(null,ids):0)+1; 
+      if(!s.eco) s.eco = { tree:0, scatter:0 };
+      return s;
     }
   }catch(e){}
   return null;
@@ -405,14 +407,18 @@ function calcTemp(){
 }
 
 function totals(){
-  const t = { usage:0, mgmt:0, move:0, plaque:0, temp:0, all:0 };
+  const t = { usage:0, mgmt:0, move:0, plaque:0, eco:0, temp:0, all:0 };
   S.lines.forEach(l => {
     const r = calcLine(l);
     t.usage += r.usageFee * l.qty; t.mgmt += r.mgmtFee * l.qty; t.move += r.moveFee * l.qty;
   });
   (S.plaques||[]).forEach(p => { t.plaque += calcPlaque(p).sub; });
+  if(S.eco){
+    t.eco += (S.eco.tree || 0) * 5000;
+    t.eco += (S.eco.scatter || 0) * 2500;
+  }
   const tp = calcTemp(); if(tp) t.temp = tp.sub;
-  t.all = t.usage + t.mgmt + t.move + t.plaque + t.temp;
+  t.all = t.usage + t.mgmt + t.move + t.plaque + t.eco + t.temp;
   return t;
 }
 
@@ -421,7 +427,7 @@ function qualHTML(){
   h += '<div class="q">適用之身分資格？</div><div class="chips two">'
     + chip('宜蘭縣民', S.res==='yilan', 'data-a="fy_res" data-v="yilan"', '標準價（曾設籍本縣滿6年同）')
     + chip('外縣市民眾', S.res==='other', 'data-a="fy_res" data-v="other"', '塔位使用費 2 倍') + '</div>';
-  const note = S.res==='other' ? '外縣市：塔位及臨時納存使用費按標準價 2 倍計收；神主牌位及管理費比照縣民收費（不加倍）。' : '宜蘭縣民：依標準收費表計收。';
+  const note = S.res==='other' ? '外縣市：塔位及臨時納存使用費按標準價 2 倍計收；神主牌位、自然葬及管理費比照縣民收費（不加倍）。' : '宜蘭縣民：依標準收費表計收。';
   h += '<div class="banner"><b>目前適用：'+(S.res==='other'?'外縣市（塔位使用費 2 倍）':'宜蘭縣民（標準價）')+'</b><small>'+note+'</small></div>';
   return h + '</section>';
 }
@@ -508,35 +514,60 @@ function plaqueHTML(p, i){
   return h;
 }
 
-function tempHTML(){
-  const t = S.temp;
-  let h = '<div class="q" style="margin-top:22px">臨時納存骨灰</div><div class="chips">'
-    + chip('需要辦理臨時納存（3年）', t.on, 'data-a="fy_ton"', '', 'wide') + '</div>';
-  if(!t.on) return h;
-  h += '<div class="q">數量（具）</div><div class="qtyrow">'
-    + '<button type="button" aria-label="減少" data-a="fy_tqty" data-id="temp" data-v="-1">−</button>'
-    + '<input type="number" min="1" max="99" value="'+t.qty+'" data-a="fy_tqtyinput">'
-    + '<button type="button" aria-label="增加" data-a="fy_tqty" data-id="temp" data-v="1">＋</button></div>';
-  const c = calcTemp();
-  h += '<div class="calc"><div class="tier">'+c.label+'</div>'
-    + row('臨時納存使用費', c.use * t.qty, (S.res==='other'?'外縣市 2 倍計收；':'縣民標準價；')+(t.qty>1?money(c.use)+' × '+t.qty:''))
-    + row('臨時納存管理費', c.mgmt * t.qty, '一次性（不加倍）')
-    + '<p class="hint" style="margin:4px 0 0">註：已購置本所骨灰存放設施者，火化後 14 日內免收使用費。</p></div>';
-  return h;
-}
-
 function extrasHTML(){
-  let h = '<section class="card"><h2><span class="n">3</span>其他附屬項目</h2>'
+  let h = '<section class="card"><h2><span class="n">3</span>其他附屬項目與自然葬</h2>'
     + '<div class="q" style="margin-top:14px">神主牌位</div><p class="hint" style="margin-top:0">神主牌位不分戶籍，外縣市比照縣民標準價，不加倍計收；不提供換位服務。</p>';
   (S.plaques||[]).forEach((p, i) => { h += plaqueHTML(p, i); });
   h += '<button type="button" class="btn add" data-a="fy_padd">＋ 新增神主牌位</button>';
-  h += tempHTML();
+
+  // 員山福園自然葬（樹葬 5,000 / 灑葬 2,500）
+  const eco = S.eco || { tree:0, scatter:0 };
+  h += '<div class="q" style="margin-top:22px">福園環保自然葬專區</div>'
+    + '<p class="hint" style="margin-top:0">不分設籍標準價，外縣市不加倍收費。</p>'
+    + '<div class="line">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
+    + '<div><b>樹葬區</b><small style="display:block;color:var(--muted);">每位 NT$ 5,000</small></div>'
+    + '<div class="qtyrow">'
+    + '<button type="button" aria-label="減少" data-a="fy_eco_tree" data-v="-1">−</button>'
+    + '<input type="number" min="0" max="99" value="'+eco.tree+'" data-a="fy_eco_tree_inp">'
+    + '<button type="button" aria-label="增加" data-a="fy_eco_tree" data-v="1">＋</button></div>'
+    + '</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding-top:10px;">'
+    + '<div><b>灑葬區（草園灑葬）</b><small style="display:block;color:var(--muted);">每位 NT$ 2,500</small></div>'
+    + '<div class="qtyrow">'
+    + '<button type="button" aria-label="減少" data-a="fy_eco_scat" data-v="-1">−</button>'
+    + '<input type="number" min="0" max="99" value="'+eco.scatter+'" data-a="fy_eco_scat_inp">'
+    + '<button type="button" aria-label="增加" data-a="fy_eco_scat" data-v="1">＋</button></div>'
+    + '</div>';
+  if(eco.tree > 0 || eco.scatter > 0){
+    h += '<div class="calc">'
+      + (eco.tree > 0 ? row('樹葬規費', eco.tree * 5000, money(5000) + ' × ' + eco.tree) : '')
+      + (eco.scatter > 0 ? row('灑葬規費', eco.scatter * 2500, money(2500) + ' × ' + eco.scatter) : '')
+      + '<div class="row sum"><span>自然葬小計</span><span>'+money(eco.tree * 5000 + eco.scatter * 2500)+'</span></div></div>';
+  }
+  h += '</div>';
+
+  // 臨時納存
+  const t = S.temp;
+  h += '<div class="q" style="margin-top:22px">臨時納存骨灰</div><div class="chips">'
+    + chip('需要辦理臨時納存（3年）', t.on, 'data-a="fy_ton"', '', 'wide') + '</div>';
+  if(t.on){
+    h += '<div class="q">數量（具）</div><div class="qtyrow">'
+      + '<button type="button" aria-label="減少" data-a="fy_tqty" data-id="temp" data-v="-1">−</button>'
+      + '<input type="number" min="1" max="99" value="'+t.qty+'" data-a="fy_tqtyinput">'
+      + '<button type="button" aria-label="增加" data-a="fy_tqty" data-id="temp" data-v="1">＋</button></div>';
+    const c = calcTemp();
+    h += '<div class="calc"><div class="tier">'+c.label+'</div>'
+      + row('臨時納存使用費', c.use * t.qty, (S.res==='other'?'外縣市 2 倍計收；':'縣民標準價；')+(t.qty>1?money(c.use)+' × '+t.qty:''))
+      + row('臨時納存管理費', c.mgmt * t.qty, '一次性（不加倍）')
+      + '<p class="hint" style="margin:4px 0 0">註：已購置本所骨灰存放設施者，火化後 14 日內免收使用費。</p></div>';
+  }
   return h + '</section>';
 }
 
 function summary(){
   let s = '【宜蘭縣立殯葬設施（福園・櫻花陵園）費用試算】\n';
-  s += '申請資格：' + (S.res==='other'?'設籍外縣市（塔位及臨時納存使用費 2 倍，牌位與管理費不加倍）':'宜蘭縣民（標準價）') + '\n';
+  s += '申請資格：' + (S.res==='other'?'設籍外縣市（塔位及臨時納存使用費 2 倍，牌位、自然葬與管理費不加倍）':'宜蘭縣民（標準價）') + '\n';
   S.lines.forEach((l, i) => {
     const r = calcLine(l), q = l.qty;
     const parkName = l.park==='fuyuan' ? '員山福園' : '櫻花陵園';
@@ -552,6 +583,11 @@ function summary(){
     const c = calcPlaque(p);
     s += '\n牌位 ' + (i+1) + '. ' + c.conf.name + (p.pick?'（自選位置）':'') + ' × ' + p.qty + ' 位（標準價不加倍）\n   小計：' + money(c.sub) + '\n';
   });
+  if(S.eco && (S.eco.tree > 0 || S.eco.scatter > 0)){
+    s += '\n【福園環保自然葬】\n';
+    if(S.eco.tree > 0) s += '・樹葬 × ' + S.eco.tree + ' 位：' + money(S.eco.tree * 5000) + '\n';
+    if(S.eco.scatter > 0) s += '・灑葬 × ' + S.eco.scatter + ' 位：' + money(S.eco.scatter * 2500) + '\n';
+  }
   const tp = calcTemp();
   if(tp) s += '\n' + tp.label + ' × ' + S.temp.qty + ' 具\n   使用費：' + money(tp.use * S.temp.qty) + '｜管理費：' + money(tp.mgmt * S.temp.qty) + '\n   小計：' + money(tp.sub) + '\n';
   const t = totals();
@@ -572,6 +608,7 @@ function resultHTML(){
     if(t.move) h += row('換位手續費', t.move);
   }
   if((S.plaques||[]).length) h += row('神主牌位費用', t.plaque, '不分戶籍標準價');
+  if(t.eco) h += row('環保自然葬（樹葬/灑葬）', t.eco);
   if(S.temp.on) h += row('臨時納存費用', t.temp);
   h += '<div class="row total"><span>合計總額</span><span>'+money(t.all)+'</span></div>';
   h += '<div class="q">文字摘要</div><textarea class="sum" readonly rows="14">'+esc(summary())+'</textarea>';
@@ -607,6 +644,7 @@ function act(d){
   const l = d.id ? S.lines.find(x => String(x.id)===String(d.id)) : null;
   const pl = d.id ? S.plaques.find(x => String(x.id)===String(d.id)) : null;
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+  if(!S.eco) S.eco = { tree:0, scatter:0 };
   switch(d.a){
     case 'fy_res': S.res = d.v; break;
     case 'fy_add': S.lines.push(newLine()); break;
@@ -622,6 +660,8 @@ function act(d){
     case 'fy_ptype': pl.type = d.v; break;
     case 'fy_ppick': pl.pick = !pl.pick; break;
     case 'fy_pqty': pl.qty = clamp(pl.qty + Number(d.v), 1, 99); break;
+    case 'fy_eco_tree': S.eco.tree = clamp(S.eco.tree + Number(d.v), 0, 99); break;
+    case 'fy_eco_scat': S.eco.scatter = clamp(S.eco.scatter + Number(d.v), 0, 99); break;
     case 'fy_ton': S.temp.on = !S.temp.on; break;
     case 'fy_tqty': S.temp.qty = clamp(S.temp.qty + Number(d.v), 1, 99); break;
     case 'fy_copy': doCopy(); return;
@@ -640,17 +680,22 @@ root.addEventListener('change', e => {
   const inp = e.target;
   if (!inp.dataset.a) return;
   const val = parseInt(inp.value, 10);
-  if(isNaN(val) || val < 1) return;
+  if(isNaN(val) || val < 0) return;
   const a = inp.dataset.a;
   const id = inp.dataset.id;
+  if(!S.eco) S.eco = { tree:0, scatter:0 };
   if(a === 'fy_qtyinput'){
     const l = S.lines.find(x => String(x.id)===String(id));
-    if(l){ l.qty = Math.min(99, val); render(); }
+    if(l){ l.qty = Math.max(1, Math.min(99, val)); render(); }
   } else if(a === 'fy_pqtyinput'){
     const pl = S.plaques.find(x => String(x.id)===String(id));
-    if(pl){ pl.qty = Math.min(99, val); render(); }
+    if(pl){ pl.qty = Math.max(1, Math.min(99, val)); render(); }
+  } else if(a === 'fy_eco_tree_inp'){
+    S.eco.tree = Math.min(99, val); render();
+  } else if(a === 'fy_eco_scat_inp'){
+    S.eco.scatter = Math.min(99, val); render();
   } else if(a === 'fy_tqtyinput'){
-    S.temp.qty = Math.min(99, val); render();
+    S.temp.qty = Math.max(1, Math.min(99, val)); render();
   }
 });
 
@@ -756,7 +801,7 @@ function totals(){
   return t;
 }
 
-const KEY = 'tower-calc-luodong-v28';
+const KEY = 'tower-calc-luodong-v29';
 let nextId=1;
 function newLine(){ return { id:nextId++, kind:'single', tower:'ba', grp:'lo', pre:false, rename:false, qty:1, move:false, target:null }; }
 function fresh(){
@@ -1152,7 +1197,7 @@ function calcPlaque(p){
   return {base,pick,qty:p.qty,unit:base+pick,sub:(base+pick)*p.qty};
 }
 
-const KEY = 'tower-calc-dongshan-v28';
+const KEY = 'tower-calc-dongshan-v29';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false};}
 function fresh(){return {res:'ds',yr3:true,vil:false,yl1:true,lines:[newLine()],plaques:[],temp:{on:false}};}
@@ -1372,7 +1417,7 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 4：五結鄉蘭園（依要求順序排置＋骨骸零小字按鈕） ═════════ -->
+<!-- ═════════ 腳本 4：五結鄉蘭園（草案＋多元環保葬＋暫厝免使用費） ═════════ -->
 <script id="script-wj">
 (function(){
 'use strict';
@@ -1406,19 +1451,24 @@ const MGF_WJ = {
   fam16_temp: 320000
 };
 
-const KEY = 'tower-calc-wujie-v28';
+const KEY = 'tower-calc-wujie-v29';
 let nextId = 1;
 
 function newLine(){
   return { id:nextId++, kind:'single', tier:'eye', dec:'none', inTemp:false, promo:true, qty:1 };
 }
 function fresh(){
-  return { res:'local', lines:[newLine()], plaques:[] };
+  return { res:'local', lines:[newLine()], plaques:[], eco:{ flower:0, tree:0, pet:0 } };
 }
 function load(){
   try{
     const s = JSON.parse(localStorage.getItem(KEY)||'null');
-    if(s && Array.isArray(s.lines) && Array.isArray(s.plaques)) return s;
+    if(s && Array.isArray(s.lines) && Array.isArray(s.plaques)){
+      const ids = s.lines.concat(s.plaques).map(x=>x.id);
+      nextId = (ids.length?Math.max.apply(null,ids):0)+1;
+      if(!s.eco) s.eco = { flower:0, tree:0, pet:0 };
+      return s;
+    }
   }catch(e){}
   return null;
 }
@@ -1444,11 +1494,11 @@ function calcLine(l){
 
   if(l.kind === 'single'){
     name = l.tier === 'eye' ? '個人骨灰櫃（成人平視層 3、5–8 層）' : '個人骨灰櫃（非平視層 1、2、9–12 層）';
-    baseUse = BASE_WJ.single[l.tier][res];
+    baseUse = l.inTemp ? 0 : BASE_WJ.single[l.tier][res];
     mgmt = l.inTemp ? MGF_WJ.single_temp : MGF_WJ.single;
   } else if(l.kind === 'couple'){
     name = l.tier === 'eye' ? '雙人骨灰櫃（成人平視層 3、5–8 層）' : '雙人骨灰櫃（非平視層 1、2、9–12 層）';
-    baseUse = BASE_WJ.couple[l.tier][res];
+    baseUse = l.inTemp ? 0 : BASE_WJ.couple[l.tier][res];
     mgmt = l.inTemp ? MGF_WJ.couple_temp : MGF_WJ.couple;
     unitName = '組';
   } else if(l.kind === 'bone'){
@@ -1457,13 +1507,13 @@ function calcLine(l){
     mgmt = l.inTemp ? MGF_WJ.bone_temp : MGF_WJ.bone;
   } else if(l.kind === 'fam8'){
     name = '8 人家族櫃（可安奉 8 位）';
-    baseUse = BASE_WJ.fam8[res];
+    baseUse = l.inTemp ? 0 : BASE_WJ.fam8[res];
     mgmt = l.inTemp ? MGF_WJ.fam8_temp : MGF_WJ.fam8;
     unitName = '座';
     famSeats = 8;
   } else if(l.kind === 'fam16'){
     name = '16 人家族櫃（可安奉 16 位）';
-    baseUse = BASE_WJ.fam16[res];
+    baseUse = l.inTemp ? 0 : BASE_WJ.fam16[res];
     mgmt = l.inTemp ? MGF_WJ.fam16_temp : MGF_WJ.fam16;
     unitName = '座';
     famSeats = 16;
@@ -1472,7 +1522,13 @@ function calcLine(l){
   let use = baseUse;
   let decNote = '一般正常計收';
 
-  if(l.kind !== 'bone'){
+  if(l.inTemp){
+    if(l.kind === 'bone'){
+      decNote = '已暫厝骨骸特惠（使用費1~1.5萬＋管理費3萬）';
+    } else {
+      decNote = '貨櫃已暫厝先祖（免繳使用費，僅繳管理費）';
+    }
+  } else if(l.kind !== 'bone'){
     if(l.dec === 'chengxing'){
       if(l.kind === 'single' && l.tier === 'flat'){
         use = 25000; decNote = '成興村非平視層草案優惠價 25,000 元';
@@ -1494,12 +1550,12 @@ function calcLine(l){
     const promo = l.promo ? 1000 : 0;
     use = Math.max(0, use - promo);
   } else {
-    decNote = l.inTemp ? '貨櫃暫厝特惠（使用費及管理費優惠）' : '標準計收（骨骸櫃依法不適用遷葬折扣）';
+    decNote = '標準計收（骨骸櫃依法不適用公墓遷葬折扣）';
   }
 
   const unit = use + mgmt;
   const avgSeat = famSeats > 0 ? Math.round(unit / famSeats) : 0;
-  return { name, use, mgmt, promo: (l.kind!=='bone' && l.promo)?1000:0, decNote, unit, sub: unit * l.qty, unitName, famSeats, avgSeat };
+  return { name, use, mgmt, promo: (!l.inTemp && l.kind!=='bone' && l.promo)?1000:0, decNote, unit, sub: unit * l.qty, unitName, famSeats, avgSeat };
 }
 
 function calcPlaque(p){
@@ -1510,14 +1566,20 @@ function calcPlaque(p){
 }
 
 function totals(){
-  let use = 0, mgmt = 0, plaque = 0;
+  let use = 0, mgmt = 0, plaque = 0, eco = 0;
   S.lines.forEach(l => {
     const r = calcLine(l);
     use += r.use * l.qty;
     mgmt += r.mgmt * l.qty;
   });
   S.plaques.forEach(p => { plaque += calcPlaque(p).sub; });
-  return { use, mgmt, plaque, all: use + mgmt + plaque };
+  if(S.eco){
+    eco += (S.eco.flower || 0) * 5000;
+    eco += (S.eco.tree || 0) * 6000;
+    const petRate = S.res === 'local' ? 2000 : 4000;
+    eco += (S.eco.pet || 0) * petRate;
+  }
+  return { use, mgmt, plaque, eco, all: use + mgmt + plaque + eco };
 }
 
 function qualHTML(){
@@ -1559,17 +1621,22 @@ function lineHTML(l, i){
   }
 
   if(l.kind !== 'bone'){
-    h += '<div class="q">公墓遷葬與村別草案優惠（骨灰櫃限定）</div><div class="chips">'
-      + chip('無特定優惠（一般入堂）', l.dec==='none', 'data-a="wj_dec" data-id="'+l.id+'" data-v="none"')
-      + chip('成興村先祖遷葬（55折起）', l.dec==='chengxing', 'data-a="wj_dec" data-id="'+l.id+'" data-v="chengxing"', '設籍或曾設籍成興滿6年')
-      + chip('利澤／季新村遷葬（7折起）', l.dec==='lize_jixin', 'data-a="wj_dec" data-id="'+l.id+'" data-v="lize_jixin"', '設籍或曾設籍滿6年')
-      + chip('大吉村公墓遷葬（8折）', l.dec==='daji', 'data-a="wj_dec" data-id="'+l.id+'" data-v="daji"', '全櫃位 8 折優惠')
-      + chip('五結各公墓先祖遷葬（9折）', l.dec==='wujie_cem', 'data-a="wj_dec" data-id="'+l.id+'" data-v="wujie_cem"', '全鄉各公墓起掘先祖') + '</div>';
+    // 村別優惠：利澤/季新 與 大吉村 50% 等寬並排
+    h += '<div class="q">公墓遷葬與村別草案優惠（骨灰櫃限定）</div><div class="chips two">'
+      + chip('無特定優惠（一般入堂）', l.dec==='none', 'data-a="wj_dec" data-id="'+l.id+'" data-v="none"', '', 'wide')
+      + chip('成興村先祖遷葬（55折起）', l.dec==='chengxing', 'data-a="wj_dec" data-id="'+l.id+'" data-v="chengxing"', '設籍滿6年同享', 'wide')
+      + chip('利澤／季新村遷葬（7折起）', l.dec==='lize_jixin', 'data-a="wj_dec" data-id="'+l.id+'" data-v="lize_jixin"', '設籍滿6年同享')
+      + chip('大吉村公墓遷葬（8折）', l.dec==='daji', 'data-a="wj_dec" data-id="'+l.id+'" data-v="daji"', '全櫃位 8 折')
+      + chip('五結各公墓先祖遷葬（9折）', l.dec==='wujie_cem', 'data-a="wj_dec" data-id="'+l.id+'" data-v="wujie_cem"', '全鄉各公墓起掘先祖', 'wide') + '</div>';
   }
 
+  // 暫厝勾選按鈕：清楚註記骨灰免使用費
+  const tempSub = (l.kind === 'bone') 
+    ? '骨骸享暫厝特惠（使用費1~1.5萬＋管理費3萬）' 
+    : '骨灰先祖【免繳使用費】，僅收管理費 2 萬/位';
   h += '<div class="chips" style="margin-top:10px">'
-    + chip('先祖原暫厝於第一公墓貨櫃內', l.inTemp, 'data-a="wj_intemp" data-id="'+l.id+'"', l.kind==='bone'?'享暫厝優惠價（使用費1~1.5萬＋管理費3萬）':'享管理費扣抵優惠（每位省 5,000 元）', 'wide');
-  if(l.kind !== 'bone'){
+    + chip('先祖原暫厝於第一公墓貨櫃內', l.inTemp, 'data-a="wj_intemp" data-id="'+l.id+'"', tempSub, 'wide');
+  if(!l.inTemp && l.kind !== 'bone'){
     h += chip('開園推廣宣導獎勵（每位折 1,000 元）', l.promo, 'data-a="wj_promo" data-id="'+l.id+'"', '草案規劃適用至 116 年 12 月 31 日止', 'wide');
   }
   h += '</div>';
@@ -1629,11 +1696,48 @@ function plaqueHTML(p, i){
 }
 
 function extrasHTML(){
-  let h = '<section class="card"><h2><span class="n">3</span>其他附屬項目</h2>'
+  let h = '<section class="card"><h2><span class="n">3</span>其他附屬項目與環保多元葬</h2>'
     + '<div class="q" style="margin-top:14px">神主牌位</div>';
   S.plaques.forEach((p, i) => { h += plaqueHTML(p, i); });
-  h += '<button type="button" class="btn add" data-a="wj_padd">＋ 新增神主牌位</button></section>';
-  return h;
+  h += '<button type="button" class="btn add" data-a="wj_padd">＋ 新增神主牌位</button>';
+
+  // 五結環保多元葬區（花葬5000 / 樹葬6000 / 寵物葬 鄉民2000 非鄉民4000）
+  const eco = S.eco || { flower:0, tree:0, pet:0 };
+  const petRate = S.res === 'local' ? 2000 : 4000;
+  h += '<div class="q" style="margin-top:22px">環保多元葬與寵物葬專區（草案）</div>'
+    + '<p class="hint" style="margin-top:0">先祖骨灰需經合法處理並提出證明；費用含專用容器與手續費。</p>'
+    + '<div class="line">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">'
+    + '<div><b>花葬區</b><small style="display:block;color:var(--muted);">每位 NT$ 5,000</small></div>'
+    + '<div class="qtyrow">'
+    + '<button type="button" aria-label="減少" data-a="wj_eco_flw" data-v="-1">−</button>'
+    + '<input type="number" min="0" max="99" value="'+eco.flower+'" data-a="wj_eco_flw_inp">'
+    + '<button type="button" aria-label="增加" data-a="wj_eco_flw" data-v="1">＋</button></div>'
+    + '</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding:10px 0;">'
+    + '<div><b>樹葬區</b><small style="display:block;color:var(--muted);">每位 NT$ 6,000</small></div>'
+    + '<div class="qtyrow">'
+    + '<button type="button" aria-label="減少" data-a="wj_eco_tree" data-v="-1">−</button>'
+    + '<input type="number" min="0" max="99" value="'+eco.tree+'" data-a="wj_eco_tree_inp">'
+    + '<button type="button" aria-label="增加" data-a="wj_eco_tree" data-v="1">＋</button></div>'
+    + '</div>'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding-top:10px;">'
+    + '<div><b>寵物葬區</b><small style="display:block;color:var(--muted);">'+(S.res==='local'?'五結鄉民 NT$ 2,000':'非鄉民 NT$ 4,000')+'／隻</small></div>'
+    + '<div class="qtyrow">'
+    + '<button type="button" aria-label="減少" data-a="wj_eco_pet" data-v="-1">−</button>'
+    + '<input type="number" min="0" max="99" value="'+eco.pet+'" data-a="wj_eco_pet_inp">'
+    + '<button type="button" aria-label="增加" data-a="wj_eco_pet" data-v="1">＋</button></div>'
+    + '</div>';
+  if(eco.flower > 0 || eco.tree > 0 || eco.pet > 0){
+    h += '<div class="calc">'
+      + (eco.flower > 0 ? row('花葬規費', eco.flower * 5000, money(5000) + ' × ' + eco.flower) : '')
+      + (eco.tree > 0 ? row('樹葬規費', eco.tree * 6000, money(6000) + ' × ' + eco.tree) : '')
+      + (eco.pet > 0 ? row('寵物葬規費', eco.pet * petRate, money(petRate) + ' × ' + eco.pet) : '')
+      + '<div class="row sum"><span>環保多元葬小計</span><span>'+money(eco.flower * 5000 + eco.tree * 6000 + eco.pet * petRate)+'</span></div></div>';
+  }
+  h += '</div>';
+
+  return h + '</section>';
 }
 
 const WJ_NOTICE = '※ 本費用依據五結鄉公所最新自治條例收費草案試算，最終收費標準請以公所正式公告為準。五結鄉民、大吉村特定回饋或舊墓起掘遷葬另有規定，歡迎洽詢協助試算。';
@@ -1658,6 +1762,13 @@ function summary(){
     if(p.join) s += ' ＋ 合爐管理費 ' + money(c.joinMgmt * p.qty) + '（已安奉牌位增添先祖規費）';
     s += '\n   小計：' + money(c.sub) + '\n';
   });
+  if(S.eco && (S.eco.flower > 0 || S.eco.tree > 0 || S.eco.pet > 0)){
+    const petRate = S.res === 'local' ? 2000 : 4000;
+    s += '\n【五結環保多元葬與寵物葬】\n';
+    if(S.eco.flower > 0) s += '・花葬 × ' + S.eco.flower + ' 位：' + money(S.eco.flower * 5000) + '\n';
+    if(S.eco.tree > 0) s += '・樹葬 × ' + S.eco.tree + ' 位：' + money(S.eco.tree * 6000) + '\n';
+    if(S.eco.pet > 0) s += '・寵物葬 × ' + S.eco.pet + ' 隻：' + money(S.eco.pet * petRate) + '\n';
+  }
   const t = totals();
   s += '\n總計預估應繳金額(草案)：' + money(t.all) + '\n\n'
     + WJ_NOTICE + '\n'
@@ -1677,6 +1788,7 @@ function resultHTML(){
     h += row('設施管理費總計（50年）', t.mgmt);
   }
   if(S.plaques.length) h += row('神主牌位總計', t.plaque);
+  if(t.eco) h += row('環保多元葬與寵物葬', t.eco);
   h += '<div class="row total"><span>合計總額(草案)</span><span>'+money(t.all)+'</span></div>';
   
   h += '<div class="banner" style="background:var(--warn-bg);border-left:3.5px solid var(--gold);margin:14px 0 10px;">'
@@ -1715,13 +1827,14 @@ function act(d){
   const l = d.id ? S.lines.find(x => String(x.id)===String(d.id)) : null;
   const pl = d.id ? S.plaques.find(x => String(x.id)===String(d.id)) : null;
   const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+  if(!S.eco) S.eco = { flower:0, tree:0, pet:0 };
   switch(d.a){
     case 'wj_res': S.res = d.v; break;
     case 'wj_add': S.lines.push(newLine()); break;
     case 'wj_del': S.lines = S.lines.filter(x => x!==l); break;
     case 'wj_kind': 
       l.kind = d.v; 
-      l.tier = (d.v === 'bone') ? 'flat' : 'eye'; // 骨骸預設為第1-3層
+      l.tier = (d.v === 'bone') ? 'flat' : 'eye';
       break;
     case 'wj_tier': l.tier = d.v; break;
     case 'wj_dec': l.dec = d.v; break;
@@ -1732,6 +1845,9 @@ function act(d){
     case 'wj_pdel': S.plaques = S.plaques.filter(x => x!==pl); break;
     case 'wj_pjoin': pl.join = !pl.join; break;
     case 'wj_pqty': pl.qty = clamp(pl.qty + Number(d.v), 1, 99); break;
+    case 'wj_eco_flw': S.eco.flower = clamp(S.eco.flower + Number(d.v), 0, 99); break;
+    case 'wj_eco_tree': S.eco.tree = clamp(S.eco.tree + Number(d.v), 0, 99); break;
+    case 'wj_eco_pet': S.eco.pet = clamp(S.eco.pet + Number(d.v), 0, 99); break;
     case 'wj_copy': doCopy(); return;
     case 'wj_reset': nextId = 1; S = fresh(); break;
     default: return;
@@ -1748,15 +1864,22 @@ root.addEventListener('change', e => {
   const inp = e.target;
   if (!inp.dataset.a) return;
   const val = parseInt(inp.value, 10);
-  if(isNaN(val) || val < 1) return;
+  if(isNaN(val) || val < 0) return;
   const a = inp.dataset.a;
   const id = inp.dataset.id;
+  if(!S.eco) S.eco = { flower:0, tree:0, pet:0 };
   if(a === 'wj_qtyinput'){
     const l = S.lines.find(x => String(x.id)===String(id));
-    if(l){ l.qty = Math.min(99, val); render(); }
+    if(l){ l.qty = Math.max(1, Math.min(99, val)); render(); }
   } else if(a === 'wj_pqtyinput'){
     const pl = S.plaques.find(x => String(x.id)===String(id));
-    if(pl){ pl.qty = Math.min(99, val); render(); }
+    if(pl){ pl.qty = Math.max(1, Math.min(99, val)); render(); }
+  } else if(a === 'wj_eco_flw_inp'){
+    S.eco.flower = Math.min(99, val); render();
+  } else if(a === 'wj_eco_tree_inp'){
+    S.eco.tree = Math.min(99, val); render();
+  } else if(a === 'wj_eco_pet_inp'){
+    S.eco.pet = Math.min(99, val); render();
   }
 });
 
@@ -1769,7 +1892,7 @@ render();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v28';
+  const KEY = 'tower-calc-tab-v29';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
   function show(id, scroll){
     tabs.forEach(t => {

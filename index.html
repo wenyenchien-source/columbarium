@@ -316,7 +316,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v27';
+const KEY = 'tower-calc-fuyuan-v28';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -756,7 +756,7 @@ function totals(){
   return t;
 }
 
-const KEY = 'tower-calc-luodong-v27';
+const KEY = 'tower-calc-luodong-v28';
 let nextId=1;
 function newLine(){ return { id:nextId++, kind:'single', tower:'ba', grp:'lo', pre:false, rename:false, qty:1, move:false, target:null }; }
 function fresh(){
@@ -850,7 +850,7 @@ function lineHTML(l,i){
   if(l.move) h+='<div class="q">換到</div>'+targetSelect(l);
 
   const r=calcLine(l), q=r.qty;
-  h+='<div class="calc"><div class="tier">'+TOWER[r.tower]+'　'+K.name+'</div>';
+  h+='<div class="calc"><div class="tier">'+TOWER[r.tower]+' '+K.name+'</div>';
   if(r.famSeats > 0){
     h += '<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+r.famSeats+' 位，平均每位 <b>'+money(r.avgSeat)+'</b></div>';
   }
@@ -1152,7 +1152,7 @@ function calcPlaque(p){
   return {base,pick,qty:p.qty,unit:base+pick,sub:(base+pick)*p.qty};
 }
 
-const KEY = 'tower-calc-dongshan-v27';
+const KEY = 'tower-calc-dongshan-v28';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false};}
 function fresh(){return {res:'ds',yr3:true,vil:false,yl1:true,lines:[newLine()],plaques:[],temp:{on:false}};}
@@ -1372,11 +1372,10 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 4：五結鄉蘭園（含骨骸大甕＋專屬備註草案） ═════════ -->
+<!-- ═════════ 腳本 4：五結鄉蘭園（依要求順序排置＋骨骸零小字按鈕） ═════════ -->
 <script id="script-wj">
 (function(){
 'use strict';
-// 五結蘭園收費基準表草案 (115.05.26修)
 const BASE_WJ = {
   single: {
     flat: { local:30000, county:50000, other:60000 },
@@ -1407,7 +1406,7 @@ const MGF_WJ = {
   fam16_temp: 320000
 };
 
-const KEY = 'tower-calc-wujie-v27';
+const KEY = 'tower-calc-wujie-v28';
 let nextId = 1;
 
 function newLine(){
@@ -1453,7 +1452,7 @@ function calcLine(l){
     mgmt = l.inTemp ? MGF_WJ.couple_temp : MGF_WJ.couple;
     unitName = '組';
   } else if(l.kind === 'bone'){
-    name = l.tier === 'eye' ? '個人骨骸櫃（大甕・平視層 5、6 層）' : '個人骨骸櫃（大甕・非平視層 1、2、3 層）';
+    name = l.tier === 'eye' ? '個人骨骸櫃（大甕・第 5、6 層）' : '個人骨骸櫃（大甕・第 1、2、3 層）';
     baseUse = l.inTemp ? BASE_WJ.bone[l.tier].temp : BASE_WJ.bone[l.tier][res];
     mgmt = l.inTemp ? MGF_WJ.bone_temp : MGF_WJ.bone;
   } else if(l.kind === 'fam8'){
@@ -1473,7 +1472,6 @@ function calcLine(l){
   let use = baseUse;
   let decNote = '一般正常計收';
 
-  // 骨灰櫃專屬遷葬優惠（骨骸櫃依法除外不適用）
   if(l.kind !== 'bone'){
     if(l.dec === 'chengxing'){
       if(l.kind === 'single' && l.tier === 'flat'){
@@ -1541,21 +1539,23 @@ function lineHTML(l, i){
   let h = '<div class="line"><div class="line-h"><b>項目 '+(i+1)+'</b>'
     + '<button type="button" class="link" data-a="wj_del" data-id="'+l.id+'">刪除此項目</button></div>';
 
+  // 櫃位規格種類排序：1:8人家族櫃, 2:16人家族櫃, 3:個人骨骸位(大甕)
   h += '<div class="q">櫃位規格種類（草案）</div><div class="chips two">'
     + chip('個人骨灰位', l.kind==='single', 'data-a="wj_kind" data-id="'+l.id+'" data-v="single"')
     + chip('雙人骨灰位', l.kind==='couple', 'data-a="wj_kind" data-id="'+l.id+'" data-v="couple"')
-    + chip('個人骨骸位（大甕）', l.kind==='bone', 'data-a="wj_kind" data-id="'+l.id+'" data-v="bone"', '骨骸大甕・1-3層/5-6層')
     + chip('8 人家族櫃', l.kind==='fam8', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam8"', '平均每位約 NT$ 72,500')
-    + chip('16 人家族櫃', l.kind==='fam16', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam16"', '平均每位約 NT$ 72,500', 'wide') + '</div>';
+    + chip('16 人家族櫃', l.kind==='fam16', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam16"', '平均每位約 NT$ 72,500')
+    + chip('個人骨骸位（大甕）', l.kind==='bone', 'data-a="wj_kind" data-id="'+l.id+'" data-v="bone"', '', 'wide') + '</div>';
 
   if(l.kind === 'single' || l.kind === 'couple'){
     h += '<div class="q">位置層別高度</div><div class="chips two">'
       + chip('成人平視層', l.tier==='eye', 'data-a="wj_tier" data-id="'+l.id+'" data-v="eye"', '第 3、5、6、7、8 層')
       + chip('非平視層', l.tier==='flat', 'data-a="wj_tier" data-id="'+l.id+'" data-v="flat"', '第 1、2、9、10、11、12 層') + '</div>';
   } else if(l.kind === 'bone'){
-    h += '<div class="q">骨骸櫃位置層別高度</div><div class="chips two">'
-      + chip('成人平視層（第 5、6 層）', l.tier==='eye', 'data-a="wj_tier" data-id="'+l.id+'" data-v="eye"', '鄉民4.5萬／縣民7.5萬')
-      + chip('非平視層（第 1、2、3 層）', l.tier==='flat', 'data-a="wj_tier" data-id="'+l.id+'" data-v="flat"', '鄉民5萬／縣民8萬') + '</div>';
+    // 骨骸櫃：左右對調、刪除平視/非平視字眼、零小字
+    h += '<div class="q">骨骸櫃位置層別</div><div class="chips two">'
+      + chip('第 1、2、3 層', l.tier==='flat', 'data-a="wj_tier" data-id="'+l.id+'" data-v="flat"')
+      + chip('第 5、6 層', l.tier==='eye', 'data-a="wj_tier" data-id="'+l.id+'" data-v="eye"') + '</div>';
   }
 
   if(l.kind !== 'bone'){
@@ -1568,7 +1568,7 @@ function lineHTML(l, i){
   }
 
   h += '<div class="chips" style="margin-top:10px">'
-    + chip('先祖原暫厝於第一公墓貨櫃內', l.inTemp, 'data-a="wj_intemp" data-id="'+l.id+'"', l.kind==='bone'?'骨骸享暫厝優惠價（使用費1~1.5萬+管理費3萬）':'享管理費扣抵優惠（每位省 5,000 元）', 'wide');
+    + chip('先祖原暫厝於第一公墓貨櫃內', l.inTemp, 'data-a="wj_intemp" data-id="'+l.id+'"', l.kind==='bone'?'享暫厝優惠價（使用費1~1.5萬＋管理費3萬）':'享管理費扣抵優惠（每位省 5,000 元）', 'wide');
   if(l.kind !== 'bone'){
     h += chip('開園推廣宣導獎勵（每位折 1,000 元）', l.promo, 'data-a="wj_promo" data-id="'+l.id+'"', '草案規劃適用至 116 年 12 月 31 日止', 'wide');
   }
@@ -1679,7 +1679,6 @@ function resultHTML(){
   if(S.plaques.length) h += row('神主牌位總計', t.plaque);
   h += '<div class="row total"><span>合計總額(草案)</span><span>'+money(t.all)+'</span></div>';
   
-  // 醒目備註小字提示框
   h += '<div class="banner" style="background:var(--warn-bg);border-left:3.5px solid var(--gold);margin:14px 0 10px;">'
     + '<small style="display:block;line-height:1.55;color:var(--ink);">' + WJ_NOTICE + '</small></div>';
 
@@ -1722,7 +1721,7 @@ function act(d){
     case 'wj_del': S.lines = S.lines.filter(x => x!==l); break;
     case 'wj_kind': 
       l.kind = d.v; 
-      l.tier = 'eye';
+      l.tier = (d.v === 'bone') ? 'flat' : 'eye'; // 骨骸預設為第1-3層
       break;
     case 'wj_tier': l.tier = d.v; break;
     case 'wj_dec': l.dec = d.v; break;
@@ -1770,7 +1769,7 @@ render();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v27';
+  const KEY = 'tower-calc-tab-v28';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
   function show(id, scroll){
     tabs.forEach(t => {

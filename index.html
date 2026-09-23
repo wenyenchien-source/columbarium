@@ -38,7 +38,6 @@ h1{font-size:26px;letter-spacing:.04em}
 h2{font-size:20px}
 .sub{color:var(--muted);margin:4px 0 0;font-size:14px}
 
-/* 導航頁籤：2x2 排列 + 下方跨欄申辦指南按鈕 */
 .tabs{
   position:relative;background:var(--bg);
   display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0 6px;margin-top:6px;
@@ -111,7 +110,6 @@ textarea{
   border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical
 }
 
-/* 遷葬備件頁籤樣式 */
 .doc-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
 .doc-tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:6px}
 .doc-tag.blue{background:var(--accent-soft);color:var(--accent)}
@@ -146,7 +144,6 @@ textarea{
     <p class="sub">依宜蘭各公立殯葬管理所最新自治條例與收費標準試算</p>
   </header>
 
-  <!-- 頂部導航頁籤 -->
   <nav class="tabs" role="tablist" aria-label="選擇納骨塔與功能">
     <button type="button" role="tab" class="chip" id="tab-fy" data-panel="panel-fy" aria-selected="true">員山福園<small>宜蘭縣立・櫻花</small></button>
     <button type="button" role="tab" class="chip" id="tab-sy" data-panel="panel-sy" aria-selected="false">羅東壽園<small>羅東鎮立</small></button>
@@ -155,7 +152,7 @@ textarea{
     <button type="button" role="tab" class="chip full-width" id="tab-doc" data-panel="panel-doc" aria-selected="false">📋 舊墓起掘遷葬・家屬必備文件指南<small>（一次備齊免跑戶政公所兩三趟）</small></button>
   </nav>
 
-  <!-- 面板 1：員山福園與櫻花陵園 -->
+  <!-- 面板 1：員山福園 -->
   <section class="panel" id="panel-fy" role="tabpanel" aria-labelledby="tab-fy">
     <p class="sub">宜蘭縣立殯葬管理所（員山福園本館、礁溪櫻花陵園）收費標準試算</p>
     <main id="app-fy-container"></main>
@@ -194,7 +191,7 @@ textarea{
     <div class="toast" id="toast-my" role="status" aria-live="polite"></div>
   </section>
 
-  <!-- 面板 4：五結蘭園（草案版） -->
+  <!-- 面板 4：五結蘭園 -->
   <section class="panel" id="panel-wj" role="tabpanel" aria-labelledby="tab-wj" hidden>
     <p class="sub">五結鄉生命紀念園區（第一公墓納骨堂），依 115.05.26 修正收費基準表草案試算（正式收費以公所完工啟用公告為準）</p>
     <main id="app-wj-container"></main>
@@ -319,7 +316,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v24';
+const KEY = 'tower-calc-fuyuan-v25';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -454,9 +451,9 @@ function lineHTML(l, i){
     const isOt = S.res==='other';
     const avg6 = isOt ? 94000 : 54000;
     const avg12 = isOt ? 94000 : 54000;
-    h += '<div class="q">家族位容量選擇（標示平均每位單價）</div><div class="chips two">'
-      + chip('6 人式家族櫃', l.famType==='6', 'data-a="fy_famType" data-id="'+l.id+'" data-v="6"', '平均每位約 '+money(avg6)+'（總額 '+money((isOt?480000:240000)+84000)+'）')
-      + chip('12 人式家族櫃', l.famType==='12', 'data-a="fy_famType" data-id="'+l.id+'" data-v="12"', '平均每位約 '+money(avg12)+'（總額 '+money((isOt?960000:480000)+168000)+'）') + '</div>';
+    h += '<div class="q">家族位容量選擇</div><div class="chips two">'
+      + chip('6 人式家族櫃', l.famType==='6', 'data-a="fy_famType" data-id="'+l.id+'" data-v="6"', '平均每位約 '+money(avg6))
+      + chip('12 人式家族櫃', l.famType==='12', 'data-a="fy_famType" data-id="'+l.id+'" data-v="12"', '平均每位約 '+money(avg12)) + '</div>';
   }
 
   if (l.park === 'sakura' && l.layout === 'single') {
@@ -477,7 +474,7 @@ function lineHTML(l, i){
 
   h += '<div class="calc"><div class="tier">'+(l.park==='fuyuan'?'員山福園':'櫻花陵園')+' · '+r.name+'</div>';
   if(r.famSeats > 0){
-    h += '<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+r.famSeats+' 位，含管理費平均每位 <b>'+money(r.avgSeat)+'</b></div>';
+    h += '<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+r.famSeats+' 位，平均每位 <b>'+money(r.avgSeat)+'</b></div>';
   }
   h += row('堂位使用費', r.usageFee * q, (q>1?money(r.usageFee)+' × '+q+'；':'')+(S.res==='other'?'外縣市 2 倍計收':'縣民標準價'));
   h += row('設施管理費', r.mgmtFee * q, (q>1?money(r.mgmtFee)+' × '+q+'；':'')+'首次申辦一次計收 35 年（外縣市不加倍）');
@@ -545,7 +542,7 @@ function summary(){
     const parkName = l.park==='fuyuan' ? '員山福園' : '櫻花陵園';
     s += '\n' + (i+1) + '. 【' + parkName + '】' + r.name + ' × ' + q + ' ' + r.unitName + '\n';
     if(r.famSeats > 0){
-      s += '   （總容量 ' + r.famSeats + ' 位，含管理費平均每位 ' + money(r.avgSeat) + '）\n';
+      s += '   （總容量 ' + r.famSeats + ' 位，平均每位 ' + money(r.avgSeat) + '）\n';
     }
     s += '   使用費：' + money(r.usageFee * q) + '｜管理費（35年）：' + money(r.mgmtFee * q);
     if(l.move) s += '｜換位手續費：' + money(r.moveFee * q);
@@ -757,7 +754,7 @@ function totals(){
   return t;
 }
 
-const KEY = 'tower-calc-luodong-v24';
+const KEY = 'tower-calc-luodong-v25';
 let nextId=1;
 function newLine(){ return { id:nextId++, kind:'single', tower:'ba', grp:'lo', pre:false, rename:false, qty:1, move:false, target:null }; }
 function fresh(){
@@ -810,7 +807,7 @@ function lineHTML(l,i){
     +Object.keys(KINDS).map(k=>chip(KINDS[k].name,l.kind===k,'data-a="sy_kind" data-id="'+l.id+'" data-v="' + k + '"',KINDS[k].spec)).join('')+'</div>';
 
   if(GRPS[l.kind].length>1){
-    h+='<div class="q">'+(l.kind==='family'?'家族人數選擇（標示平均每位單價）':'層別')+'</div><div class="chips two">';
+    h+='<div class="q">'+(l.kind==='family'?'家族人數選擇':'層別')+'</div><div class="chips two">';
     if(l.kind==='family'){
       const tw = towerOf(l), f = resFactor(l);
       h += GRPS.family.map(g => {
@@ -818,7 +815,7 @@ function lineHTML(l,i){
         const fee = Math.round(BASE.family[g[0]] * f);
         const mgmt = mgmtOf('family', g[0], tw);
         const avg = Math.round((fee + mgmt) / seats);
-        return chip(g[1], l.grp===g[0], 'data-a="sy_grp" data-id="'+l.id+'" data-v="'+g[0]+'"', '平均每位約 '+money(avg)+'（總額 '+money(fee+mgmt)+'）');
+        return chip(g[1], l.grp===g[0], 'data-a="sy_grp" data-id="'+l.id+'" data-v="'+g[0]+'"', '平均每位約 '+money(avg));
       }).join('');
     } else {
       h += GRPS[l.kind].map(g=>chip(g[1],l.grp===g[0],'data-a="sy_grp" data-id="'+l.id+'" data-v="'+g[0]+'"','標準價 '+fmt(BASE[l.kind][g[0]]))).join('');
@@ -848,7 +845,7 @@ function lineHTML(l,i){
   const r=calcLine(l), q=r.qty;
   h+='<div class="calc"><div class="tier">'+TOWER[r.tower]+' '+K.name+'</div>';
   if(r.famSeats > 0){
-    h += '<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+r.famSeats+' 位，含管理費平均每位 <b>'+money(r.avgSeat)+'</b></div>';
+    h += '<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+r.famSeats+' 位，平均每位 <b>'+money(r.avgSeat)+'</b></div>';
   }
   h+=row('使用費',r.fee*q,(q>1?money(r.fee)+' × '+q+'；':'')+(S.res==='local'?(l.pre?'長生位標準價':'鎮民減收 10%'):(S.res==='other'?'外縣市 2 倍':'標準價')));
   h+=row('管理費',r.mgmt*q,(q>1?money(r.mgmt)+' × '+q+'；':'')+(r.tower==='ba'?(bud?'固定標準價':'福恩塔的 60%'):'福恩塔'));
@@ -902,7 +899,7 @@ function tempHTML(){
       +chip('否',own===false,'data-a="sy_towned" data-v="0"')+'</div>';
   }
   h+='<div class="q">數量（具）</div><div class="qtyrow">'
-    +'<button type="button" aria-label="減少" data-a="sy_tqty" data-id="temp" data-v="-1">−</button>'
+    +'<button type="button" aria-label="減少" data-a="sy_tqty" data-v="-1">−</button>'
     +'<input type="number" min="1" max="99" value="'+t.qty+'" data-a="sy_tqtyinput">'
     +'<button type="button" aria-label="增加" data-a="sy_tqty" data-id="temp" data-v="1">＋</button></div>';
   const c=calcTemp();
@@ -927,7 +924,7 @@ function summary(){
     const r=calcLine(l), q=l.qty;
     s+='\n'+(i+1)+'. '+TOWER[towerOf(l)]+' '+KINDS[l.kind].name+' × '+q+' '+KINDS[l.kind].unit+'\n';
     if(r.famSeats > 0){
-      s+='   （總容量 '+r.famSeats+' 位，含管理費平均每位 '+money(r.avgSeat)+'）\n';
+      s+='   （總容量 '+r.famSeats+' 位，平均每位 '+money(r.avgSeat)+'）\n';
     }
     s+='   使用費 '+money(r.fee*q)+'｜管理費 '+money(r.mgmt*q);
     if(l.move) s+='｜換位費 '+money(r.moveFee*q)+'｜補差額 '+money((r.dFee+r.dMgmt)*q);
@@ -937,7 +934,7 @@ function summary(){
     const c=calcPlaque(p);
     s+='\n牌位 '+(i+1)+'. '+(p.pick?'自選位':'非選位')+' × '+p.qty+' 位（標準價）\n   小計 '+money(c.sub)+'\n';
   });
-  const tp=calcTemp();
+  const tp = calcTemp();
   if(tp) s+='\n'+tp.label+' × '+tp.qty+' 具\n   使用費 '+money(tp.use*tp.qty)+'｜管理費 '+money(tp.mgmt*tp.qty)+'\n   小計 '+money(tp.sub)+'\n';
   const t=totals();
   s+='\n合計：'+money(t.all)+'\n※ 試算僅供參考，實際以羅東鎮立殯葬管理所核發繳款聯為準。\n'
@@ -1110,7 +1107,8 @@ const AT_LABEL = {
 const FT_LABEL = {E:'外縣市價（標準價×1.6）',F:'宜蘭縣民標準價',G:'葬於本鄉公墓內，8 折',H:'本鄉籍或遷葬區，6 折'};
 
 function calcBox(l,at){
-  const p = BOX[l.kind+'_'+l.grp];
+  const grpKey = l.grp || 'eye';
+  const p = BOX[l.kind+'_'+grpKey];
   const c = [{tier:at,fee:p[at],mgmt:p.mgmt}];
   if(l.dec==='vil') c.push({tier:'D',fee:p.D,mgmt:p.mgmt});
   if(l.dec==='ds')  c.push({tier:'A',fee:p.A,mgmt:p.mgmt});
@@ -1141,7 +1139,7 @@ function calcPlaque(p){
   return {base,pick,qty:p.qty,unit:base+pick,sub:(base+pick)*p.qty};
 }
 
-const KEY = 'tower-calc-dongshan-v24';
+const KEY = 'tower-calc-dongshan-v25';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false};}
 function fresh(){return {res:'ds',yr3:true,vil:false,yl1:true,lines:[newLine()],plaques:[],temp:{on:false}};}
@@ -1191,11 +1189,11 @@ function lineHTML(l,i,r){
       + Object.keys(FAM_CATS).map(c => chip(FAM_CATS[c].name, curCat===c, 'data-a="my_famcat" data-id="'+l.id+'" data-v="'+c+'"', FAM_CATS[c].sub)).join('') + '</div>';
 
     const at = appTier();
-    h += '<div class="q">容量位數選擇（標示平均每位單價）</div><div class="chips">'
+    h += '<div class="q">容量位數選擇</div><div class="chips">'
       + FAM.filter(f => f.cat === curCat).map(f => {
         const dummyL = { kind:'family', fam:f.id, dec:l.dec, half:l.half, move:false, qty:1 };
         const calcR = calcFam(dummyL, at);
-        return chip(f.label, l.fam===f.id, 'data-a="my_fam" data-id="'+l.id+'" data-v="'+f.id+'"', '平均每位約 '+money(calcR.avgSeat)+'（總額 '+money(calcR.unit)+'）');
+        return chip(f.label, l.fam===f.id, 'data-a="my_fam" data-id="'+l.id+'" data-v="'+f.id+'"', '平均每位約 '+money(calcR.avgSeat));
       }).join('') + '</div>';
   }else{
     h+='<div class="q">層別</div><div class="chips two">'
@@ -1213,7 +1211,7 @@ function lineHTML(l,i,r){
   if(r){
     h+='<div class="calc"><div class="tier">採用價級：'+r.tierLabel+'</div>';
     if(r.famSeats > 0){
-      h += '<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+r.famSeats+' 位，含管理費平均每位 <b>'+money(r.avgSeat)+'</b></div>';
+      h += '<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+r.famSeats+' 位，平均每位 <b>'+money(r.avgSeat)+'</b></div>';
     }
     h+=row('堂位使用費',r.fee*l.qty);
     h+=row('設施管理費',r.mgmt*l.qty);
@@ -1255,7 +1253,7 @@ function summary(at,res){
     const r=res[i]; if(!r) return;
     s+='\n'+(i+1)+'. '+(l.kind==='family'?'家族櫃':KINDS[l.kind].name)+' × '+l.qty+'\n';
     if(r.famSeats > 0){
-      s+='   （總容量 '+r.famSeats+' 位，含管理費平均每位 '+money(r.avgSeat)+'）\n';
+      s+='   （總容量 '+r.famSeats+' 位，平均每位 '+money(r.avgSeat)+'）\n';
     }
     s+='   堂位規費 '+money(r.fee*l.qty)+'｜管理費 '+money(r.mgmt*l.qty)+'｜小計 '+money(r.sub)+'\n';
   });
@@ -1351,11 +1349,10 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 4：五結鄉蘭園（草案＋平均每格單價計算） ═════════ -->
+<!-- ═════════ 腳本 4：五結鄉蘭園 ═════════ -->
 <script id="script-wj">
 (function(){
 'use strict';
-// 五結蘭園收費基準表草案 (115.05.26修)
 const BASE_WJ = {
   single: {
     flat: { local:30000, county:50000, other:60000 },
@@ -1380,7 +1377,7 @@ const MGF_WJ = {
   fam16_temp: 320000
 };
 
-const KEY = 'tower-calc-wujie-v24';
+const KEY = 'tower-calc-wujie-v25';
 let nextId = 1;
 
 function newLine(){
@@ -1513,8 +1510,8 @@ function lineHTML(l, i){
   h += '<div class="q">櫃位規格種類（草案）</div><div class="chips two">'
     + chip('個人骨灰位', l.kind==='single', 'data-a="wj_kind" data-id="'+l.id+'" data-v="single"')
     + chip('雙人骨灰位', l.kind==='couple', 'data-a="wj_kind" data-id="'+l.id+'" data-v="couple"')
-    + chip('8 人家族櫃', l.kind==='fam8', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam8"', '平均每位約 '+money(r8.avgSeat)+'（總額 '+money(r8.unit)+'）')
-    + chip('16 人家族櫃', l.kind==='fam16', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam16"', '平均每位約 '+money(r16.avgSeat)+'（總額 '+money(r16.unit)+'）') + '</div>';
+    + chip('8 人家族櫃', l.kind==='fam8', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam8"', '平均每位約 '+money(r8.avgSeat))
+    + chip('16 人家族櫃', l.kind==='fam16', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam16"', '平均每位約 '+money(r16.avgSeat)) + '</div>';
 
   if(l.kind === 'single' || l.kind === 'couple'){
     h += '<div class="q">位置層別高度</div><div class="chips two">'
@@ -1542,7 +1539,7 @@ function lineHTML(l, i){
 
   h += '<div class="calc"><div class="tier">五結蘭園(草案) · '+r.name+'</div>';
   if(r.famSeats > 0){
-    h += '<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+r.famSeats+' 位，含管理費平均每位 <b>'+money(r.avgSeat)+'</b></div>';
+    h += '<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+r.famSeats+' 位，平均每位 <b>'+money(r.avgSeat)+'</b></div>';
   }
   h += row('堂位使用費(草案)', r.use * q, (q>1?money(r.use)+' × '+q+'；':'')+r.decNote+(l.promo?'（已扣早鳥1,000）':''));
   h += row('設施管理費', r.mgmt * q, (q>1?money(r.mgmt)+' × '+q+'；':'')+'草案規定一次繳納 50 年，期滿免再繳');
@@ -1603,7 +1600,7 @@ function summary(){
     const r = calcLine(l), q = l.qty;
     s += '\n' + (i+1) + '. ' + r.name + ' × ' + q + ' ' + r.unitName + '\n';
     if(r.famSeats > 0){
-      s += '   （總容量 ' + r.famSeats + ' 位，含管理費平均每位 ' + money(r.avgSeat) + '）\n';
+      s += '   （總容量 ' + r.famSeats + ' 位，平均每位 ' + money(r.avgSeat) + '）\n';
     }
     s += '   適用條款：' + r.decNote + (l.promo?'（含早鳥推廣減1,000）':'') + '\n';
     s += '   使用費：' + money(r.use * q) + '｜管理費（50年）：' + money(r.mgmt * q) + '\n';
@@ -1718,7 +1715,7 @@ render();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v24';
+  const KEY = 'tower-calc-tab-v25';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
   function show(id, scroll){
     tabs.forEach(t => {
@@ -1737,7 +1734,6 @@ render();
   if(!document.getElementById(cur)) cur = 'panel-fy';
   show(cur, false);
 
-  // 遷葬指南一鍵複製至 LINE 功能
   const btnDoc = document.getElementById('btn-copy-doc');
   if(btnDoc){
     btnDoc.addEventListener('click', async () => {

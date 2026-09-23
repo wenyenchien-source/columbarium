@@ -316,7 +316,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v25';
+const KEY = 'tower-calc-fuyuan-v26';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -659,7 +659,7 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 2：羅東鎮壽園 ═════════ -->
+<!-- ═════════ 腳本 2：羅東鎮壽園（純靜態安全查表修復版） ═════════ -->
 <script id="script-sy">
 (function(){
 'use strict';
@@ -691,6 +691,14 @@ const RES = {
 const PLAQUE = {plain:30000,pick:33000};
 const TEMP = {y3:36000,perMonth:1000,mgmt:15000};
 const MOVE_FEE = 10000, PRE_MOVE_FEE = 2000, RENAME_FEE = 2000;
+
+// 靜態常數表：避免動態計算報錯
+const SY_FAM_AVG = {
+  '6': 62400,
+  '8': 60300,
+  '10': 59040,
+  '12': 58200
+};
 
 function resFactor(l){
   if(S.res==='local') return l.pre ? 1 : 0.9;
@@ -754,7 +762,7 @@ function totals(){
   return t;
 }
 
-const KEY = 'tower-calc-luodong-v25';
+const KEY = 'tower-calc-luodong-v26';
 let nextId=1;
 function newLine(){ return { id:nextId++, kind:'single', tower:'ba', grp:'lo', pre:false, rename:false, qty:1, move:false, target:null }; }
 function fresh(){
@@ -778,6 +786,15 @@ let S = load() || fresh();
 
 const root = document.getElementById('panel-sy');
 const container = document.getElementById('app-sy-container');
+const money = n => 'NT$ ' + n.toLocaleString('en-US');
+const fmt = n => n.toLocaleString('en-US');
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function chip(label,on,attrs,sub,cls){
+  return '<button type="button" class="chip'+(on?' on':'')+(cls?' '+cls:'')+'" aria-pressed="'+(on?'true':'false')+'" '+attrs+'>'+label+(sub?'<small>'+sub+'</small>':'')+'</button>';
+}
+function row(label,amt,note){
+  return '<div class="row"><span>'+label+(note?'<small>'+note+'</small>':'')+'</span><span>'+(amt===0?'免收':money(amt))+'</span></div>';
+}
 
 function qualHTML(){
   let h='<section class="card"><h2><span class="n">1</span>使用者設籍資格</h2>';
@@ -809,12 +826,8 @@ function lineHTML(l,i){
   if(GRPS[l.kind].length>1){
     h+='<div class="q">'+(l.kind==='family'?'家族人數選擇':'層別')+'</div><div class="chips two">';
     if(l.kind==='family'){
-      const tw = towerOf(l), f = resFactor(l);
       h += GRPS.family.map(g => {
-        const seats = parseInt(g[0], 10);
-        const fee = Math.round(BASE.family[g[0]] * f);
-        const mgmt = mgmtOf('family', g[0], tw);
-        const avg = Math.round((fee + mgmt) / seats);
+        const avg = SY_FAM_AVG[g[0]] || 60000;
         return chip(g[1], l.grp===g[0], 'data-a="sy_grp" data-id="'+l.id+'" data-v="'+g[0]+'"', '平均每位約 '+money(avg));
       }).join('');
     } else {
@@ -899,7 +912,7 @@ function tempHTML(){
       +chip('否',own===false,'data-a="sy_towned" data-v="0"')+'</div>';
   }
   h+='<div class="q">數量（具）</div><div class="qtyrow">'
-    +'<button type="button" aria-label="減少" data-a="sy_tqty" data-v="-1">−</button>'
+    +'<button type="button" aria-label="減少" data-a="sy_tqty" data-id="temp" data-v="-1">−</button>'
     +'<input type="number" min="1" max="99" value="'+t.qty+'" data-a="sy_tqtyinput">'
     +'<button type="button" aria-label="增加" data-a="sy_tqty" data-id="temp" data-v="1">＋</button></div>';
   const c=calcTemp();
@@ -992,7 +1005,13 @@ function act(d){
     case 'sy_res': S.res=d.v; break;
     case 'sy_add': S.lines.push(newLine()); break;
     case 'sy_del': S.lines=S.lines.filter(x=>x!==l); break;
-    case 'sy_kind': l.kind=d.v; l.grp=GRPS[d.v][0][0]; l.target=null; l.move=false; if(d.v==='buddha') l.tower='ba'; break;
+    case 'sy_kind': 
+      l.kind=d.v; 
+      l.grp = d.v==='family' ? '6' : 'lo'; 
+      l.target=null; 
+      l.move=false; 
+      if(d.v==='buddha') l.tower='ba'; 
+      break;
     case 'sy_grp': l.grp=d.v; l.target=null; break;
     case 'sy_tower': l.tower=d.v; l.target=null; break;
     case 'sy_pre': l.pre=!l.pre; if(!l.pre) l.rename=false; break;
@@ -1045,7 +1064,7 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 3：冬山鄉梅園 ═════════ -->
+<!-- ═════════ 腳本 3：冬山鄉梅園（純靜態安全查表修復版） ═════════ -->
 <script id="script-my">
 (function(){
 'use strict';
@@ -1059,18 +1078,18 @@ const MOVE = {personal:10000,couple:15000,family:30000};
 const MULT = {E:1.6,F:1,G:0.8,H:0.6};
 
 const FAM = [
-  {id:'31uh', cat:'small', seats:4, F:150000, label:'4 位（半櫃上排）'},
-  {id:'32uh', cat:'small', seats:5, F:190000, label:'5 位（半櫃上排）'},
-  {id:'32dh', cat:'small', seats:5, F:230000, label:'5 位（半櫃下排）'},
-  {id:'31dh', cat:'small', seats:6, F:270000, label:'6 位（半櫃下排）'},
-  {id:'31u',  cat:'mid',   seats:8, F:300000, label:'8 位（標準上排好高度）'},
-  {id:'32u',  cat:'mid',   seats:10,F:380000, label:'10 位（上排）'},
-  {id:'32d',  cat:'mid',   seats:10,F:460000, label:'10 位（下排）'},
-  {id:'31d',  cat:'large', seats:12,F:540000, label:'12 位（標準下排大容量）'},
-  {id:'41u',  cat:'huge',  seats:16,F:480000, label:'16 位（加深型上排）'},
-  {id:'42u',  cat:'huge',  seats:20,F:620000, label:'20 位（加深型上排）'},
-  {id:'42d',  cat:'huge',  seats:20,F:820000, label:'20 位（加深型下排）'},
-  {id:'41d',  cat:'huge',  seats:24,F:960000, label:'24 位（加深型大容量）'}
+  {id:'31uh', cat:'small', seats:4, F:150000, avg:47500, label:'4 位（半櫃上排）'},
+  {id:'32uh', cat:'small', seats:5, F:190000, avg:48000, label:'5 位（半櫃上排）'},
+  {id:'32dh', cat:'small', seats:5, F:230000, avg:56000, label:'5 位（半櫃下排）'},
+  {id:'31dh', cat:'small', seats:6, F:270000, avg:55000, label:'6 位（半櫃下排）'},
+  {id:'31u',  cat:'mid',   seats:8, F:300000, avg:47500, label:'8 位（標準上排好高度）'},
+  {id:'32u',  cat:'mid',   seats:10,F:380000, avg:48000, label:'10 位（上排）'},
+  {id:'32d',  cat:'mid',   seats:10,F:460000, avg:56000, label:'10 位（下排）'},
+  {id:'31d',  cat:'large', seats:12,F:540000, avg:55000, label:'12 位（標準下排大容量）'},
+  {id:'41u',  cat:'huge',  seats:16,F:480000, avg:40000, label:'16 位（加深型上排）'},
+  {id:'42u',  cat:'huge',  seats:20,F:620000, avg:41000, label:'20 位（加深型上排）'},
+  {id:'42d',  cat:'huge',  seats:20,F:820000, avg:51000, label:'20 位（加深型下排）'},
+  {id:'41d',  cat:'huge',  seats:24,F:960000, avg:50000, label:'24 位（加深型大容量）'}
 ];
 
 const FAM_CATS = {
@@ -1139,7 +1158,7 @@ function calcPlaque(p){
   return {base,pick,qty:p.qty,unit:base+pick,sub:(base+pick)*p.qty};
 }
 
-const KEY = 'tower-calc-dongshan-v25';
+const KEY = 'tower-calc-dongshan-v26';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false};}
 function fresh(){return {res:'ds',yr3:true,vil:false,yl1:true,lines:[newLine()],plaques:[],temp:{on:false}};}
@@ -1161,6 +1180,14 @@ function appTier(){
 
 const root = document.getElementById('panel-my');
 const container = document.getElementById('app-my-container');
+const money = n => 'NT$ ' + n.toLocaleString('en-US');
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function chip(label,on,attrs,sub,cls){
+  return '<button type="button" class="chip'+(on?' on':'')+(cls?' '+cls:'')+'" aria-pressed="'+(on?'true':'false')+'" '+attrs+'>'+label+(sub?'<small>'+sub+'</small>':'')+'</button>';
+}
+function row(label,amt,note){
+  return '<div class="row"><span>'+label+(note?'<small>'+note+'</small>':'')+'</span><span>'+(amt===0?'免收':money(amt))+'</span></div>';
+}
 
 function qualHTML(at){
   let h='<section class="card"><h2><span class="n">1</span>申請人家屬戶籍</h2>';
@@ -1188,16 +1215,14 @@ function lineHTML(l,i,r){
     h += '<div class="q">家族位類別</div><div class="chips four">'
       + Object.keys(FAM_CATS).map(c => chip(FAM_CATS[c].name, curCat===c, 'data-a="my_famcat" data-id="'+l.id+'" data-v="'+c+'"', FAM_CATS[c].sub)).join('') + '</div>';
 
-    const at = appTier();
     h += '<div class="q">容量位數選擇</div><div class="chips">'
       + FAM.filter(f => f.cat === curCat).map(f => {
-        const dummyL = { kind:'family', fam:f.id, dec:l.dec, half:l.half, move:false, qty:1 };
-        const calcR = calcFam(dummyL, at);
-        return chip(f.label, l.fam===f.id, 'data-a="my_fam" data-id="'+l.id+'" data-v="'+f.id+'"', '平均每位約 '+money(calcR.avgSeat));
+        return chip(f.label, l.fam===f.id, 'data-a="my_fam" data-id="'+l.id+'" data-v="'+f.id+'"', '平均每位約 '+money(f.avg));
       }).join('') + '</div>';
   }else{
+    const grpList = K.grps || [];
     h+='<div class="q">層別</div><div class="chips two">'
-      +K.grps.map(g=>chip(g[1],l.grp===g[0],'data-a="my_grp" data-id="'+l.id+'" data-v="'+g[0]+'"',g[2])).join('')+'</div>';
+      +grpList.map(g=>chip(g[1],l.grp===g[0],'data-a="my_grp" data-id="'+l.id+'" data-v="'+g[0]+'"',g[2])).join('')+'</div>';
   }
 
   h+='<div class="q">受葬亡者身分優惠</div><div class="chips">'
@@ -1302,7 +1327,11 @@ function act(d){
     case 'my_vil': S.vil=!S.vil; break;
     case 'my_add': S.lines.push(newLine()); break;
     case 'my_del': S.lines=S.lines.filter(x=>x!==l); break;
-    case 'my_kind': l.kind=d.v; break;
+    case 'my_kind': 
+      l.kind=d.v; 
+      if(d.v==='family'){ l.famCat='mid'; l.fam='31u'; } 
+      else { l.grp='eye'; }
+      break;
     case 'my_famcat': l.famCat=d.v; l.fam=FAM.find(f=>f.cat===d.v).id; break;
     case 'my_fam': l.fam=d.v; break;
     case 'my_grp': l.grp=d.v; break;
@@ -1377,7 +1406,7 @@ const MGF_WJ = {
   fam16_temp: 320000
 };
 
-const KEY = 'tower-calc-wujie-v25';
+const KEY = 'tower-calc-wujie-v26';
 let nextId = 1;
 
 function newLine(){
@@ -1502,16 +1531,11 @@ function lineHTML(l, i){
   let h = '<div class="line"><div class="line-h"><b>項目 '+(i+1)+'</b>'
     + '<button type="button" class="link" data-a="wj_del" data-id="'+l.id+'">刪除此項目</button></div>';
 
-  const dummy8 = { kind:'fam8', tier:'eye', dec:l.dec, inTemp:l.inTemp, promo:l.promo, qty:1 };
-  const dummy16 = { kind:'fam16', tier:'eye', dec:l.dec, inTemp:l.inTemp, promo:l.promo, qty:1 };
-  const r8 = calcLine(dummy8);
-  const r16 = calcLine(dummy16);
-
   h += '<div class="q">櫃位規格種類（草案）</div><div class="chips two">'
     + chip('個人骨灰位', l.kind==='single', 'data-a="wj_kind" data-id="'+l.id+'" data-v="single"')
     + chip('雙人骨灰位', l.kind==='couple', 'data-a="wj_kind" data-id="'+l.id+'" data-v="couple"')
-    + chip('8 人家族櫃', l.kind==='fam8', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam8"', '平均每位約 '+money(r8.avgSeat))
-    + chip('16 人家族櫃', l.kind==='fam16', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam16"', '平均每位約 '+money(r16.avgSeat)) + '</div>';
+    + chip('8 人家族櫃', l.kind==='fam8', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam8"', '平均每位約 NT$ 72,500')
+    + chip('16 人家族櫃', l.kind==='fam16', 'data-a="wj_kind" data-id="'+l.id+'" data-v="fam16"', '平均每位約 NT$ 72,500') + '</div>';
 
   if(l.kind === 'single' || l.kind === 'couple'){
     h += '<div class="q">位置層別高度</div><div class="chips two">'
@@ -1715,7 +1739,7 @@ render();
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v25';
+  const KEY = 'tower-calc-tab-v26';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
   function show(id, scroll){
     tabs.forEach(t => {

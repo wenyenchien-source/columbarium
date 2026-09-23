@@ -38,7 +38,7 @@ h1{font-size:26px;letter-spacing:.04em}
 h2{font-size:20px}
 .sub{color:var(--muted);margin:4px 0 0;font-size:14px}
 
-/* 2x2 網格頁籤：一般相對定位，滾動時自然向上移出 */
+/* 導航頁籤：2x2 排列 + 下方跨欄申辦指南按鈕 */
 .tabs{
   position:relative;background:var(--bg);
   display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0 6px;margin-top:6px;
@@ -48,6 +48,12 @@ h2{font-size:20px}
   display:flex;flex-direction:column;justify-content:center;align-items:center;
 }
 .tabs .chip small{font-size:12px;font-weight:400;margin-top:2px}
+.tabs .chip.full-width{
+  grid-column: span 2;min-height:46px;background:var(--warn-bg);border-color:var(--gold);color:var(--gold);
+}
+.tabs .chip.full-width.on{
+  background:var(--accent-soft);border-color:var(--accent);color:var(--accent);
+}
 .panel[hidden]{display:none}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 16px;margin:16px 0}
@@ -104,20 +110,18 @@ textarea{
   width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--field);
   border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical
 }
-details{margin:16px 0}
-summary{cursor:pointer;min-height:48px;display:flex;align-items:center;font-weight:600}
 
-/* 遷墓指南特定樣式 */
-.doc-box{background:var(--warn-bg);border-left:3.5px solid var(--gold);border-radius:8px;padding:12px 14px;margin-bottom:14px}
-.doc-table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:14px}
-.doc-table th,.doc-table td{border:1px solid var(--line);padding:8px 10px;text-align:left}
-.doc-table th{background:var(--accent-soft);color:var(--ink);font-weight:600}
-.doc-table td.center{text-align:center;font-weight:700;color:var(--accent);font-size:16px}
-.doc-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px dashed var(--line)}
-.doc-item:last-child{border-bottom:0}
-.doc-num{width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.tag-req{font-size:12px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--accent);color:#fff}
-.tag-cond{font-size:12px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--gold);color:#fff}
+/* 遷葬備件頁籤專屬手機友善樣式 */
+.doc-card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.doc-tag{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:6px}
+.doc-tag.blue{background:var(--accent-soft);color:var(--accent)}
+.doc-tag.gold{background:var(--warn-bg);color:var(--gold)}
+.doc-flow{font-size:14.5px;color:var(--ink);line-height:1.6;margin:6px 0 0;padding-left:0;list-style:none}
+.doc-flow li{margin-bottom:4px;display:flex;align-items:flex-start;gap:6px}
+.doc-flow li b{color:var(--gold);flex-shrink:0}
+.check-item{display:flex;gap:10px;padding:12px 0;border-bottom:1px dashed var(--line)}
+.check-item:last-child{border-bottom:0}
+.check-num{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
 
 .bar{
   position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--card);border-top:1px solid var(--line);
@@ -142,92 +146,13 @@ summary{cursor:pointer;min-height:48px;display:flex;align-items:center;font-weig
     <p class="sub">依宜蘭各公立殯葬管理所最新自治條例與收費標準試算</p>
   </header>
 
-  <!-- 全園區共用：舊墓起掘遷葬備件指南折疊卡片 -->
-  <details class="card" style="border-left:4px solid var(--gold);padding:8px 16px;">
-    <summary style="font-size:17px;color:var(--gold);">📋 舊墓起掘遷葬・家屬必備文件指南（點擊展開防雷秘訣）</summary>
-    <div style="margin-top:10px;">
-      <div class="doc-box">
-        <b>⚠️ 為什麼問塔方說 1 份，實際要 2～3 份？</b>
-        <small style="display:block;margin-top:4px;line-height:1.5;">
-          公所櫃檯通常只交代進塔所需。但實務上<b>公墓起掘許可</b>、<b>火化場洗骨（骨骸再火化磨粉）</b>與<b>新塔進堂</b>是三道獨立審核關卡，各單位都須收走正本審查存查！
-        </small>
-      </div>
-
-      <table class="doc-table">
-        <thead>
-          <tr>
-            <th>遷葬情況</th>
-            <th style="width:65px;text-align:center">份數</th>
-            <th>文件流向</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><b>跨鄉鎮遷葬（多數）</b><br><small>例：冬山/五結互遷、遷福園壽園</small></td>
-            <td class="doc-table center">3 份</td>
-            <td>① 原公墓起掘（1份）<br>② 火化場洗骨（1份）<br>③ 新塔位進堂（1份）</td>
-          </tr>
-          <tr>
-            <td><b>五結公墓 遷入 五結新塔</b><br><small>同鄉鎮內遷葬特例</small></td>
-            <td class="doc-table center">2 份</td>
-            <td>① 五結公所（起掘＋進堂共用1份）<br>② 火化場洗骨（1份）</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div style="margin-top:10px;">
-        <div class="doc-item">
-          <div class="doc-num">1</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">亡者除戶謄本 <span class="tag-req">2 或 3 份正本</span></div>
-            <small style="color:var(--muted);">向戶政事務所請領，記載死亡除戶之謄本（記事欄勿省略）。</small>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-num">2</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">申請人戶籍謄本 <span class="tag-req">2 或 3 份正本</span></div>
-            <small style="color:var(--muted);">現戶謄本，須能證明與亡者之直系親屬關係（若跨代如起掘曾祖父，須附祖父、父親謄本串聯代數）。</small>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-num">3</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">家族保證人資料（2位） <span class="tag-cond">查無除戶謄本時才需要</span></div>
-            <small style="color:var(--muted);"><b>【重要條件】</b>年代久遠於戶政查無除戶資料時，由申請人立切結書並備 2 位家族親屬資料（姓名、身分證字號、電話、地址）連帶擔保。</small>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-num">4</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">申請人身分證 <span class="tag-req">正反影本 2 或 3 份</span></div>
-            <small style="color:var(--muted);">辦理時隨身攜帶身分證正本供臨櫃核對。</small>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-num">5</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">申請人存摺影本 <span style="font-size:12px;background:var(--line);padding:2px 6px;border-radius:4px;">影本 1 份</span></div>
-            <small style="color:var(--muted);">原公墓土地起掘整平驗收後，公所退還「起掘保證金」匯款專用。</small>
-          </div>
-        </div>
-        <div class="doc-item">
-          <div class="doc-num">6</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">受葬者相片 <span style="font-size:12px;background:var(--line);padding:2px 6px;border-radius:4px;">選配 1 張</span></div>
-            <small style="color:var(--muted);">燒製骨灰罈彩色瓷相用；若舊照不存亦可免附。</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  </details>
-
-  <!-- 2x2 排列頁籤（五結蘭園標註收費草案） -->
-  <nav class="tabs" role="tablist" aria-label="選擇納骨塔">
+  <!-- 頂部導航頁籤：2x2 四塔 + 橫跨全寬之遷葬備件頁籤 -->
+  <nav class="tabs" role="tablist" aria-label="選擇納骨塔與功能">
     <button type="button" role="tab" class="chip" id="tab-fy" data-panel="panel-fy" aria-selected="true">員山福園<small>宜蘭縣立・櫻花</small></button>
     <button type="button" role="tab" class="chip" id="tab-sy" data-panel="panel-sy" aria-selected="false">羅東壽園<small>羅東鎮立</small></button>
     <button type="button" role="tab" class="chip" id="tab-my" data-panel="panel-my" aria-selected="false">冬山梅園<small>冬山鄉立</small></button>
     <button type="button" role="tab" class="chip" id="tab-wj" data-panel="panel-wj" aria-selected="false">五結蘭園<small>五結鄉立・收費草案</small></button>
+    <button type="button" role="tab" class="chip full-width" id="tab-doc" data-panel="panel-doc" aria-selected="false">📋 舊墓起掘遷葬・家屬必備文件指南<small>（一次備齊免跑戶政公所兩三趟）</small></button>
   </nav>
 
   <!-- 面板 1：員山福園與櫻花陵園 -->
@@ -271,7 +196,7 @@ summary{cursor:pointer;min-height:48px;display:flex;align-items:center;font-weig
 
   <!-- 面板 4：五結蘭園（明確標註草案） -->
   <section class="panel" id="panel-wj" role="tabpanel" aria-labelledby="tab-wj" hidden>
-    <p class="sub">五結鄉生命紀念園區（第一公墓納骨堂），依 115.05.26 修正收費基準表草案試算（正式啟用標準以公所公告為準）</p>
+    <p class="sub">五結鄉生命紀念園區（第一公墓納骨堂），依 115.05.26 修正收費基準表草案試算（正式收費以公所完工啟用公告為準）[cite: 1]</p>
     <main id="app-wj-container"></main>
     <div class="bar">
       <div class="bar-in">
@@ -280,6 +205,111 @@ summary{cursor:pointer;min-height:48px;display:flex;align-items:center;font-weig
       </div>
     </div>
     <div class="toast" id="toast-wj" role="status" aria-live="polite"></div>
+  </section>
+
+  <!-- 面板 5：舊墓起掘遷葬申辦指南（獨立全寬頁籤） -->
+  <section class="panel" id="panel-doc" role="tabpanel" aria-labelledby="tab-doc" hidden>
+    <div class="card" style="border-left:4px solid var(--gold);">
+      <h2>📋 舊墓起掘遷葬・家屬必備文件指南</h2>
+      <p class="sub">現場實務防雷｜破解公所「只講 1 份」的行政盲點</p>
+
+      <div class="banner" style="background:var(--warn-bg);border-left:3.5px solid var(--gold);margin:14px 0;">
+        <b style="color:var(--gold);">⚠️ 為什麼直接問新塔位說 1 份，實際要準備 2～3 份？</b>
+        <small style="display:block;margin-top:4px;line-height:1.55;">
+          新納骨堂櫃檯通常只交代進塔所需的文件。但實務上完整的遷葬手續涉及<b>「公墓起掘許可」</b>、<b>「火化場洗骨（骨骸再火化磨粉）」</b>與<b>「新塔位進堂安奉」</b>三道獨立審核關卡，每個單位都必須收走完整正本歸檔審核存查！
+        </small>
+      </div>
+
+      <!-- 手機友善卡片對比（徹底解決原先窄欄垂直擠字問題） -->
+      <div class="q">文件份數速查原則（第 1～4 項文件）：</div>
+      
+      <div class="doc-card" style="border-left:3.5px solid var(--accent);">
+        <span class="doc-tag blue">跨鄉鎮遷葬（佔 90% 以上多數情況）</span>
+        <div style="font-weight:700;font-size:16px;color:var(--accent);margin:2px 0 6px;">
+          請直接備妥 【 3 份正本／影本 】
+        </div>
+        <ul class="doc-flow">
+          <li><b>① 原公墓起掘審查：</b>核發起掘許可書、退還清潔保證金（收走 1 份）</li>
+          <li><b>② 火化場洗骨再火化：</b>員山福園或羅東壽園骨骸再火化磨粉（收走 1 份）</li>
+          <li><b>③ 新塔位進堂審查：</b>進堂安奉與規費戶籍資格查驗（收走 1 份）</li>
+        </ul>
+        <small style="color:var(--muted);display:block;margin-top:6px;">範例：冬山/三星遷五結、五結公墓遷員山福園或羅東壽園等。</small>
+      </div>
+
+      <div class="doc-card" style="border-left:3.5px solid var(--gold);">
+        <span class="doc-tag gold">五結公墓 遷入 五結新塔（同鄉鎮特例）</span>
+        <div style="font-weight:700;font-size:16px;color:var(--gold);margin:2px 0 6px;">
+          請備妥 【 2 份正本／影本 】
+        </div>
+        <ul class="doc-flow">
+          <li><b>① 五結鄉公所機關內部共用：</b>起掘許可與新塔進堂屬同單位（合用 1 份）</li>
+          <li><b>② 火化場洗骨再火化：</b>福園或壽園火化場審查（收走 1 份）</li>
+        </ul>
+      </div>
+
+      <!-- 詳細清單項目 -->
+      <div class="q" style="margin-top:20px;">家屬應備齊之具體資料清單：</div>
+      <div style="margin-top:8px;">
+        <div class="check-item">
+          <div class="check-num">1</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">亡者除戶謄本 <span style="font-size:12px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;">2 或 3 份正本</span></div>
+            <small style="color:var(--muted);display:block;margin-top:2px;">向戶政事務所申請，記載死亡除戶之謄本（記事欄請勿省略）。</small>
+          </div>
+        </div>
+
+        <div class="check-item">
+          <div class="check-num">2</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">申請人現戶戶籍謄本 <span style="font-size:12px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;">2 或 3 份正本</span></div>
+            <small style="color:var(--muted);display:block;margin-top:2px;">須能證明與亡者之親屬關係。</small>
+            <div style="background:var(--bg);border-radius:6px;padding:6px 10px;margin-top:6px;font-size:13px;border-left:2.5px solid var(--line);">
+              💡 <b>跨代代數串聯範例：</b>若起掘墓地為曾祖父，申請人須一併申請「祖父、父親」之除戶/戶籍謄本，以完整串聯三代親屬關係。
+            </div>
+          </div>
+        </div>
+
+        <div class="check-item">
+          <div class="check-num">3</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">家族保證人資料（至少2位） <span style="font-size:12px;background:var(--gold);color:#fff;padding:2px 6px;border-radius:4px;">查無除戶謄本時才需要</span></div>
+            <small style="color:var(--muted);display:block;margin-top:2px;">
+              <b>【重要條件限制】</b>若先人年代久遠（如日治早期或清代）於戶政查無除戶資料，才須由申請人填寫公所切結書，並提供 2 位家族親屬資料（姓名、身分證字號、電話、地址）連帶擔保。
+            </small>
+          </div>
+        </div>
+
+        <div class="check-item">
+          <div class="check-num">4</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">申請人身分證 <span style="font-size:12px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;">正反影本 2 或 3 份</span></div>
+            <small style="color:var(--muted);display:block;margin-top:2px;">辦理時請隨身攜帶身分證正本，由各機關櫃檯查驗核對。</small>
+          </div>
+        </div>
+
+        <div class="check-item">
+          <div class="check-num">5</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">申請人金融機構存摺影本 <span style="font-size:12px;background:var(--line);padding:2px 6px;border-radius:4px;">影本 1 份</span></div>
+            <small style="color:var(--muted);display:block;margin-top:2px;">原公墓起掘現場填平整地驗收後，公所退還「起掘清潔保證金」匯款專用。</small>
+          </div>
+        </div>
+
+        <div class="check-item">
+          <div class="check-num">6</div>
+          <div style="flex:1;">
+            <div style="font-weight:700;">受葬者清晰照片 <span style="font-size:12px;background:var(--line);padding:2px 6px;border-radius:4px;">選配 1 張</span></div>
+            <small style="color:var(--muted);display:block;margin-top:2px;">骨灰罈製作使用；若年代久遠舊照已無存亦可免附。</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- 一鍵複製清單小抄按鈕 -->
+      <div style="margin-top:20px;">
+        <button type="button" class="btn" style="width:100%;" id="btn-copy-doc">📋 一鍵複製戶政備忘小抄（貼至 LINE）</button>
+      </div>
+    </div>
+    <div class="toast" id="toast-doc" role="status" aria-live="polite"></div>
   </section>
 </div>
 
@@ -292,7 +322,7 @@ const FY_PLAQUE = {
   large: { name:'大型牌位（21.7×40cm）', fee:60000 }
 };
 
-const KEY = 'tower-calc-fuyuan-v22';
+const KEY = 'tower-calc-fuyuan-v23';
 let nextId = 1;
 function newLine(){ 
   return { id:nextId++, park:'fuyuan', layout:'single', famType:'6', tier:'eye', qty:1, move:false }; 
@@ -567,10 +597,6 @@ async function doCopy(){
     }catch(e2){}
   }
   if(ok) toast('已複製報價，可直接貼入 LINE');
-  else {
-    toast('請在文字摘要框內全選複製');
-    const sum = root.querySelector('textarea.sum'); if(sum){ sum.scrollIntoView({block:'center'}); sum.focus(); sum.select(); }
-  }
 }
 
 function act(d){
@@ -722,7 +748,7 @@ function totals(){
   return t;
 }
 
-const KEY = 'tower-calc-luodong-v22';
+const KEY = 'tower-calc-luodong-v23';
 let nextId=1;
 function newLine(){ return { id:nextId++, kind:'single', tower:'ba', grp:'lo', pre:false, rename:false, qty:1, move:false, target:null }; }
 function fresh(){
@@ -1085,7 +1111,7 @@ function calcPlaque(p){
   return {base,pick,qty:p.qty,unit:base+pick,sub:(base+pick)*p.qty};
 }
 
-const KEY = 'tower-calc-dongshan-v22';
+const KEY = 'tower-calc-dongshan-v23';
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'personal',grp:'eye',famCat:'mid',fam:'31u',dec:'none',half:false,qty:1,move:false};}
 function fresh(){return {res:'ds',yr3:true,vil:false,yl1:true,lines:[newLine()],plaques:[],temp:{on:false}};}
@@ -1284,7 +1310,7 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 4：五結鄉蘭園（草案註記強化版） ═════════ -->
+<!-- ═════════ 腳本 4：五結鄉蘭園（草案＋合爐管理費防雷強化） ═════════ -->
 <script id="script-wj">
 (function(){
 'use strict';
@@ -1313,7 +1339,7 @@ const MGF_WJ = {
   fam16_temp: 320000
 };
 
-const KEY = 'tower-calc-wujie-v22';
+const KEY = 'tower-calc-wujie-v23';
 let nextId = 1;
 
 function newLine(){
@@ -1400,7 +1426,9 @@ function calcLine(l){
 
 function calcPlaque(p){
   const base = S.res === 'local' ? 30000 : 55000;
-  return { base, unit: base, qty: p.qty, sub: base * p.qty };
+  const joinMgmt = p.join ? 2000 : 0; // 安奉中牌位合爐管理費 2,000 元
+  const unit = base + joinMgmt;
+  return { base, joinMgmt, unit, qty: p.qty, sub: unit * p.qty };
 }
 
 function totals(){
@@ -1417,7 +1445,7 @@ function totals(){
 function qualHTML(){
   let h = '<section class="card"><h2><span class="n">1</span>使用者設籍身分</h2>';
   h += '<div class="banner" style="margin-top:0;margin-bottom:14px;background:var(--warn-bg);border-left:3.5px solid var(--gold);">'
-    + '<b style="color:var(--gold);">⚠️ 【收費草案聲明】</b><small>本區標準係依據五結鄉公所 115 年 5 月 26 日修正之《收費基準表草案》編製，正式費用以完工啟用公告為準。</small></div>';
+    + '<b style="color:var(--gold);">⚠️ 【收費草案宣告】</b><small>本區依五結鄉公所 115 年 5 月 26 日修正之《收費基準表草案》編製，正式費用以完工啟用公告為準[cite: 1]。</small></div>';
 
   h += '<div class="q">申請人之設籍資格？</div><div class="chips three">'
     + chip('五結鄉民', S.res==='local', 'data-a="wj_res" data-v="local"', '草案鄉民優惠價')
@@ -1481,12 +1509,29 @@ function plaqueHTML(p, i){
   const c = calcPlaque(p), q = p.qty;
   let h = '<div class="line"><div class="line-h"><b>牌位 '+(i+1)+'</b>'
     + '<button type="button" class="link" data-a="wj_pdel" data-id="'+p.id+'">刪除此牌位</button></div>';
-  h += '<div class="q">牌位規格</div><div class="banner" style="margin-top:4px;"><b>神主牌位（永久安奉草案）</b><small>鄉民 30,000 元／非鄉民 55,000 元（安奉中合爐費 2,000 元另計）</small></div>';
+  
+  h += '<div class="q">牌位規格（草案）</div>'
+    + '<div class="banner" style="margin-top:4px;"><b>神主牌位（永久安奉）</b>'
+    + '<small>五結鄉民 30,000 元／非鄉民 55,000 元（首次新辦免收管理費）[cite: 1]。</small></div>';
+
+  // 爭議化解：合爐手續費清楚獨立可選，並附詳細說明
+  h += '<div class="chips" style="margin-top:10px">'
+    + chip('➕ 申請既有牌位合爐（已安奉之牌位增添先祖）', p.join, 'data-a="wj_pjoin" data-id="'+p.id+'"', '加收牌位合爐管理費 2,000 元／次[cite: 1]', 'wide') + '</div>';
+
+  if(p.join){
+    h += '<div class="banner" style="background:var(--warn-bg);border-left:3px solid var(--gold);margin:8px 0;">'
+      + '<b style="color:var(--gold);">💡 什麼是「牌位合爐管理費 2,000 元」？</b>'
+      + '<small style="display:block;line-height:1.5;margin-top:2px;">本費用<b>非初次購買牌位之固定管理費</b>[cite: 1]。係指<b>牌位已在園區安奉後</b>，日後家族辦理先祖合爐或增添受祀先人名座時，向管理所申請行政登記與開櫃配合之單次規費[cite: 1]。</small></div>';
+  }
+
   h += '<div class="q">數量（位）</div><div class="qtyrow">'
     + '<button type="button" aria-label="減少" data-a="wj_pqty" data-id="'+p.id+'" data-v="-1">−</button>'
     + '<input type="number" min="1" max="99" value="'+q+'" data-a="wj_pqtyinput" data-id="'+p.id+'">'
     + '<button type="button" aria-label="增加" data-a="wj_pqty" data-id="'+p.id+'" data-v="1">＋</button></div>';
-  h += '<div class="calc">' + row('牌位使用費', c.unit * q, (q>1?money(c.unit)+' × '+q+'；':'')+(S.res==='local'?'鄉民價 3 萬':'非鄉民價 5.5 萬'))
+
+  h += '<div class="calc">'
+    + row('牌位使用費', c.base * q, (q>1?money(c.base)+' × '+q+'；':'')+(S.res==='local'?'鄉民價 3 萬':'非鄉民價 5.5 萬'))
+    + (p.join ? row('牌位合爐管理費', c.joinMgmt * q, '安奉中牌位辦理增添合爐規費[cite: 1]') : '')
     + '<div class="row sum"><span>此牌位小計</span><span>'+money(c.sub)+'</span></div></div></div>';
   return h;
 }
@@ -1501,7 +1546,7 @@ function extrasHTML(){
 
 function summary(){
   let s = '【五結鄉立生命紀念園區（蘭園）費用試算・草案參考】\n';
-  s += '※ 說明：本試算依五結鄉公所 115.05.26 修正收費基準表草案編製，正式費用以完工啟用公告為準。\n';
+  s += '※ 說明：本試算依五結鄉公所 115.05.26 修正收費基準表草案編製，正式費用以完工啟用公告為準[cite: 1]。\n';
   s += '申請身分：' + (S.res==='local'?'五結鄉民（草案優惠價）':(S.res==='county'?'宜蘭縣民（標準價）':'外縣市民')) + '\n';
   S.lines.forEach((l, i) => {
     const r = calcLine(l), q = l.qty;
@@ -1512,7 +1557,9 @@ function summary(){
   });
   S.plaques.forEach((p, i) => {
     const c = calcPlaque(p);
-    s += '\n牌位 ' + (i+1) + '. 神主牌位 × ' + p.qty + ' 位\n   小計：' + money(c.sub) + '\n';
+    s += '\n牌位 ' + (i+1) + '. 神主牌位 × ' + p.qty + ' 位（使用費 ' + money(c.base * p.qty) + '）';
+    if(p.join) s += ' ＋ 合爐管理費 ' + money(c.joinMgmt * p.qty) + '（已安奉牌位增添先祖規費[cite: 1]）';
+    s += '\n   小計：' + money(c.sub) + '\n';
   });
   const t = totals();
   s += '\n總計預估應繳金額(草案)：' + money(t.all) + '\n※ 本試算僅供先期規劃參考，實際規費以五結鄉公所正式啟用公布為準。\n'
@@ -1576,8 +1623,9 @@ function act(d){
     case 'wj_intemp': l.inTemp = !l.inTemp; break;
     case 'wj_promo': l.promo = !l.promo; break;
     case 'wj_qty': l.qty = clamp(l.qty + Number(d.v), 1, 99); break;
-    case 'wj_padd': S.plaques.push({ id:nextId++, qty:1 }); break;
+    case 'wj_padd': S.plaques.push({ id:nextId++, qty:1, join:false }); break;
     case 'wj_pdel': S.plaques = S.plaques.filter(x => x!==pl); break;
+    case 'wj_pjoin': pl.join = !pl.join; break;
     case 'wj_pqty': pl.qty = clamp(pl.qty + Number(d.v), 1, 99); break;
     case 'wj_copy': doCopy(); return;
     case 'wj_reset': nextId = 1; S = fresh(); break;
@@ -1612,11 +1660,11 @@ render();
 })();
 </script>
 
-<!-- ═════════ 腳本 5：頂部頁籤切換主控 ═════════ -->
+<!-- ═════════ 腳本 5：頂部頁籤切換主控 ＋ 遷葬指南一鍵複製 ═════════ -->
 <script id="script-tabs">
 (function(){
   'use strict';
-  const KEY = 'tower-calc-tab-v22';
+  const KEY = 'tower-calc-tab-v23';
   const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
   function show(id, scroll){
     tabs.forEach(t => {
@@ -1634,6 +1682,40 @@ render();
   try{ cur = localStorage.getItem(KEY) || cur; }catch(e){}
   if(!document.getElementById(cur)) cur = 'panel-fy';
   show(cur, false);
+
+  // 遷葬指南一鍵複製至 LINE 功能
+  const btnDoc = document.getElementById('btn-copy-doc');
+  if(btnDoc){
+    btnDoc.addEventListener('click', async () => {
+      const docText = '【舊墓起掘遷葬・家屬必備文件指南】\n'
+        + '⚠️ 重要原則：問新塔位說 1 份，實際涉及「公墓起掘」、「火化場洗骨再火化」與「新塔進堂」三道關卡！\n'
+        + '・跨鄉鎮遷葬（冬山/五結/福園/壽園互遷）：第 1～4 項請備【 3 份正本／影本 】\n'
+        + '・五結公墓遷五結新塔（同鄉鎮內遷）：第 1～4 項請備【 2 份正本／影本 】\n'
+        + '--------------------------------\n'
+        + '□ 1. 亡者除戶謄本（正本 2 或 3 份，記事勿省略）\n'
+        + '□ 2. 申請人現戶謄本（正本 2 或 3 份，若跨代須備齊中間代數串聯證明）\n'
+        + '□ 3. 申請人身分證（正反面影本 2 或 3 份，正本備查）\n'
+        + '□ 4. 家族保證人 2 位資料（姓名/身分證/電話/地址；僅查無除戶謄本時才需要）\n'
+        + '□ 5. 申請人存摺影本（退公墓清潔保證金用，1 份）\n'
+        + '□ 6. 受葬者清晰照片（骨灰罈製作使用，選配 1 張）\n'
+        + '--------------------------------\n'
+        + '五結新塔啟用期程、家族櫃選位與舊墓起掘遷葬諮詢：\n'
+        + '重生禮儀（簡先生）0922-382533\n'
+        + 'LINE：https://line.me/ti/p/XF2bg2UUic';
+      
+      let ok = false;
+      try{ await navigator.clipboard.writeText(docText); ok = true; }catch(e){
+        try{
+          const ta = document.createElement('textarea'); ta.value = docText; ta.style.position = 'fixed'; ta.style.opacity = '0';
+          document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove();
+        }catch(e2){}
+      }
+      const t = document.getElementById('toast-doc');
+      t.textContent = ok ? '已複製備件清單小抄，可直接貼入 LINE' : '複製失敗，請手動選取複製';
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2200);
+    });
+  }
 })();
 </script>
 </body>

@@ -120,6 +120,12 @@ details li{margin:6px 0}
 .toast.show{opacity:1}
 @media (prefers-reduced-motion: reduce){.toast{transition:none}}
 
+.line-cta{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:50px;background:#e5f4ea;color:#0f7a44;border:1.5px solid #9ecdae;border-radius:12px;font:inherit;font-weight:700;font-size:16px;text-decoration:none;margin-top:12px;box-sizing:border-box;text-align:center}
+.line-cta:active{opacity:.8}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]) .line-cta{background:#1c3327;color:#7fd9a3;border-color:#2f5c41}
+}
+:root[data-theme="dark"] .line-cta{background:#1c3327;color:#7fd9a3;border-color:#2f5c41}
 .doc-shortcut{width:100%;text-align:left;background:var(--card);border:1.5px dashed var(--gold);border-radius:12px;padding:12px 14px;margin:14px 0 4px;cursor:pointer;font:inherit;color:var(--ink)}
 .doc-shortcut b{color:var(--gold);display:block;font-size:16px}
 .doc-shortcut small{color:var(--muted);display:block;margin-top:2px}
@@ -151,6 +157,8 @@ details li{margin:6px 0}
     <h1>宜蘭公立塔位費用計算器</h1>
     <p class="sub">福園、壽園、梅園、蘭園，依各館公告的收費標準試算</p>
   </header>
+
+  <a class="line-cta" href="https://line.me/ti/p/XF2bg2UUic" target="_blank" rel="noopener">💬 加我 LINE 諮詢起掘遷奉晉塔事宜</a>
 
   <button type="button" class="doc-shortcut" id="btn-open-doc"><b>📋 舊墓起掘遷葬・家屬必備文件指南</b><small>一次備齊免跑戶政公所兩三趟，點此展開</small></button>
   <details id="doc-details">
@@ -375,7 +383,7 @@ function store(key,valid){
     save:function(S){ try{ localStorage.setItem(key,JSON.stringify(S)); }catch(e){} }
   };
 }
-const CONTACT='--------------------------------\n規費標準整理：重生禮儀（簡先生）\n諮詢電話：0922-382533\nLINE：https://line.me/ti/p/XF2bg2UUic';
+const CONTACT='--------------------------------\n規費標準整理：重生禮儀（簡先生）\n諮詢電話：0922-382533';
 return {fmt:fmt,money:money,esc:esc,chip:chip,row:row,stepper:stepper,num:num,bind:bind,toaster:toaster,copy:copy,store:store,CONTACT:CONTACT};
 })();
 </script>
@@ -1726,12 +1734,12 @@ function totals(){
 }
 
 /* ───────── 狀態 ───────── */
-const store=T.store('tower-calc-wujie-v15',function(s){
+const store=T.store('tower-calc-wujie-v16',function(s){
   return Array.isArray(s.lines) && Array.isArray(s.plaques) && s.eco && typeof s.eco==='object';
 });
 let nextId=1;
 function newLine(){return {id:nextId++,kind:'single',tier:'eye',dec:'none',inTemp:false,promo:true,move:'none',qty:1};}
-function fresh(){return {res:'county',lines:[newLine()],plaques:[],eco:{flower:0,tree:0,pet:0},ecoPromo:true,renameFee:false,regFee:false};}
+function fresh(){return {res:'local',lines:[newLine()],plaques:[],eco:{flower:0,tree:0,pet:0},ecoPromo:true,renameFee:false,regFee:false};}
 function init(){
   const s=store.load(); if(!s) return fresh();
   const ids=s.lines.concat(s.plaques).map(function(x){return x.id;});
@@ -1949,7 +1957,7 @@ function resultHTML(){
 function notesHTML(){
   return '<details><summary>計算依據與需要確認的地方</summary><ul>'
    +'<li>依五結鄉公所「五結鄉生命紀念園區第一公墓納骨堂收費基準表草案」（115.05.26 修）編製，園區尚未完工啟用，正式費用以公所公告為準。</li>'
-   +'<li>本工具預設「宜蘭縣民」標準價，避免忘記切換戶籍而少收費用；請務必依實際戶籍調整。</li>'
+   +'<li>本工具預設「五結鄉民」標準價（蘭園為五結鄉自有園區，多數洽詢者為本鄉鄉民）；若為宜蘭縣其他鄉鎮市或外縣市，請務必切換戶籍後再報價。</li>'
    +'<li>村別優惠（成興、利澤／季新、大吉、五結各公墓）僅適用骨灰櫃（個人／雙人／家族位），骨骸櫃及牌位區除外；先祖已暫厝者不重複套用。</li>'
    +'<li>開園推廣宣導獎勵：骨灰櫃（個人／雙人／家族位）與環保多元葬（花葬、樹葬、寵物葬）每位折 1,000 元，骨骸櫃及牌位區除外，適用至 116 年 12 月 31 日止。</li>'
    +'<li>換位／更名／登記手續費依表列金額計收：牌位未入位 3,000／已入位 5,000（繳費後 7 日內免收，逾 7 日至 1 個月內收取）；骨灰個人位未入櫃 5,000／已入櫃 10,000；雙人位未入櫃 10,000／已入櫃 20,000；骨骸個人位未入櫃 15,000／已入櫃 30,000；家族位未入櫃 20,000／已入櫃 40,000；長生位換位更名 10,000；預購使用人更換異動登記 5,000（以一次為限）。換位類別較高者需補足差額，較低者不另退費，本工具暫未計算補差額，請洽公所確認。</li>'
@@ -2051,8 +2059,7 @@ render();
         +'□ 6. 受葬者清晰照片（骨灰罈製作使用，選配 1 張）\n'
         +'--------------------------------\n'
         +'五結新塔啟用期程、家族櫃選位與舊墓起掘遷葬諮詢：\n'
-        +'重生禮儀（簡先生）0922-382533\n'
-        +'LINE：https://line.me/ti/p/XF2bg2UUic';
+        +'重生禮儀（簡先生）0922-382533';
       let ok=false;
       try{ await navigator.clipboard.writeText(docText); ok=true; }catch(e){
         try{

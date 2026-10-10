@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>宜蘭公立塔位費用試算｜五結蘭園・員山福園・羅東壽園・冬山梅園 - 重生禮儀</title>
 <meta name="description" content="宜蘭公立納骨塔收費即時試算，收錄五結生命紀念園區（蘭園）最新收費草案、員山福園、羅東壽園、冬山梅園規費比價。提供舊墓起掘遷葬文件備齊指南，重生禮儀簡先生專業諮詢。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@400;500;600;700;900&display=swap">
 <style>
 :root{
   box-sizing:border-box;
@@ -150,22 +152,80 @@ details li{margin:6px 0}
   -webkit-mask-repeat:repeat;mask-repeat:repeat;
   -webkit-mask-size:280px 180px;mask-size:280px 180px;
 }
+/* ===== 重生禮儀 和風配色（與「系統工具」一致；獨立網站無法引用系統的 shared/theme.css，所以複製一份在這裡） =====
+ * 臙脂 --enji 主要按鈕與重點字；柿橘 --kaki 已選取、標記、輔助線；墨 --sumi 文字；和紙 --washi 底色 */
+:root {
+  --washi: #f7f4ef; --paper: #ffffff; --paper-2: #faf8f4;
+  --line: #d9d2c7; --line-2: #e9e4dc; --line-strong: #c9c0b3;
+  --sumi: #2a2623; --nezumi: #6b645e;
+  --kaki: #a5512c; --kaki-soft: #f6ece5;
+  --enji: #7e2f26; --enji-soft: #f6e9e6;
+  --ok: #4a6741; --ok-soft: #ebf0e5; --warn: #875a17; --warn-soft: #f6eddb;
+  --serif: "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  --sans: "Noto Sans TC", "PingFang TC", "Heiti TC", sans-serif;
+}
+.lt-row { display: flex; align-items: center; gap: 12px; }
+.lt-mark { flex: none; width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--kaki); color: var(--kaki); font-family: var(--serif); font-weight: 900; font-size: 22px; line-height: 1; }
+.lt-brand { margin: 0 0 4px; font-family: var(--serif); font-size: 12px; letter-spacing: 6px; color: var(--kaki); line-height: 1; }
+.lt-title { margin: 0; font-family: var(--serif); font-size: 21px; font-weight: 600; letter-spacing: 3px; color: var(--sumi); line-height: 1.25; }
+.lt-ico { width: 1.15em; height: 1.15em; flex: none; vertical-align: -0.2em; margin-right: 6px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: square; stroke-linejoin: miter; }
+
+/* ── 本頁和風樣式（只改外觀，費用計算不變；保留深色模式） ── */
+:root {
+  --bg: #f7f4ef; --card: #ffffff; --ink: #2a2623; --muted: #6b645e; --line: #d9d2c7;
+  --accent: #7e2f26; --accent-ink: #ffffff; --accent-soft: #f6ece5;
+  --gold: #a5512c; --warn-bg: #f6eddb; --field: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1f1b18; --card: #2a2522; --ink: #efe9e1; --muted: #b3aaa0; --line: #3f3833;
+    --accent: #e0957a; --accent-ink: #1f1b18; --accent-soft: #3a2a22;
+    --gold: #d79c74; --warn-bg: #3a3122; --field: #2f2a26;
+    --kaki: #d79c74; --sumi: #efe9e1; --nezumi: #b3aaa0;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1f1b18; --card: #2a2522; --ink: #efe9e1; --muted: #b3aaa0; --line: #3f3833;
+  --accent: #e0957a; --accent-ink: #1f1b18; --accent-soft: #3a2a22;
+  --gold: #d79c74; --warn-bg: #3a3122; --field: #2f2a26;
+  --kaki: #d79c74; --sumi: #efe9e1; --nezumi: #b3aaa0;
+}
+body { font-family: var(--sans); }
+header.lt-row { align-items: center; }
+header .lt-mark { width: 44px; height: 44px; }
+h1 { font-weight: 600; letter-spacing: .04em; font-size: 22px; }
+.card, .line, .doc-card, .doc-shortcut, .line-cta { border-radius: 4px; }
+.chip, .banner, .btn, select, input, textarea { border-radius: 3px; }
+.chip { border-width: 1px; }
+.chip.on { background: var(--kaki); border-color: var(--kaki); color: #fff; font-weight: 900; box-shadow: none; }
+.chip.on small { color: rgba(255, 255, 255, .88); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .chip.on, :root:not([data-theme="light"]) .chip.on small { color: #1f1b18; } }
+:root[data-theme="dark"] .chip.on, :root[data-theme="dark"] .chip.on small { color: #1f1b18; }
+.btn { font-family: var(--serif); font-weight: 900; letter-spacing: 1px; }
+.btn.ghost { font-family: var(--sans); font-weight: 600; letter-spacing: 0; }
+.btn.add { border-width: 1px; border-color: var(--gold); color: var(--gold); }
+.check-num { color: var(--gold); }
+.line-cta .lt-ico, .doc-shortcut .lt-ico, h2 .lt-ico { margin-right: 4px; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>宜蘭公立塔位費用計算器</h1>
-    <p class="sub">福園、壽園、梅園、蘭園，依各館公告的收費標準試算</p>
+  <header class="lt-row">
+    <span class="lt-mark" aria-hidden="true">算</span>
+    <div>
+      <p class="lt-brand">重 生 禮 儀</p>
+      <h1>宜蘭公立塔位費用計算器</h1>
+      <p class="sub">福園、壽園、梅園、蘭園，依各館公告的收費標準試算</p>
+    </div>
   </header>
 
-  <a class="line-cta" href="https://line.me/ti/p/XF2bg2UUic" target="_blank" rel="noopener">💬 加我 LINE 諮詢起掘遷奉晉塔事宜</a>
+  <a class="line-cta" href="https://line.me/ti/p/XF2bg2UUic" target="_blank" rel="noopener"><svg class="lt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H10l-4 3.5V16H4z"/></svg>加我 LINE 諮詢起掘遷奉晉塔事宜</a>
 
-  <button type="button" class="doc-shortcut" id="btn-open-doc"><b>📋 舊墓起掘遷葬・家屬必備文件指南</b><small>一次備齊免跑戶政公所兩三趟，點此展開</small></button>
+  <button type="button" class="doc-shortcut" id="btn-open-doc"><b><svg class="lt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8.5L18 7v13.5H6zM14 3.5V7.5h4M9 11.5h6M9 15h6"/></svg>舊墓起掘遷葬・家屬必備文件指南</b><small>一次備齊免跑戶政公所兩三趟，點此展開</small></button>
   <details id="doc-details">
     <summary style="display:none"></summary>
     <div class="card" style="border-left:4px solid var(--gold);">
-      <h2>📋 舊墓起掘遷葬・家屬必備文件指南</h2>
+      <h2><svg class="lt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8.5L18 7v13.5H6zM14 3.5V7.5h4M9 11.5h6M9 15h6"/></svg>舊墓起掘遷葬・家屬必備文件指南</h2>
       <p class="sub">現場實務防雷｜破解公所「只講 1 份」的行政盲點</p>
 
       <div class="banner" style="background:var(--warn-bg);border-left:3.5px solid var(--gold);margin:14px 0;">
@@ -258,7 +318,7 @@ details li{margin:6px 0}
       </div>
 
       <div style="margin-top:20px;">
-        <button type="button" class="btn" style="width:100%;" id="btn-copy-doc">📋 一鍵複製戶政備忘小抄（貼至 LINE）</button>
+        <button type="button" class="btn" style="width:100%;" id="btn-copy-doc"><svg class="lt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10v16H7zM9.5 4.5V3h5v1.5M10 10h5M10 13.5h5M10 17h3"/></svg>一鍵複製戶政備忘小抄（貼至 LINE）</button>
       </div>
     </div>
     <div class="toast" id="toast-doc" role="status" aria-live="polite"></div>

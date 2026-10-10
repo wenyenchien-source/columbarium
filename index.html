@@ -547,6 +547,17 @@ function calcPlaque(p){
   return {conf:c,unit:unit,pick:pick,qty:p.qty,sub:unit*p.qty};
 }
 
+/* 福園家族式納骨位一定配對應的家族式牌位：一座配一個，跟著位數與數量變動（不存檔，每次重算） */
+function autoPlaques(){
+  const a=[];
+  S.lines.forEach(function(l,i){
+    if(l.park==='fuyuan' && l.layout==='family'){
+      a.push({lineNo:i+1,type:'fam'+(FUYUAN.family[l.famN]?l.famN:'6'),pick:false,qty:calcLine(l).qty});
+    }
+  });
+  return a;
+}
+
 function calcTemp(){
   if(!S.temp.on) return null;
   const isAsh=S.temp.type==='ash';
@@ -560,7 +571,7 @@ function totals(){
   const t={usage:0,mgmt:0,move:0,diff:0,plaque:0,temp:0,all:0};
   S.lines.forEach(function(l){const r=calcLine(l);
     t.usage+=r.use*r.qty; t.mgmt+=r.mg*r.qty; t.move+=r.moveFee*r.qty; t.diff+=r.diff*r.qty;});
-  S.plaques.forEach(function(p){t.plaque+=calcPlaque(p).sub;});
+  autoPlaques().concat(S.plaques).forEach(function(p){t.plaque+=calcPlaque(p).sub;});
   const tp=calcTemp(); if(tp) t.temp=tp.sub;
   t.all=t.usage+t.mgmt+t.move+t.diff+t.plaque+t.temp;
   return t;
@@ -645,6 +656,8 @@ function lineHTML(l,i){
         return chip(n+' 位',l.famN===n,'data-a="famN" data-id="'+l.id+'" data-v="'+n+'"',
           '使用費 '+fmt(FUYUAN.family[n])+'<br>管理費 '+fmt(FAM_MG_YEAR[n]*YEARS));
       }).join('')+'</div>';
+    const fp=PLAQUE['fam'+l.famN], fq=Math.max(l.qty,u.min);
+    h+='<p class="hint">已自動加入「'+fp.name+'」'+fmt(fp.fee)+(fq>1?' × '+fq:'')+'，在下方「神主牌位」。</p>';
   }
   if(l.park==='sakura'){
     const e=SK_BASE[l.type].eye, f=SK_BASE[l.type].flat;
@@ -699,6 +712,19 @@ function plaqueHTML(p,i){
   return h+'</div>';
 }
 
+function autoPlaqueHTML(p,i){
+  const c=PLAQUE[p.type];
+  let h='<div class="line"><div class="line-h"><b>牌位 '+(i+1)+'</b></div>';
+  h+='<div class="q">'+c.name+'（'+c.spec+'）× '+p.qty+'</div>';
+  h+='<p class="hint" style="margin-top:0">隨項目 '+p.lineNo+' 家族式納骨位自動加入，一座配一個；要改請到上方項目 '+p.lineNo+' 改位數或數量。</p>';
+  if(S.res){
+    const r=calcPlaque(p), q=p.qty;
+    h+='<div class="calc">'+row('牌位使用費',r.unit*q,(q>1?money(r.unit)+' × '+q+'；':'')+'標準價，外縣市不加倍')
+      +'<div class="row sum"><span>此牌位小計</span><span>'+money(r.sub)+'</span></div></div>';
+  }
+  return h+'</div>';
+}
+
 function tempHTML(){
   const t=S.temp;
   let h='<div class="q" style="margin-top:22px">臨時納存骨灰（骸）</div><div class="chips">'
@@ -717,7 +743,9 @@ function tempHTML(){
 function extrasHTML(){
   let h='<section class="card"><h2><span class="n">3</span>其他項目</h2>'
     +'<div class="q" style="margin-top:14px">神主牌位</div><p class="hint" style="margin-top:0">牌位不提供換位。</p>';
-  S.plaques.forEach(function(p,i){h+=plaqueHTML(p,i);});
+  const ap=autoPlaques();
+  ap.forEach(function(p,i){h+=autoPlaqueHTML(p,i);});
+  S.plaques.forEach(function(p,i){h+=plaqueHTML(p,ap.length+i);});
   h+='<button type="button" class="btn add" data-a="padd">＋ 新增神主牌位</button>';
   h+=tempHTML();
   return h+'</section>';
@@ -733,9 +761,14 @@ function summary(){
     if(l.move!=='none') s+='｜'+MOVE_TXT[l.move]+' '+money(r.moveFee*q)+(l.target?'｜補差額 '+money(r.diff*q):'');
     s+='\n   小計 '+money(r.sub)+'\n';
   });
+  const ap=autoPlaques();
+  ap.forEach(function(p,i){
+    const c=calcPlaque(p);
+    s+='\n牌位 '+(i+1)+'. '+c.conf.name+'（隨項目 '+p.lineNo+' 家族式納骨位）× '+p.qty+'\n   小計 '+money(c.sub)+'\n';
+  });
   S.plaques.forEach(function(p,i){
     const c=calcPlaque(p);
-    s+='\n牌位 '+(i+1)+'. '+c.conf.name+(p.pick&&c.conf.pick?'（自選位置）':'')+' × '+p.qty+'\n   小計 '+money(c.sub)+'\n';
+    s+='\n牌位 '+(ap.length+i+1)+'. '+c.conf.name+(p.pick&&c.conf.pick?'（自選位置）':'')+' × '+p.qty+'\n   小計 '+money(c.sub)+'\n';
   });
   const tp=calcTemp();
   if(tp) s+='\n'+tp.label+' × '+tp.qty+' 具\n   小計 '+money(tp.sub)+'\n';
@@ -754,7 +787,7 @@ function resultHTML(){
     if(t.move) h+=row('換位費',t.move);
     if(S.lines.some(function(l){return l.move!=='none'&&l.target;})) h+=row('換位使用費補差額',t.diff);
   }
-  if(S.plaques.length) h+=row('神主牌位',t.plaque);
+  if(S.plaques.length || autoPlaques().length) h+=row('神主牌位',t.plaque);
   if(S.temp.on) h+=row('臨時納存費用',t.temp);
   h+='<div class="row total"><span>合計</span><span>'+money(t.all)+'</span></div>';
   h+='<div class="q">文字摘要</div><textarea class="sumbox" readonly rows="14">'+esc(summary())+'</textarea>';

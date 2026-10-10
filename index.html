@@ -540,6 +540,13 @@ function calcLine(l){
   return {name:u.name,unitName:u.unit,use:use,mg:mg,moveFee:moveFee,diff:diff,unit:unit,qty:q,sub:unit*q,min:u.min};
 }
 
+/* 家族式平均每位：（使用費＋管理費＋該座家族式牌位費）÷ 位數，不含換位費 */
+function famAvg(l,r){
+  if(l.park!=='fuyuan' || l.layout!=='family') return null;
+  const n=parseInt(l.famN,10), pf=PLAQUE['fam'+l.famN].fee;
+  return {seats:n,avg:Math.round((r.use+r.mg+pf)/n)};
+}
+
 function calcPlaque(p){
   const c=PLAQUE[p.type];
   const pick=(c.pick && p.pick)?PICK_FEE:0;
@@ -676,6 +683,8 @@ function lineHTML(l,i){
   if(S.res){
     const r=calcLine(l), qq=r.qty;
     h+='<div class="calc"><div class="tier">'+(l.park==='fuyuan'?'員山福園':'櫻花陵園')+'　'+r.name+'</div>';
+    const fa=famAvg(l,r);
+    if(fa) h+='<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+fa.seats+' 位，平均每位 <b>'+money(fa.avg)+'</b>（含家族式牌位）</div>';
     h+=row('堂位使用費',r.use*qq,(qq>1?money(r.use)+' × '+qq+'；':'')+(S.res==='other'?'外縣市或外國籍 2 倍':'縣民標準價'));
     h+=row('設施管理費',r.mg*qq,(qq>1?money(r.mg)+' × '+qq+'；':'')+'首次申辦一次繳 35 年，不加倍');
     if(l.move!=='none'){
@@ -760,6 +769,8 @@ function summary(){
     s+='   使用費 '+money(r.use*q)+'｜管理費（35 年）'+money(r.mg*q);
     if(l.move!=='none') s+='｜'+MOVE_TXT[l.move]+' '+money(r.moveFee*q)+(l.target?'｜補差額 '+money(r.diff*q):'');
     s+='\n   小計 '+money(r.sub)+'\n';
+    const fa=famAvg(l,r);
+    if(fa) s+='   （總容量 '+fa.seats+' 位，平均每位 '+money(fa.avg)+'，含家族式牌位）\n';
   });
   const ap=autoPlaques();
   ap.forEach(function(p,i){
@@ -1126,6 +1137,7 @@ function summary(){
     if(r.rename) s+='｜更名登記費 '+money(r.rename*q);
     if(l.move) s+='｜換位費 '+money(r.moveFee*q)+'｜補差額 '+money((r.dFee+r.dMgmt)*q);
     s+='\n   小計 '+money(r.sub)+'\n';
+    if(r.famSeats>0) s+='   （總容量 '+r.famSeats+' 位，平均每位 '+money(r.avgSeat)+'）\n';
   });
   S.plaques.forEach(function(p,i){
     const c=calcPlaque(p);
@@ -1506,6 +1518,7 @@ function lineHTML(l,i,r){
 
   if(r){
     h+='<div class="calc"><div class="tier">採用價級：'+r.tierLabel+'</div>';
+    if(l.kind==='family'){ const n=famOf(l.fam).seats; h+='<div style="font-size:14px;color:var(--gold);margin-bottom:6px;">💡 總容量 '+n+' 位，平均每位 <b>'+money(Math.round((r.fee+r.mgmt)/n))+'</b></div>'; }
     if(r.better) h+='<p class="hint warn" style="margin:0 0 6px">受葬人條件的價格較低，已自動採用。</p>';
     const q=r.qty;
     h+=row('堂位使用規費',r.fee*q,q>1?money(r.fee)+' × '+q:'');
@@ -1547,6 +1560,7 @@ function summary(at,res){
     if(r.deco) s+='｜儲櫃費 '+money(r.deco*q);
     if(l.move!=='none') s+='｜'+MOVE_TXT[l.move]+' 換位費 '+money(r.moveFee*q)+'｜補差額 '+money(r.diff*q);
     s+='\n   小計 '+money(r.sub)+'\n';
+    if(l.kind==='family'){ const n=famOf(l.fam).seats; s+='   （總容量 '+n+' 位，平均每位 '+money(Math.round((r.fee+r.mgmt)/n))+'）\n'; }
   });
   S.plaques.forEach(function(p,i){
     const c=calcPlaque(p), P=PLAQUE[p.size];

@@ -1621,9 +1621,10 @@ function tempHTML(){
     +chip('半年期',t.mode==='half','data-a="tmode" data-v="half"','優惠價 3,000')
     +chip('一年期',t.mode==='year','data-a="tmode" data-v="year"','優惠價 6,000')+'</div>';
   if(t.mode==='day'){
-    h+='<div class="q">寄放天數</div>'+T.stepper('tdays','',t.days,'最長 60 天',1,60);
-    h+='<div class="chips" style="margin-top:8px">'
-      +[7,14,30,60].map(function(d){return chip(d+' 天',t.days===d,'data-a="tset" data-v="'+d+'"');}).join('')+'</div>';
+    // 公所規定只寫「以不超過二個月為限」，不列 7／14／30／60 天快選（負責人 2026-10-16 指定拿掉，避免誤會成方案）；程式仍以 60 天為上限
+    // 負責人 2026-10-16 指定寫法：「每日 $200，以兩個月為限」「預計厝 ○○ 日」
+    h+='<div class="q">每日 $200，以兩個月為限</div>'
+      +T.stepper('tdays','',t.days,'',1,60).replace('<div class="qtyrow">','<div class="qtyrow"><span style="font-size:17px">預計厝</span>').replace(/<\/div>$/,'<span style="font-size:17px">日</span></div>');
     const own=tempOwned();
     h+='<div class="q">已購置（或本次同時購買）本鄉納骨堂的存放設施？</div><div class="chips two">'
       +chip('是',own===true,'data-a="towned" data-v="1"','一個月內免收')

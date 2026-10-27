@@ -206,6 +206,41 @@ h1 { font-weight: 600; letter-spacing: .04em; font-size: 22px; }
 .btn.add { border-width: 1px; border-color: var(--gold); color: var(--gold); }
 .check-num { color: var(--gold); }
 .line-cta .lt-ico, .doc-shortcut .lt-ico, h2 .lt-ico { margin-right: 4px; }
+
+/* 文件份數：簡圖（負責人 2026-10-27 選定 B：一行一列） */
+.cpy{margin:14px 0 6px}
+.cpy-h{font-weight:700;font-size:17px;margin:0 0 10px}
+.cpy-h small{font-weight:400;font-size:13px;color:var(--muted);margin-left:8px}
+.cpy-case{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.cpy-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.cpy-tag{font-size:14px;font-weight:700;background:var(--accent-soft);color:var(--accent);padding:3px 10px;border-radius:4px}
+.cpy-tag.gold{background:var(--warn-bg);color:var(--gold)}
+.cpy-n{font-size:15px;font-weight:700;white-space:nowrap}
+.cpy-n b{font-size:28px;color:var(--accent);margin:0 2px}
+.cpy-flow{display:flex;flex-direction:column;gap:0;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cpy-st{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line)}
+.cpy-st:last-child{border-bottom:0}
+.cpy-ic{flex:none;width:30px;height:30px;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);border-radius:50%;font-weight:900;font-size:16px}
+.cpy-st b{font-size:17px;white-space:nowrap}
+.cpy-st small{flex:1;font-size:14px;color:var(--muted)}
+.cpy-st em{font-style:normal;font-size:15px;font-weight:700;color:var(--gold);white-space:nowrap}
+.cpy-ex{font-size:12.5px;color:var(--muted);margin:8px 2px 0}
+.cpy-why{font-size:14px;line-height:1.6;background:var(--warn-bg);border-radius:10px;padding:10px 12px;margin:4px 0 0}
+/* 要準備的資料：一項一行（負責人 2026-10-27 確認） */
+.dl{background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.dl-i{display:flex;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}
+.dl-i:last-child{border-bottom:0}
+.dl-n{flex:none;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:900;font-size:15px;display:grid;place-items:center;margin-top:1px}
+.dl-b{flex:1;min-width:0}
+.dl-t{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;column-gap:8px}
+.dl-t b{font-size:16.5px}
+.dl-t em{font-style:normal;font-size:14px;font-weight:700;color:var(--gold);white-space:nowrap}
+.dl-t em.dl-if{color:var(--muted);font-weight:500}
+.dl-b small{display:block;font-size:13.5px;color:var(--muted);line-height:1.5;margin-top:2px}
+.dl-b small.dl-tip{background:var(--bg);border-radius:6px;padding:4px 8px;margin-top:4px}
+.dl-i.off .dl-n{background:var(--line);color:var(--muted)}
+
+@media (max-width:350px){.cpy-st{gap:6px;padding:9px 8px}.cpy-st b{font-size:15px}.cpy-st small{font-size:12.5px}.cpy-st em{font-size:14px}}
 </style>
 </head>
 <body>
@@ -249,97 +284,42 @@ body:has(>.liyi-back){flex-wrap:wrap;align-content:flex-start}
       <h2><svg class="lt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8.5L18 7v13.5H6zM14 3.5V7.5h4M9 11.5h6M9 15h6"/></svg>舊墓起掘遷葬・家屬必備文件指南</h2>
       <p class="sub">現場實務防雷｜破解公所「只講 1 份」的行政盲點</p>
 
-      <div class="banner" style="background:var(--warn-bg);border-left:3.5px solid var(--gold);margin:14px 0;">
-        <b style="color:var(--gold);">⚠️ 為什麼直接問新塔位說 1 份，實際要準備 2～3 份？</b>
-        <small style="display:block;margin-top:4px;line-height:1.55;">
-          新納骨堂櫃檯通常只交代進塔所需的文件。但實務上完整的遷葬手續涉及<b>「公墓起掘許可」</b>、<b>「火化場洗骨（骨骸再火化磨粉）」</b>與<b>「新塔位進堂安奉」</b>三道獨立審核關卡，每個單位都必須收走完整正本歸檔審核存查！
-        </small>
+      <div class="cpy">
+        <p class="cpy-h">文件要準備幾份？<small>第 1～4 項文件</small></p>
+
+        <div class="cpy-case">
+          <div class="cpy-top"><span class="cpy-tag">一般（跨鄉鎮）</span><span class="cpy-n">每項 <b>3</b> 份</span></div>
+          <div class="cpy-flow">
+            <div class="cpy-st"><span class="cpy-ic">墓</span><b>起掘</b><small>原公墓</small><em>收 1 份</em></div>
+            <div class="cpy-st"><span class="cpy-ic">火</span><b>洗骨</b><small>火化場</small><em>收 1 份</em></div>
+            <div class="cpy-st"><span class="cpy-ic">塔</span><b>進塔</b><small>新塔位</small><em>收 1 份</em></div>
+          </div>
+          <p class="cpy-ex">例：冬山／三星遷五結、五結公墓遷福園或壽園</p>
+        </div>
+
+        <div class="cpy-case">
+          <div class="cpy-top"><span class="cpy-tag gold">五結公墓 → 五結新塔</span><span class="cpy-n">每項 <b>2</b> 份</span></div>
+          <div class="cpy-flow">
+            <div class="cpy-st"><span class="cpy-ic">所</span><b>起掘＋進塔</b><small>公所合用</small><em>收 1 份</em></div>
+            <div class="cpy-st"><span class="cpy-ic">火</span><b>洗骨</b><small>火化場</small><em>收 1 份</em></div>
+          </div>
+        </div>
+
+        <p class="cpy-why">⚠️ 新塔位櫃檯常只說「1 份」，但起掘、洗骨、進塔是三個不同單位，各收走一份。</p>
       </div>
 
-      <div class="q">文件份數速查原則（第 1～4 項文件）：</div>
-
-      <div class="doc-card" style="border-left:3.5px solid var(--accent);">
-        <span class="doc-tag blue">跨鄉鎮遷葬（佔 90% 以上多數情況）</span>
-        <div style="font-weight:700;font-size:16px;color:var(--accent);margin:2px 0 6px;">
-          請直接備妥 【 3 份正本／影本 】
-        </div>
-        <ul class="doc-flow">
-          <li><b>① 原公墓起掘審查：</b>核發起掘許可書、退還清潔保證金（收走 1 份）</li>
-          <li><b>② 火化場洗骨再火化：</b>員山福園或羅東壽園骨骸再火化磨粉（收走 1 份）</li>
-          <li><b>③ 新塔位進堂審查：</b>進堂安奉與規費戶籍資格查驗（收走 1 份）</li>
-        </ul>
-        <small style="color:var(--muted);display:block;margin-top:6px;">範例：冬山/三星遷五結、五結公墓遷員山福園或羅東壽園等。</small>
-      </div>
-
-      <div class="doc-card" style="border-left:3.5px solid var(--gold);">
-        <span class="doc-tag gold">五結公墓 遷入 五結新塔（同鄉鎮特例）</span>
-        <div style="font-weight:700;font-size:16px;color:var(--gold);margin:2px 0 6px;">
-          請備妥 【 2 份正本／影本 】
-        </div>
-        <ul class="doc-flow">
-          <li><b>① 五結鄉公所內部共用：</b>起掘許可與新塔進堂屬同機關（合用 1 份）</li>
-          <li><b>② 火化場洗骨再火化：</b>福園或壽園火化場審查（收走 1 份）</li>
-        </ul>
-      </div>
-
-      <div class="q" style="margin-top:20px;">家屬應備齊之具體資料清單：</div>
-      <div style="margin-top:8px;">
-        <div class="check-item">
-          <div class="check-num">1</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">亡者除戶謄本 <span style="font-size:12px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;">2 或 3 份正本</span></div>
-            <small style="color:var(--muted);display:block;margin-top:2px;">向戶政事務所申請，記載死亡除戶之謄本（記事欄請勿省略）。</small>
-          </div>
-        </div>
-
-        <div class="check-item">
-          <div class="check-num">2</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">申請人現戶戶籍謄本 <span style="font-size:12px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;">2 或 3 份正本</span></div>
-            <small style="color:var(--muted);display:block;margin-top:2px;">須能證明與亡者之親屬關係。</small>
-            <div style="background:var(--bg);border-radius:6px;padding:6px 10px;margin-top:6px;font-size:13px;border-left:2.5px solid var(--line);">
-              💡 <b>跨代代數串聯範例：</b>若起掘墓地為曾祖父，申請人須一併申請「祖父、父親」之除戶/戶籍謄本，以完整串聯三代親屬關係。
-            </div>
-          </div>
-        </div>
-
-        <div class="check-item">
-          <div class="check-num">3</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">家族保證人資料（至少2位） <span style="font-size:12px;background:var(--gold);color:#fff;padding:2px 6px;border-radius:4px;">查無除戶謄本時才需要</span></div>
-            <small style="color:var(--muted);display:block;margin-top:2px;">
-              <b>【重要條件限制】</b>若先人年代久遠（如日治早期或清代）於戶政查無除戶資料，才須由申請人填寫公所切結書，並提供 2 位家族親屬資料（姓名、身分證字號、電話、地址）連帶擔保。
-            </small>
-          </div>
-        </div>
-
-        <div class="check-item">
-          <div class="check-num">4</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">申請人身分證 <span style="font-size:12px;background:var(--accent);color:#fff;padding:2px 6px;border-radius:4px;">正反影本 2 或 3 份</span></div>
-            <small style="color:var(--muted);display:block;margin-top:2px;">辦理時請隨身攜帶身分證正本，由各機關櫃檯查驗核對。</small>
-          </div>
-        </div>
-
-        <div class="check-item">
-          <div class="check-num">5</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">申請人金融機構存摺影本 <span style="font-size:12px;background:var(--line);padding:2px 6px;border-radius:4px;">影本 1 份</span></div>
-            <small style="color:var(--muted);display:block;margin-top:2px;">原公墓起掘現場填平整地驗收後，公所退還「起掘清潔保證金」匯款專用。</small>
-          </div>
-        </div>
-
-        <div class="check-item">
-          <div class="check-num">6</div>
-          <div style="flex:1;">
-            <div style="font-weight:700;">受葬者清晰照片 <span style="font-size:12px;background:var(--line);padding:2px 6px;border-radius:4px;">選配 1 張</span></div>
-            <small style="color:var(--muted);display:block;margin-top:2px;">骨灰罈製作使用；若年代久遠舊照已無存亦可免附。</small>
-          </div>
-        </div>
+      <p class="cpy-h" style="margin-top:20px">要準備的資料</p>
+      <div class="dl">
+        <div class="dl-i"><span class="dl-n">1</span><div class="dl-b"><div class="dl-t"><b>亡者除戶謄本</b><em>正本 2 或 3 份</em></div><small>戶政事務所申請，記事欄不要省略</small></div></div>
+        <div class="dl-i"><span class="dl-n">2</span><div class="dl-b"><div class="dl-t"><b>申請人戶籍謄本</b><em>正本 2 或 3 份</em></div><small>要看得出和亡者的親屬關係</small><small class="dl-tip">例：曾祖父的墓，祖父、父親的謄本也要申請，串起三代</small></div></div>
+        <div class="dl-i off"><span class="dl-n">3</span><div class="dl-b"><div class="dl-t"><b>家族保證人 2 位</b><em class="dl-if">查不到除戶才需要</em></div><small>填公所切結書，附 2 位親屬的姓名、身分證字號、電話、地址</small></div></div>
+        <div class="dl-i"><span class="dl-n">4</span><div class="dl-b"><div class="dl-t"><b>申請人身分證</b><em>正反面影本 2 或 3 份</em></div><small>正本帶在身上，給櫃檯核對</small></div></div>
+        <div class="dl-i"><span class="dl-n">5</span><div class="dl-b"><div class="dl-t"><b>申請人存摺影本</b><em>1 份</em></div><small>起掘整地後，公所退還保證金用</small></div></div>
+        <div class="dl-i"><span class="dl-n">6</span><div class="dl-b"><div class="dl-t"><b>先人照片</b><em class="dl-if">選配 1 張</em></div><small>做骨灰罈用；沒有也可以</small></div></div>
       </div>
 
       <div style="margin-top:20px;">
-        <button type="button" class="btn" style="width:100%;" id="btn-copy-doc"><svg class="lt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10v16H7zM9.5 4.5V3h5v1.5M10 10h5M10 13.5h5M10 17h3"/></svg>一鍵複製戶政備忘小抄（貼至 LINE）</button>
+        <button type="button" class="btn" style="width:100%;box-sizing:border-box;padding:8px 12px;" id="btn-copy-doc"><svg class="lt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5h10v16H7zM9.5 4.5V3h5v1.5M10 10h5M10 13.5h5M10 17h3"/></svg>一鍵複製戶政備忘小抄（貼至 LINE）</button>
       </div>
     </div>
     <div class="toast" id="toast-doc" role="status" aria-live="polite"></div>

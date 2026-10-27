@@ -2172,6 +2172,14 @@ render();
       docDetails.open=!docDetails.open;
       if(docDetails.open) docDetails.scrollIntoView({block:'start',behavior:'smooth'});
     });
+    // 網址最後是 #doc 時（重生禮儀給家屬的祖墳遷奉討論單會連過來），打開就直接展開文件指南並捲到那裡
+    function openDocFromHash(){
+      if(location.hash!=='#doc') return;
+      docDetails.open=true;
+      setTimeout(function(){ docDetails.scrollIntoView({block:'start'}); },60);
+    }
+    openDocFromHash();
+    window.addEventListener('hashchange',openDocFromHash);
   }
   const btnDoc=document.getElementById('btn-copy-doc');
   if(btnDoc){

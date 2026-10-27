@@ -206,6 +206,27 @@ h1 { font-weight: 600; letter-spacing: .04em; font-size: 22px; }
 .btn.add { border-width: 1px; border-color: var(--gold); color: var(--gold); }
 .check-num { color: var(--gold); }
 .line-cta .lt-ico, .doc-shortcut .lt-ico, h2 .lt-ico { margin-right: 4px; }
+
+/* 文件份數：簡圖（負責人 2026-10-27 選定 B：一行一列） */
+.cpy{margin:14px 0 6px}
+.cpy-h{font-weight:700;font-size:17px;margin:0 0 10px}
+.cpy-h small{font-weight:400;font-size:13px;color:var(--muted);margin-left:8px}
+.cpy-case{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.cpy-top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.cpy-tag{font-size:14px;font-weight:700;background:var(--accent-soft);color:var(--accent);padding:3px 10px;border-radius:4px}
+.cpy-tag.gold{background:var(--warn-bg);color:var(--gold)}
+.cpy-n{font-size:15px;font-weight:700;white-space:nowrap}
+.cpy-n b{font-size:28px;color:var(--accent);margin:0 2px}
+.cpy-flow{display:flex;flex-direction:column;gap:0;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.cpy-st{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line)}
+.cpy-st:last-child{border-bottom:0}
+.cpy-ic{flex:none;width:30px;height:30px;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);border-radius:50%;font-weight:900;font-size:16px}
+.cpy-st b{font-size:17px;white-space:nowrap}
+.cpy-st small{flex:1;font-size:14px;color:var(--muted)}
+.cpy-st em{font-style:normal;font-size:15px;font-weight:700;color:var(--gold);white-space:nowrap}
+.cpy-ex{font-size:12.5px;color:var(--muted);margin:8px 2px 0}
+.cpy-why{font-size:14px;line-height:1.6;background:var(--warn-bg);border-radius:10px;padding:10px 12px;margin:4px 0 0}
+@media (max-width:350px){.cpy-st{gap:6px;padding:9px 8px}.cpy-st b{font-size:15px}.cpy-st small{font-size:12.5px}.cpy-st em{font-size:14px}}
 </style>
 </head>
 <body>
@@ -249,37 +270,28 @@ body:has(>.liyi-back){flex-wrap:wrap;align-content:flex-start}
       <h2><svg class="lt-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8.5L18 7v13.5H6zM14 3.5V7.5h4M9 11.5h6M9 15h6"/></svg>舊墓起掘遷葬・家屬必備文件指南</h2>
       <p class="sub">現場實務防雷｜破解公所「只講 1 份」的行政盲點</p>
 
-      <div class="banner" style="background:var(--warn-bg);border-left:3.5px solid var(--gold);margin:14px 0;">
-        <b style="color:var(--gold);">⚠️ 為什麼直接問新塔位說 1 份，實際要準備 2～3 份？</b>
-        <small style="display:block;margin-top:4px;line-height:1.55;">
-          新納骨堂櫃檯通常只交代進塔所需的文件。但實務上完整的遷葬手續涉及<b>「公墓起掘許可」</b>、<b>「火化場洗骨（骨骸再火化磨粉）」</b>與<b>「新塔位進堂安奉」</b>三道獨立審核關卡，每個單位都必須收走完整正本歸檔審核存查！
-        </small>
-      </div>
+      <div class="cpy">
+        <p class="cpy-h">文件要準備幾份？<small>第 1～4 項文件</small></p>
 
-      <div class="q">文件份數速查原則（第 1～4 項文件）：</div>
-
-      <div class="doc-card" style="border-left:3.5px solid var(--accent);">
-        <span class="doc-tag blue">跨鄉鎮遷葬（佔 90% 以上多數情況）</span>
-        <div style="font-weight:700;font-size:16px;color:var(--accent);margin:2px 0 6px;">
-          請直接備妥 【 3 份正本／影本 】
+        <div class="cpy-case">
+          <div class="cpy-top"><span class="cpy-tag">一般（跨鄉鎮）</span><span class="cpy-n">每項 <b>3</b> 份</span></div>
+          <div class="cpy-flow">
+            <div class="cpy-st"><span class="cpy-ic">墓</span><b>起掘</b><small>原公墓</small><em>收 1 份</em></div>
+            <div class="cpy-st"><span class="cpy-ic">火</span><b>洗骨</b><small>火化場</small><em>收 1 份</em></div>
+            <div class="cpy-st"><span class="cpy-ic">塔</span><b>進塔</b><small>新塔位</small><em>收 1 份</em></div>
+          </div>
+          <p class="cpy-ex">例：冬山／三星遷五結、五結公墓遷福園或壽園</p>
         </div>
-        <ul class="doc-flow">
-          <li><b>① 原公墓起掘審查：</b>核發起掘許可書、退還清潔保證金（收走 1 份）</li>
-          <li><b>② 火化場洗骨再火化：</b>員山福園或羅東壽園骨骸再火化磨粉（收走 1 份）</li>
-          <li><b>③ 新塔位進堂審查：</b>進堂安奉與規費戶籍資格查驗（收走 1 份）</li>
-        </ul>
-        <small style="color:var(--muted);display:block;margin-top:6px;">範例：冬山/三星遷五結、五結公墓遷員山福園或羅東壽園等。</small>
-      </div>
 
-      <div class="doc-card" style="border-left:3.5px solid var(--gold);">
-        <span class="doc-tag gold">五結公墓 遷入 五結新塔（同鄉鎮特例）</span>
-        <div style="font-weight:700;font-size:16px;color:var(--gold);margin:2px 0 6px;">
-          請備妥 【 2 份正本／影本 】
+        <div class="cpy-case">
+          <div class="cpy-top"><span class="cpy-tag gold">五結公墓 → 五結新塔</span><span class="cpy-n">每項 <b>2</b> 份</span></div>
+          <div class="cpy-flow">
+            <div class="cpy-st"><span class="cpy-ic">所</span><b>起掘＋進塔</b><small>公所合用</small><em>收 1 份</em></div>
+            <div class="cpy-st"><span class="cpy-ic">火</span><b>洗骨</b><small>火化場</small><em>收 1 份</em></div>
+          </div>
         </div>
-        <ul class="doc-flow">
-          <li><b>① 五結鄉公所內部共用：</b>起掘許可與新塔進堂屬同機關（合用 1 份）</li>
-          <li><b>② 火化場洗骨再火化：</b>福園或壽園火化場審查（收走 1 份）</li>
-        </ul>
+
+        <p class="cpy-why">⚠️ 新塔位櫃檯常只說「1 份」，但起掘、洗骨、進塔是三個不同單位，各收走一份。</p>
       </div>
 
       <div class="q" style="margin-top:20px;">家屬應備齊之具體資料清單：</div>
